@@ -1,0 +1,11 @@
+# %%
+from nuc_morph_analysis.lib.preprocessing.global_dataset_filtering import load_dataset_with_features
+
+# Cache this result to the filesystem for downstream analyses
+load_dataset_with_features("all_baseline", save_local=True, num_workers=32)
+
+import nuc_morph_analysis.analyses.dataset_images_for_figures.figure_dataset_channels_data_modalities
+import nuc_morph_analysis.analyses.dataset_images_for_figures.figure_dataset_colony_snapshots
+import nuc_morph_analysis.analyses.dataset_images_for_figures.figure_dataset_formation_and_breakdown
+import nuc_morph_analysis.analyses.dataset_images_for_figures.figure_dataset_processing_workflow
+import nuc_morph_analysis.analyses.dataset_images_for_figures.figure_dataset_save_3d_image_for_agave

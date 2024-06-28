@@ -1,0 +1,15 @@
+name: Do science
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run-workflows:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - uses: ./.github/actions/dependencies
+
+      - name: Run cloud-capable workflows
+        shell: bash
+        run: pdm run python run_all_manuscript_workflows.py --only figure1_main_text

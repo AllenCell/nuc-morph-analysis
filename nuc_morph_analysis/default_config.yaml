@@ -1,0 +1,67 @@
+appName: cvapipe_analysis
+
+project:
+    local_staging: '{EDIT_ME_PUT_YOUR_PATH_HERE}/nuc-morph-analysis/data/all/shape_analysis/shape_space'
+    overwrite: on
+
+data:
+    nucleus:
+        alias: NUC
+        channel: dna_segmentation
+        color: '#3AADA7'
+
+features:
+    aliases: ["NUC"]
+    # SHE - Spherical harmonics expansion
+    SHE:
+        alignment:
+            align: on
+            unique: off
+            reference: "nucleus"
+        aliases: ["NUC"]
+        # Size of Gaussian kernal used to smooth the
+        # images before SHE coefficients calculation
+        sigma: 2
+        # Number of SHE coefficients used to describe cell
+        # and nuclear shape
+        lmax: 16
+
+preprocessing:
+    remove_mitotics: on
+    remove_outliers: on
+    filtering:
+        filter: off
+        csv: ""
+        specs: {}
+
+shapespace:
+    # Specify the a set of aliases here
+    aliases: ["NUC"]
+    # Sort shape modes by volume of
+    sorter: "NUC"
+    # Percentage of exteme points to be removed
+    removal_pct: 0.25
+    # Number of principal components to be calculated
+    number_of_shape_modes: 8
+    # Map points
+    map_points: [-2.0, -1.5, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5, 2.0]
+    plot:
+        frame: off
+        swapxy_on_zproj: off
+        # limits of x and y axies in the animated GIFs
+        limits: [-150, 150, -80, 80]
+
+parameterization:
+    inner: "NUC"
+    outer: "MEM"
+    parameterize: ["RAWSTR", "STR"]
+    number_of_interpolating_points: 32
+
+aggregation:
+    type: ['avg']
+
+structures:
+    "lamin": ["nuclear envelope", "#084AE7", "{'raw': (475,1700), 'seg': (0,30), 'avgseg': (0,60)}"]
+
+distribute:
+    # Configure parallel distribution options here, if available

@@ -1,0 +1,162 @@
+[project]
+authors = [
+    {name = "Allen Institute for Cell Science", email = "julie.dixon@alleninstitute.org"},
+]
+classifiers=[
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3.9",
+]
+description="Analysis of nuclear growth and shape from colony timelapses"
+license = {file = "LICENSE"}
+name="nuc_morph_analysis"
+readme = "README.md"
+requires-python = ">=3.9,<3.12"
+urls = {Repository = "https://https://github.com/AllenCell/nuc-morph-analysis"}
+version = "1.0.0"
+dependencies = [
+    "jupyter",
+    "ipykernel",
+    "itk",
+    "itkwidgets",
+    "ipywidgets",
+    "numpy",
+    "pandas",
+    "tqdm",
+    "panel",
+    "moviepy",
+    "matplotlib",
+    "plotly",
+    "scikit-image",
+    "scikit-learn",
+    "seaborn",
+    "scipy>=1.10",
+    "imageio",
+    "statsmodels",
+    "pacmap",
+    "bigtree",
+    "argparse",
+    "pillow",
+    "pathlib",
+    "aicsimageio[czi]>=4.11.0",
+    "aicsfiles>=5.1.0",
+    "ipython>=8.18.1",
+    "av>=10.0.0",
+    "shapely>=2.0.2",
+    "fire>=0.5.0",
+    "pyarrow>=15.0.0",
+    "termcolor>=2.4.0",
+    "cvapipe-analysis>=0.2.0",
+    "vtk-osmesa>=9.3.0",
+    "colorizer-data @ git+https://github.com/allen-cell-animated/colorizer-data.git@v1.2.0",
+    "bioio-ome-zarr>=1.0.1",
+    "bioio>=1.0.2",
+    "bioio-base>=1.0.1",
+    "colour-science>=0.4.4",
+    "opencv-python-headless>=4.10.0.82",
+    "yarl>=1.9.4",
+]
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[tool.mypy]
+packages = "nuc_morph_analysis"
+# Make mypy less strict: ignore these classes of errors
+disable_error_code = ["call-overload", "var-annotated"]
+
+[[tool.mypy.overrides]]
+# The following dependencies are untyped. mypy should ignore them
+module = [
+    "aicsfiles",
+    "aicsimageio",
+    "aicsshparam",
+    "colorizer_data.utils",
+    "colorizer_data.writer",
+    "cvapipe_analysis",
+    "cvapipe_analysis.steps.shapemode.shapemode_tools",
+    "cvapipe_analysis.tools",
+    "fire",
+    "matplotlib",
+    "matplotlib.collections",
+    "matplotlib.colors",
+    "matplotlib.cm",
+    "matplotlib.patches",
+    "matplotlib.pyplot",
+    "matplotlib.font_manager",
+    "matplotlib.lines",
+    "matplotlib.markers",
+    "matplotlib.ticker",
+    "matplotlib.gridspec",
+    "matplotlib.transforms",
+    "moviepy",
+    "moviepy.video",
+    "moviepy.video.io",
+    "moviepy.video.io.ImageSequenceClip",
+    "mpl_toolkits.axes_grid1",
+    "mpl_toolkits.axes_grid1.anchored_artists",
+    "mpl_toolkits.axes_grid1.axes_divider",
+    "mpl_toolkits.mplot3d",
+    "pacmap",
+    "seaborn",
+    "scipy",
+    "scipy.cluster",
+    "scipy.ndimage",
+    "scipy.optimize",
+    "scipy.signal",
+    "scipy.spatial",
+    "scipy.stats",
+    "shapely",
+    "skimage",
+    "skimage.exposure",
+    "skimage.morphology",
+    "skimage.registration",
+    "sklearn",
+    "sklearn.decomposition",
+    "sklearn.exposure",
+    "sklearn.model_selection",
+    "sklearn.pipeline",
+    "sklearn.preprocessing",
+    "sklearn.transform",
+    "vtk",
+    "vtk.util",
+    "yarl.URL",
+]
+ignore_missing_imports = true
+
+[[tool.pdm.source]]
+name = "artifactory"
+url = "https://artifactory.corp.alleninstitute.org/artifactory/api/pypi/pypi-virtual/simple"
+
+[[tool.pdm.source]]
+name = "artifactory-snapshot"
+url = "https://artifactory.corp.alleninstitute.org/artifactory/api/pypi/pypi-snapshot-local/simple"
+
+[[tool.pdm.source]]
+name = "prebuilt-vtk"
+url = "https://wheels.vtk.org"
+
+[tool.pdm.scripts]
+requirements = "pdm export -f requirements --without-hashes -o"
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "pytest>=7.4.2",
+    "mypy>=1.8.0",
+    "pandas-stubs>=2.0.1.230501",
+    "lxml-stubs>=0.5.1",
+    "types-Pillow>=10.2.0.20240213",
+    "types-PyYAML>=6.0.12.12",
+    "types-Pygments>=2.17.0.20240106",
+    "types-Send2Trash>=1.8.2.7",
+    "types-colorama>=0.4.15.20240205",
+    "types-decorator>=5.1.8.20240106",
+    "types-jsonschema>=4.21.0.20240118",
+    "types-openpyxl>=3.1.0.20240301",
+    "types-psutil>=5.9.5.20240205",
+    "types-pycurl>=7.45.2.20240106",
+    "types-six>=1.16.21.20240301",
+    "types-tqdm>=4.66.0.20240106",
+    "opencv-stubs>=0.0.8",
+    "types-termcolor>=1.1.6.2",
+]
