@@ -1,8 +1,9 @@
+[**Coming soon**] We are currently in the process of updating our analysis workflows available here to directly use our public data. We expect these workflows to be publicly reproducible by Monday July 8.
+
 # Colony context and size-dependent compensation mechanisms give rise to variations in nuclear growth trajectories
-The code in this repository generates all of the figures for the following paper. It is primarily intended to support reproducibility of our research. In addition, researchers may find parts of this code valuable for future work.
+The code in this repository generates all of the figures for the following paper. It is primarily intended to support reproducibility of our research, found in  [Dixon et al. 2024 (bioRxiv)] (https://www.biorxiv.org/content/10.1101/2024.06.28.601071v1). In addition, researchers may find parts of this code valuable for future work.
 
-> [bioRxiv citation coming soon]
-
+>
 For a description of the cell treatments, imaging, and the purpose of each analysis, please refer to the paper.
 
 The data used in this analysis are publicly available on [Quilt](https://open.quiltdata.com/b/allencell/tree/aics/nuc-morph-dataset/) under the [Allen Insitute for Cell Science Terms of Use](https://www.allencell.org/terms-of-use.html). The data are also available via the AWS S3 API directly in the folder `s3://allencell/aics/nuc-morph-dataset`.
