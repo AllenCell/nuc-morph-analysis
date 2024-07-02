@@ -320,7 +320,7 @@ def load_all_datasets(all_dataset="all_baseline"):
     -------
     pandas.DataFrame
         One row per timepoint per cell.
-        See docs/manifest-columns.md for a description of all the columns.
+        See docs/feature_documentation.md for a description of all the columns.
     """
     fmsid = get_dataset_info_by_name(all_dataset)["fmsid"]
     start = time.time()
