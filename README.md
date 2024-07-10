@@ -27,6 +27,7 @@ source venv/bin/activate
 4. Install the required packages for your operating system. Replace `linux` with `macos` or `windows` as appropriate.
 ```bash
 pip install -r requirements/linux/requirements.txt
+pip install -e .
 ```
 
 ## Reproduce figures

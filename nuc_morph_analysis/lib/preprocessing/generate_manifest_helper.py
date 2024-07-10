@@ -31,7 +31,7 @@ def write_result(df, title, destdir=None, format="csv"):
         df.to_csv(filename, index=False)
     else:
         raise ValueError(f"Unknown format: {format}")
-    print(f"Wrote main manifest to {filename}")
+    print(f"Wrote result to {filename}")
 
 
 def remove_subsequent_occurrences(s, sub):

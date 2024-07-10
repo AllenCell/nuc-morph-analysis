@@ -84,21 +84,6 @@ def validate_formation_breakdown(df: pd.DataFrame, threshold=5):
 
     # If a track has both formation and breakdown, formation should come first
     with_both = df[(df.predicted_formation >= 0) & (df.predicted_breakdown >= 0)]
-    with_formation_after_breakdown = []
-    for track, df_track in with_both.groupby("track_id"):
-        if df_track["predicted_formation"].values[0] >= df_track["predicted_breakdown"].values[0]:
-            with_formation_after_breakdown.append(track)
-    if len(with_formation_after_breakdown) < threshold:
-        with_both.loc[
-            with_both["track_id"].isin(with_formation_after_breakdown), "predicted_formation"
-        ] = np.nan
-        with_both.loc[
-            with_both["track_id"].isin(with_formation_after_breakdown), "predicted_breakdown"
-        ] = np.nan
-        print(f"{len(with_formation_after_breakdown)} tracks with formation after breakdown found.")
-        print("Their formation and breakdown frames were reset to NaNs.")
     assert not (
         with_both.predicted_formation >= with_both.predicted_breakdown
-    ).any(), (
-        f"more than {threshold} tracks found with predicted_formation after predicted_breakdown"
-    )
+    ).any(), f"predicted_formation must be less than predicted_breakdown"
