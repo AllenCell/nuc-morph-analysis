@@ -37,8 +37,7 @@ dependencies = [
     "argparse",
     "pillow",
     "pathlib",
-    "aicsimageio[czi]>=4.11.0",
-    "aicsfiles>=5.1.0",
+    "aicsimageio>=4.14.0",
     "ipython>=8.18.1",
     "av>=10.0.0",
     "shapely>=2.0.2",
@@ -56,6 +55,10 @@ dependencies = [
     "yarl>=1.9.4",
 ]
 
+[project.optional-dependencies]
+internal = [
+    "aicsfiles>=5.1.0",
+]
 [build-system]
 requires = ["pdm-backend"]
 build-backend = "pdm.backend"
@@ -123,14 +126,6 @@ module = [
     "yarl.URL",
 ]
 ignore_missing_imports = true
-
-[[tool.pdm.source]]
-name = "artifactory"
-url = "https://artifactory.corp.alleninstitute.org/artifactory/api/pypi/pypi-virtual/simple"
-
-[[tool.pdm.source]]
-name = "artifactory-snapshot"
-url = "https://artifactory.corp.alleninstitute.org/artifactory/api/pypi/pypi-snapshot-local/simple"
 
 [[tool.pdm.source]]
 name = "prebuilt-vtk"

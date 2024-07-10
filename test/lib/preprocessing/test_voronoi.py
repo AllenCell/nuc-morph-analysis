@@ -240,6 +240,65 @@ def test_voronoi_neighbors():
     actual_neighbors = [set(eval(neighbors)) for neighbors in df_colony_metrics.neighbors]
     assert actual_neighbors == expected_neighbors
 
+def test_voronoi_neighbors_with_stacked_cells():
+    """
+    This test uses a set of cells laid out in the following pattern.
+    e and x have identical (x,y) centroids but different z (unused)
+     a b c
+     d ex f
+     g h i
+
+     This test pins the current behavior; if a new way of handling
+     cells with same centroids (different z) is developed, the test
+     will need updating
+    """
+    # ARRANGE
+    # fmt: off
+    ids =        ["a", "b", "c", "d", "e", "f", "g", "h", "i", "x"]
+    centroid_x = [ 10,  20,  30,  10,  20,  30,  10,  20,  30,  20]
+    centroid_y = [ 10,  10,  10,  20,  20,  20,  30,  30,  30,  20]
+    label_img =  [  1,   2,   3,   4,   5,   6,   7,   8,   9,  10]
+    # fmt: on
+
+    vols = np.full(
+        len(ids), 100000
+    )  # Must be large enough to pass the filter that excludes small nuclei
+    index_seqs = np.full(len(ids), 1)
+
+    df = pd.DataFrame()
+    df["index_sequence"] = index_seqs
+    df["label_img"] = label_img
+    df["CellId"] = ids
+    df["volume"] = vols
+    df["centroid_y"] = centroid_y
+    df["centroid_x"] = centroid_x
+
+    # ACT
+    df_colony_metrics = add_colony_metrics(df)
+
+    # ASSERT
+    # very fragile; order matters
+    # the key part here is cell 'x' does NOT appear due to overlap with 'e'
+    # 'x' is not a neighbor, and has no neighbors
+    expected_neighbors = [
+        ["b", "d"],        # 'a'
+        ["a", "c", "e"],  # 'b'
+        ["b", "f"],       # 'c'
+        ["a", "e", "g"],  # 'd'
+        ["h", "b", "d", "f"],  # 'e'
+        ["i", "c", "e"],  # 'f'
+        ["h", "d"],       # 'g'
+        ["i", "e", "g"],  # 'h'
+        ["h", "f"]  # 'i'
+    ]
+    actual_neighbors = []
+
+    for neighbor in df_colony_metrics.neighbors:
+        if isinstance(neighbor, str):
+            temp = eval(neighbor)
+            actual_neighbors.append(temp)
+    assert len(actual_neighbors) == len(expected_neighbors)
+    assert actual_neighbors == expected_neighbors
 
 def test_voronoi_depths():
     """

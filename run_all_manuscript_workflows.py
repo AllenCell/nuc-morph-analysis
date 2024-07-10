@@ -70,7 +70,7 @@ parser.add_argument(
 )
 parser.add_argument(
     "--list",
-    action='store_true',
+    action="store_true",
     default=False,
     help="List available workflows.",
 )

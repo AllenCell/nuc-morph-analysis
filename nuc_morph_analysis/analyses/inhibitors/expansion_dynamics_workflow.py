@@ -16,7 +16,7 @@ pair_dict = dataset_info.drug_analysis_pairs()
 # cannot run "aphidicolin_lamin_exp2_rep1" in this analysis because the perturb colony does not have enough lamin shell formation events
 # also puromycin may need to be removed, if analysis is not included in the paper
 pair_list = ["importazole_lamin_exp1_rep1"]
-dfo = load_dataset_with_features(dataset="all_drug_perturbation", load_local=True)
+dfo = load_dataset_with_features(dataset="all_drug_perturbation")
 
 for pairs in pair_list:
     print(pairs)

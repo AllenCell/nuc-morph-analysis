@@ -1,7 +1,6 @@
 # %%
-import numpy as np
 from tqdm import tqdm
-from multiprocessing import Pool, cpu_count
+from multiprocessing import Pool
 
 from nuc_morph_analysis.lib.preprocessing.single_track_contact.export_code.export_helper import (
     get_single_track_contact_save_dir,
@@ -9,7 +8,6 @@ from nuc_morph_analysis.lib.preprocessing.single_track_contact.export_code.expor
     process_track,
     load_exported_fov_imgs,
 )
-from nuc_morph_analysis.lib.preprocessing.all_datasets import datasets
 from nuc_morph_analysis.lib.preprocessing.load_data import get_dataset_names
 from nuc_morph_analysis.lib.preprocessing.global_dataset_filtering import load_dataset_with_features
 
@@ -76,7 +74,7 @@ def make_single_track_movie(
 
     for dataset in dataset_names:
         # retreive the dataframe with the tracking info
-        df0 = load_dataset_with_features(dataset, load_local=True)
+        df0 = load_dataset_with_features(dataset)
 
         dffov = df0.groupby("index_sequence").agg("first").reset_index()
 

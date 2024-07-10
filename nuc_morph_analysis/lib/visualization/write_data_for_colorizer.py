@@ -244,7 +244,7 @@ def make_frame(
     row = frame.iloc[0]
     frame_number = row[TIMES_COLUMN]
     # Flatten the z-stack to a 2D image.
-    zstack = get_seg_fov_for_dataset_at_frame(row[COLONY_COLUMN], 0)
+    zstack = get_seg_fov_for_dataset_at_frame(row[COLONY_COLUMN], frame_number)
     seg2d = zstack.max(axis=0)
     # Flip vertically to match our figure orientation
     seg2d = np.flipud(seg2d)

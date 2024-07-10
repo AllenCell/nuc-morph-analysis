@@ -16,7 +16,7 @@ import numpy as np
 
 # %%
 
-dfo = load_dataset_with_features(dataset="all_drug_perturbation", load_local=True)
+dfo = load_dataset_with_features(dataset="all_drug_perturbation")
 
 pair_dict = dataset_info.drug_analysis_pairs()
 # iterate through the drug analysis control-perturb pairs.

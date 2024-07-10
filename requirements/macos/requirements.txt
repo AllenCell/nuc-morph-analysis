@@ -3,7 +3,7 @@
 
 aicscytoparam==0.1.10
 aicsfiles==5.1.0
-aicsimageio==4.13.0
+aicsimageio==4.14.0
 aicsshparam==0.1.7
 aiohttp==3.9.3
 aiosignal==1.3.1
@@ -239,6 +239,4 @@ zarr==2.15.0
 zict==3.0.0
 zipp==3.17.0
 zstandard==0.22.0
---extra-index-url https://artifactory.corp.alleninstitute.org/artifactory/api/pypi/pypi-virtual/simple
---extra-index-url https://artifactory.corp.alleninstitute.org/artifactory/api/pypi/pypi-snapshot-local/simple
 --extra-index-url https://wheels.vtk.org

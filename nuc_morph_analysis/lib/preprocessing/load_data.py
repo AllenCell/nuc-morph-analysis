@@ -1,4 +1,5 @@
 import functools
+import os
 import time
 import dask.array as da
 import pandas as pd
@@ -8,7 +9,6 @@ from bioio import BioImage
 from nuc_morph_analysis.lib.preprocessing.all_datasets import (
     datasets,
     manual_curation_manifests,
-    morflowgenesis_outputs,
 )
 
 try:
@@ -24,7 +24,7 @@ BASELINE_COLONY_NAMES = {
 }
 
 
-def get_valid_path(record):
+def get_valid_path(record) -> str:
     """
     Converts a FMS path to one that can be read cross-platform
     """
@@ -34,24 +34,31 @@ def get_valid_path(record):
     return recordpath
 
 
-def get_dataframe_by_id(fmsid, format="csv"):
+def get_dataframe_by_info(info):
     """
     Read a CSV or parquet file from FMS into a pandas dataframe
     """
-    fms = FileManagementSystem()
-    record = fms.get_file_by_id(fmsid)
-    recordpath = get_valid_path(record)
-    if format == "csv":
-        return pd.read_csv(recordpath)
-    elif format == "parquet":
-        return pd.read_parquet(recordpath)
+    # Get an S3 or local path
+    if FileManagementSystem is not None and os.path.exists("/allen/aics"):
+        fms = FileManagementSystem()
+        fmsid = info["fmsid"]
+        record = fms.get_file_by_id(fmsid)
+        path = get_valid_path(record)
     else:
-        raise ValueError(f"Unknown format {format}")
+        path = str(info["s3_path"])
+
+    # Load dataframe by file format
+    if path.endswith("csv"):
+        return pd.read_csv(path)
+    elif path.endswith("parquet"):
+        return pd.read_parquet(path)
+    else:
+        raise ValueError(f"Unknown format {path.split('.')[-1]}")
 
 
 def load_morflowgenesis_dataframe(dataset):
-    fmsid = morflowgenesis_outputs[dataset]["fmsid"]
-    single_colony_df = get_dataframe_by_id(fmsid)
+    info = datasets[dataset]["morflowgenesis_output"]
+    single_colony_df = get_dataframe_by_info(info)
     single_colony_df.set_index("CellId")
     return single_colony_df
 
@@ -59,14 +66,14 @@ def load_morflowgenesis_dataframe(dataset):
 def load_lineage_annotations(dataset: str) -> pd.DataFrame:
     # Currently only the small and medium datasets have lineage annotations
     assert dataset == "small" or dataset == "medium"
-    fmsid = manual_curation_manifests["lineage_annotations"][dataset]["fmsid"]
-    return get_dataframe_by_id(fmsid)
+    info = manual_curation_manifests["lineage_annotations"][dataset]
+    return get_dataframe_by_info(info)
 
 
 def load_apoptosis_annotations(dataset: str) -> pd.DataFrame:
     assert dataset == "large"  # Currently only the large dataset has apoptosis annotations
-    fmsid = manual_curation_manifests["apoptosis_annotations"][dataset]["fmsid"]
-    return get_dataframe_by_id(fmsid)
+    info = manual_curation_manifests["apoptosis_annotations"][dataset]
+    return get_dataframe_by_info(info)
 
 
 def get_length_threshold_in_tps(name):
@@ -111,11 +118,11 @@ def get_available_datasets(experiments=["baseline"]):
         List with names of availabe datasets
     """
     names = [
-        ds["name"]
-        for ds in datasets
+        name
+        for name, info in datasets.items
         if (
-            (ds["name"] not in ["all_baseline", "all_feeding_control", "all_drug_perturbation"])
-            and (ds["experiment"] in experiments)
+            (name not in ["all_baseline", "all_feeding_control", "all_drug_perturbation"])
+            and (info["experiment"] in experiments)
         )
     ]
     return names
@@ -134,11 +141,7 @@ def get_dataset_experiment_group_by_name(name):
     ds: dict
         Ditionary with dataset info
     """
-
-    for ds in datasets:
-        if name == ds["name"]:
-            return ds["experiment"]
-    raise ValueError(f"Dataset {name} not available.")
+    return get_dataset_info_by_name(name)["experiment"]
 
 
 def get_dataset_info_by_name(name):
@@ -154,11 +157,9 @@ def get_dataset_info_by_name(name):
     ds: dict
         Ditionary with dataset info
     """
-
-    for ds in datasets:
-        if name == ds["name"]:
-            return ds
-    raise ValueError(f"Dataset {name} not available.")
+    if name not in datasets:
+        raise ValueError(f"Dataset {name} not available.")
+    return datasets[name]
 
 
 def get_dataset_original_file_reader(dataset: str, quiet=True) -> BioImage:
@@ -196,7 +197,7 @@ def get_dataset_segmentation_file_reader(dataset: str) -> BioImage:
     return BioImage(s3_path_seg)
 
 
-def load_dataset(dataset, datadir=None, nrows=None):
+def load_dataset(dataset):
     """
     This function loads a dataset using its FMS ID. Some datasets have
     known keynames such as "goldilocks" - in this case, a key name
@@ -213,14 +214,6 @@ def load_dataset(dataset, datadir=None, nrows=None):
         dataset key name ("goldilocks", "mama_bear" or "baby_bear")
         may be passed instead to get the dataset for that colony
         with features and timepoint classifier columns added.
-
-    datadir: String
-        String giving path to data directory for this dataset
-
-    nrows: int
-        Only read first nrows of the dataset. Useful for debug since
-        loading the datasets takes some time. Leave it as None to read
-        all rows.
 
     Returns
     -------
@@ -240,12 +233,7 @@ def load_dataset(dataset, datadir=None, nrows=None):
         df_all = load_all_datasets("all_feeding_control")
         df = df_all[df_all.colony == dataset]
     else:
-        fms = FileManagementSystem()
-        if datadir is not None:
-            record = fms.retrieve_file(info["fmsid"], datadir)[1]
-        else:
-            record = fms.get_file_by_id(info["fmsid"])
-        df = pd.read_csv(record.path, nrows=nrows).set_index("CellId")
+        df = get_dataframe_by_info(info).set_index("CellId")
         df["dataset"] = dataset
 
     # set column types and drop Nan rows
@@ -322,10 +310,10 @@ def load_all_datasets(all_dataset="all_baseline"):
         One row per timepoint per cell.
         See docs/feature_documentation.md for a description of all the columns.
     """
-    fmsid = get_dataset_info_by_name(all_dataset)["fmsid"]
+    info = get_dataset_info_by_name(all_dataset)
     start = time.time()
-    df = get_dataframe_by_id(fmsid, format="parquet")
-    print(f"Read dataset with FMS ID {fmsid} from parquet file ({time.time()-start:.1f}s)")
+    df = get_dataframe_by_info(info)
+    print(f"Read dataset {all_dataset} from parquet file ({time.time()-start:.1f}s)")
 
     # Add deprecated columns
     old_dataset_names = {colony: dataset for dataset, colony in BASELINE_COLONY_NAMES.items()}
@@ -408,23 +396,20 @@ def get_all_individual_dataset_names(experiment_filter=None):
     names: list
         List with names of all individual datasets
     """
-    names = [ds["name"] for ds in datasets]
-
-    # remove names with "all)"
-    names = [
-        name
-        for name in names
-        if name not in ["all_baseline", "all_feeding_control", "all_drug_perturbation"]
+    IGNORED_NAMES = [
+        # remove names with "all"
+        "all_baseline",
+        "all_feeding_control",
+        "all_drug_perturbation",
+        # remove unused or obselete names
+        "baby_bear",
+        "goldilocks",
+        "mama_bear",
     ]
 
-    # now remove unused or obselete names
-    names = [name for name in names if name not in ["baby_bear", "goldilocks", "mama_bear"]]
+    names = [name for name in datasets.keys() if name not in IGNORED_NAMES]
 
     if experiment_filter is not None:
-        names = [
-            ds["name"]
-            for ds in datasets
-            if (experiment_filter in ds["experiment"]) & (ds["name"] in names)
-        ]
+        names = [name for name in names if experiment_filter in datasets[name]["experiment"]]
 
     return names

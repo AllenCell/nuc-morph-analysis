@@ -11,6 +11,7 @@ config.yaml
 *.log
 __pypackages__
 .pdm-python
+pdm.toml
 .tool-versions
 requirements/local
 test_data

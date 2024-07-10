@@ -104,7 +104,9 @@ def _calculate_distance_density(labels, neighbors, centroids):
             neighbor_labels = neighbors[lbl]
             # rest of your code
         except KeyError:
-            print(f"KeyError: {lbl} not found in neighbors")
+            # The missing lbl is a symptom of the problem. The count of
+            # neighbors is confused by the cells stacked in the z dimension.
+            print(f"KeyError: {lbl} not found in neighbors.  This may be caused by cell tracks overlapping in the xy plane")
             continue
         centroid = np.array(centroids[lbl])
         dists = []

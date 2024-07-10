@@ -47,8 +47,15 @@ PDM, version 2.10.4
 ## Install the project dependencies
 From the `nuc-morph-analysis` directory, use `pdm` to install the dependencies.
 ```bash
-pdm sync
+pdm sync -d
 ```
+> [!NOTE]
+> If you are on the Allen Institute for Cell Science local network, you can speed up data loading by installing `aicsfiles`.
+> Use the following steps.
+> 1. `pdm config --local pypi.artifactory.url https://artifactory.corp.alleninstitute.org/artifactory/api/pypi/pypi-virtual/simple`
+> 2. `pdm config --local pypi.artifactory-snapshot.url https://artifactory.corp.alleninstitute.org/artifactory/api/pypi/pypi-snapshot-local/simple`
+> 3. `pdm sync -d -G internal`
+
 This will create a virtual environment at `nuc-morph-analysis/.venv`.
 It is recommended use `pdm` to run Python in this environment without activating it via `pdm run python {options}`, though you can activate it with `eval $(pdm venv activate)` or `source .venv/bin/activate`.
 

@@ -35,7 +35,7 @@ cell_color = np.asarray([255, 255, 0])
 # show segmentations as sum projections of contours to emphasize 3D ness
 use_cv_contours_for_3d = False
 
-df = load_dataset_with_features(name, load_local=True)
+df = load_dataset_with_features(name)
 
 # %%
 # find the label number for the chosen track
