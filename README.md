@@ -50,7 +50,7 @@ python run_all_manuscript_workflows.py
 Figures are saved to the directories `nuc-morph-analysis/nuc_morph_analysis/analyses/*/figures/`.
 
 
-## Reproduce track pre-processing
+## Reproduce pre-processing of nuclear trajectory datasets
 
 In addition to `run_all_manuscript_workflows.py`, this repository includes a few other entrypoints for specific pre-processing tasks.
 
