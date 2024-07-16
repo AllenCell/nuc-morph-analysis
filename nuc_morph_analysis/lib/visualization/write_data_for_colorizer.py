@@ -313,6 +313,8 @@ def make_features(
     times = dataset[TIMES_COLUMN].to_numpy()
     centroids_x = dataset[CENTROIDS_X_COLUMN].to_numpy()
     centroids_y = dataset[CENTROIDS_Y_COLUMN].to_numpy()
+    # flip y coordinates to match our figure orientation
+    centroids_y = 3120 - centroids_y
 
     writer.write_data(
         tracks=tracks,
