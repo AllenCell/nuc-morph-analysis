@@ -20,9 +20,9 @@ IMPORTAZOLE_DIR = MOVIE_DIR / "nuclear_import_inhibitor_fov_timelapse_dataset"
 
 datasets = {
     "all_baseline": {  # this is the common info for all baseline datasets
-        # FMS ID for 2024-06-25_main_manifest.parquet generated from morflowgenesis v0.3.0
+        # FMS ID for 2024-07-08_main_manifest.parquet generated from morflowgenesis v0.3.0
         # with generate_main_manifest.py at commit 6e9eb0962343113ab3999ce6b59d8331ddab9a45
-        "fmsid": "97b8765af33a4b4ab4da39afc995324f",  # morflowgenesis v0.3.0
+        "fmsid": "bba1e456d91f4857904327efccd1657a",  # morflowgenesis v0.3.0
         "s3_path": INTERMEDIATE_MANIFEST_DIR / "2024-06-25_baseline_intermediate_manifest.parquet",
         "pixel_size": PIXEL_SIZE_YX_100x,
         "time_interval": 5,  # min
@@ -328,13 +328,13 @@ datasets = {
 manual_curation_manifests = {
     "lineage_annotations": {
         "small": {
-            # 2024-06-20_baby_bear_track_matched_annotations.csv
-            "fmsid": "d2975553ae65488f869737d243fdb7af",
+            # 2024-07-08_baby_bear_track_matched_annotations.csv
+            "fmsid": "7805cbcd0e4941d8ab4cb7547f3a20b1",
             "s3_path": MANUAL_ANNOTATION_DIR / "2024-06-20_small_manual_annotations.csv",
         },
         "medium": {
-            # 2024-06-20_goldilocks_track_matched_annotations.csv
-            "fmsid": "691f7f4f39e84160b41b27c417b3748a",
+            # 2024-07-08_goldilocks_track_matched_annotations.csv
+            "fmsid": "bc3223fbcde04862926c15c26f58927d",
             "s3_path": MANUAL_ANNOTATION_DIR / "2024-06-20_medium_manual_annotations.csv",
         },
     },
