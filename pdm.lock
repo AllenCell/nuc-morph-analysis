@@ -3,7 +3,6 @@
 
 [metadata]
 groups = ["default", "dev", "internal"]
-strategy = []
 lock_version = "4.5.0"
 content_hash = "sha256:cf8c0fc6ac2a1f2abab8130c669bf6c4debe6bd1e64a84eb80b6c1f6c884657a"
 
