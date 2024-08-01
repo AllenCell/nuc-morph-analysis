@@ -1,3 +1,4 @@
+# %%
 import matplotlib.pyplot as plt
 import os
 import numpy as np
@@ -14,12 +15,12 @@ from nuc_morph_analysis.analyses.inhibitors.match_and_filter import DEATH_THRESH
 GROUP_AND_COLOR_LIST = [["control", "Greys"], ["perturb", "RdPu"]]
 
 GROUP_AND_COLOR_DICT = {
-    "control": matplotlib.colormaps["Dark2"].colors[7],
-    "perturb": matplotlib.colormaps["Dark2"].colors[3],
+    "control": "#666666",
+    "perturb": "#e7298a",
 }
-DYING_COLOR = matplotlib.colormaps["Dark2"].colors[6]
+DYING_COLOR = "#a6761d"
 
-
+# %%
 dpi = 300
 
 matplotlib.rcParams["pdf.fonttype"] = 42
