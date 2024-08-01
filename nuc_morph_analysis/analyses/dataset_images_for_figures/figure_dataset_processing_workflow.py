@@ -41,7 +41,8 @@ cell_color = np.asarray([0, 255, 255])
 # show segmentations as sum projections of contours to emphasize 3D ness
 use_cv_contours_for_3d = False
 
-df = load_dataset_with_features(colony)
+df = load_dataset_with_features()
+df = df[df.colony == colony]
 df["centroid_y_inv"] = 3120 - df["centroid_y"].values  # seg.shape[1]-cy
 df["centroid_z_inv"] = 109 - df["centroid_z"].values  # seg.shape[0]-cz
 df["centroid_z_inv_adjust"] = (
