@@ -134,8 +134,8 @@ for feature in feature_list:
     )
     ax.set_aspect("equal", "box")
     ax.axline(
-        [xyv.min(), xyv.min()],
-        [xyv.max(), xyv.max()],
+        (xyv.min(), xyv.min()),
+        (xyv.max(), xyv.max()),
         color="k",
         linestyle="--",
         linewidth=0.85,
