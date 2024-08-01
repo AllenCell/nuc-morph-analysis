@@ -10,7 +10,7 @@ The data used in this analysis are publicly available on [Quilt](https://open.qu
 > [!NOTE]
 > These are the basic installation steps. However, our recommendation is to install with `pyenv` and `pdm`. See advanced installation instructions [here](docs/INSTALL.md).
 
-1. Install Python 3.9 and `git`.
+1. Install Python 3.9 and `git`.  Update pip at least to `24.0.0`.
 2. Clone this git repository.
 ```bash
 git clone git@github.com:AllenCell/nuc-morph-analysis.git
