@@ -633,7 +633,7 @@ name = "colorizer-data"
 version = "0.0.0"
 requires_python = ">=3.8"
 git = "https://github.com/allen-cell-animated/colorizer-data.git"
-ref = "v1.2.0"
+ref = "v1.4.1"
 revision = "8e4a505902ac5eb50bef35a6f82aaa186e6d8c3e"
 summary = "Utilities to convert data for viewing in Timelapse Colorizer"
 dependencies = [
