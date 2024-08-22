@@ -119,7 +119,7 @@ def get_available_datasets(experiments=["baseline"]):
     """
     names = [
         name
-        for name, info in datasets.items()
+        for name, info in datasets.items
         if (
             (name not in ["all_baseline", "all_feeding_control", "all_drug_perturbation"])
             and (info["experiment"] in experiments)

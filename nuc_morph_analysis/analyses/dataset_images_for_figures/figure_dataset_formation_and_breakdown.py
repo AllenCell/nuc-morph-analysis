@@ -23,8 +23,7 @@ savedir, fig_panel_str = figure_helper.get_save_dir_and_fig_panel_str(figure, pa
 colony = "medium"
 
 #  load the tracking CSV for medium from FMS
-df = global_dataset_filtering.load_dataset_with_features()
-df = df[df["colony"] == colony]
+df = global_dataset_filtering.load_dataset_with_features(colony)
 df_fmb = figure_helper.assemble_formation_middle_breakdown_dataframe(df)
 # load the images for each timepoint
 # %%
