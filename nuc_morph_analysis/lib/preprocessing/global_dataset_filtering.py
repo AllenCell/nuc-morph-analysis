@@ -328,7 +328,7 @@ def add_change_over_time(df):
     """
     dfm = df.copy()
     for bin_interval in compute_change_over_time.BIN_INTERVAL_LIST:
-        dfm = compute_change_over_time.run_script(dfm, bin_interval=bin_interval)
+        dfm = compute_change_over_time.run_script(dfm, bin_interval=[bin_interval])
 
     # now check that all columns in df have the same dtype as columns in dfm
     for col in df.columns:

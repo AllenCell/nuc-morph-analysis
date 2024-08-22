@@ -344,8 +344,10 @@ def get_raw_fov_at_timepoint(dataset, index_sequence, channel_name="bright"):
     return reader.get_image_dask_data("ZYX", T=index_sequence, C=channel)
 
 
-def get_seg_fov_for_dataset_at_frame(dataset: str, timepoint: int) -> da.Array:
+def get_seg_fov_for_dataset_at_frame(dataset: str, timepoint: int, resolution_level=0) -> da.Array:
     reader = get_dataset_segmentation_file_reader(dataset)
+    if resolution_level > 0:
+        reader.set_resolution_level(resolution_level)
     # Channel is always 0 because only one channel in segmentation
     return reader.get_image_dask_data("ZYX", T=timepoint, C=0)
 
