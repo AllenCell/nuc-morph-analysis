@@ -11,7 +11,7 @@ def process_timepoint(args):
     df_2d = pseudo_cell_helper.get_pseudo_cell_boundaries(colony, timepoint, reader, resolution_level)
     return df_2d
 
-def get_pseudo_cell_boundaries_for_movie(colony, output_directory, resolution_level=0, parallel=False):
+def get_pseudo_cell_boundaries_for_movie(colony, resolution_level=1, output_directory=None, parallel=False, save_df=False):
     """
     function for returning the pseudo cell boundaries at all timepoints
     the psuedo cell boundary is a watershed segmentation of the max projection of the segmentation image
@@ -22,10 +22,16 @@ def get_pseudo_cell_boundaries_for_movie(colony, output_directory, resolution_le
     ----------
     colony : str
         the colony name
-    output_directory : str
-        the output directory to save the pseudo cell images
     resolution_level : int
-        the resolution level to load from the OME-ZARR (0 is full, 1 is 2.5x downsampled...equivalent to 20x image size)
+        the resolution level to load from the OME-ZARR, default is 1
+        (0 is full, 1 is 2.5x downsampled...equivalent to 20x image size)
+     output_directory : str
+        the output directory to save the pseudo cell images
+    parallel : bool
+        whether to run the analysis in parallel or not
+        NOTE: currently does not work when reading S3 files
+    save_df : bool
+        whether to save the pseudo cell boundaries as a csv, default is False
     """
     # load the segmentation iamge
     reader = load_data.get_dataset_segmentation_file_reader(colony)
@@ -44,16 +50,20 @@ def get_pseudo_cell_boundaries_for_movie(colony, output_directory, resolution_le
     # concatenate the dataframe
     df = pd.concat(dflist)
 
-    # save the dataframe as a parquet
-    df.to_parquet(output_directory / f"{colony}_pseudo_cell_boundaries.parquet")
-    print('saved pseudo cell boundaries to:', output_directory / f"{colony}_pseudo_cell_boundaries.parquet")
+    if save_df:
+        # save the dataframe as a parquet
+        df.to_parquet(output_directory / f"{colony}_pseudo_cell_boundaries.parquet")
+        print('saved pseudo cell boundaries to:', output_directory / f"{colony}_pseudo_cell_boundaries.parquet")
+
+    return df
 
 if __name__ == "__main__":
-    t1 = time()
     for colony in load_data.get_dataset_names(dataset='all_baseline'):
         print(colony)
         output_directory = Path(__file__).parents[6] / "local_storage" / "pseudo_cell_boundaries"
         resolution_level = 1 # default is to run analysis using the 2.5x downsampled images for speed
-        get_pseudo_cell_boundaries_for_movie(colony, output_directory, resolution_level)
-    t2 = time()
-    print('total time:', t2-t1)
+        get_pseudo_cell_boundaries_for_movie(colony,
+                                              resolution_level,
+                                                output_directory,
+                                                parallel=False,
+                                                save_df=False)
