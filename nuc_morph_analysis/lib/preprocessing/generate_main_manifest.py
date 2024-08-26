@@ -99,14 +99,8 @@ def generate_manifest_one_colony(morflowgenesis_df, colony, manual_lineage_annot
     # --------------------------
     logging.info("Calculating image-based density metrics")
     step6_df = step5_df.copy()
-    density_df_list=[]
-    for colony in ['small', 'medium', 'large']:
-            density_df_list.append(watershed_workflow.get_pseudo_cell_boundaries_for_movie(colony))
-    density_df = pd.concat(density_df_list)
-
+    density_df = watershed_workflow.get_pseudo_cell_boundaries_for_movie(colony)
     # now merge the density_df with the main dataframe
-    if '2d_colony_nucleus' in density_df.columns:
-        density_df['colony'] = density_df['2d_colony_nucleus']
     step6_df = pd.merge(step6_df,
                             density_df,
                             on=['colony','index_sequence','label_img'],
@@ -161,4 +155,6 @@ validate_formation_breakdown(df)
 
 # %%
 write_main_manifest(df)
+write_main_manifest(df, format="parquet")
+
 # %%

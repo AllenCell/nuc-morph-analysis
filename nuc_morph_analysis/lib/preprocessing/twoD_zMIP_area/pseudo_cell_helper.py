@@ -193,7 +193,7 @@ def merge_2d_features(pseudo_cell_features_df, nucleus_features_df):
     df_2d : pd.DataFrame
         the merged dataframe containing the 2D features from the pseudo cell and nucleus images
     """
-    df_2d = pd.merge(pseudo_cell_features_df, nucleus_features_df, on=['label_img','index_sequence'], suffixes=('_pseudo_cell', '_nucleus'))
+    df_2d = pd.merge(pseudo_cell_features_df, nucleus_features_df, on=['colony','label_img','index_sequence'], suffixes=('_pseudo_cell', '_nucleus'))
     return df_2d
 
 def define_density_feature(df_2d):
@@ -209,11 +209,30 @@ def define_density_feature(df_2d):
     Returns
     -------
     df_2d : pd.DataFrame
-        the 2D dataframe with the density feature added (nuc_area_per_cell)
+        the 2D dataframe with the density feature added (2d_area_nuc_cell_ratio)
     """
-    df_2d['nuc_area_per_cell'] = df_2d['2d_area_nucleus'] / df_2d['2d_area_pseudo_cell']
+    df_2d['2d_area_nuc_cell_ratio'] = df_2d['2d_area_nucleus'] / df_2d['2d_area_pseudo_cell']
     return df_2d
 
+def choose_columns(df_2d):
+    """
+    choose the columns to keep in the 2D dataframe
+
+    Parameters
+    ----------
+    df_2d : pd.DataFrame
+        the 2D dataframe containing the features from 2d labeled nucleus image and 2d watershed-based pseudo cell image
+
+    Returns
+    -------
+    df_2d : pd.DataFrame
+        the 2D dataframe with the columns chosen
+    """
+    merge_cols = ['label_img','index_sequence','colony']
+    feature_cols = ['2d_area_pseudo_cell','2d_area_nucleus','2d_area_nuc_cell_ratio','2d_resolution_level_nucleus','2d_resolution_level_pseudo_cell']
+    columns_to_keep = merge_cols + feature_cols
+    df_2d = df_2d[columns_to_keep]
+    return df_2d
 
 def get_pseudo_cell_boundaries(colony, timepoint, reader, resolution_level,return_img_dict=False):
     """
@@ -258,6 +277,9 @@ def get_pseudo_cell_boundaries(colony, timepoint, reader, resolution_level,retur
    
     # define the density measure (nuc_area_per_cell)
     df_2d = define_density_feature(df_2d)
+
+    df_2d = choose_columns(df_2d)
+
 
     if return_img_dict:
         return df_2d, img_dict

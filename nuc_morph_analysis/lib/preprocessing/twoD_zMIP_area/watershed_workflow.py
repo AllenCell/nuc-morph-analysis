@@ -11,7 +11,7 @@ def process_timepoint(args):
     df_2d = pseudo_cell_helper.get_pseudo_cell_boundaries(colony, timepoint, reader, resolution_level)
     return df_2d
 
-def get_pseudo_cell_boundaries_for_movie(colony, resolution_level=1, output_directory=None, parallel=False, save_df=False):
+def get_pseudo_cell_boundaries_for_movie(colony, resolution_level=1, output_directory=None, parallel=False, save_df=False, testing=False):
     """
     function for returning the pseudo cell boundaries at all timepoints
     the psuedo cell boundary is a watershed segmentation of the max projection of the segmentation image
@@ -32,20 +32,27 @@ def get_pseudo_cell_boundaries_for_movie(colony, resolution_level=1, output_dire
         NOTE: currently does not work when reading S3 files
     save_df : bool
         whether to save the pseudo cell boundaries as a csv, default is False
+    testing : bool
+        whether to run the function in testing mode, default is False
+        in testing mode only 20 frames are run
     """
     # load the segmentation iamge
     reader = load_data.get_dataset_segmentation_file_reader(colony)
     if resolution_level>0:
         reader.set_resolution_level(resolution_level)
 
+    args = [(timepoint, colony, reader, resolution_level) for timepoint in range(reader.dims.T)]
+    if testing:
+        args = args[:20]
+
     if parallel==False:
         dflist = []
-        for timepoint in tqdm(range(reader.dims.T), desc="Processing timepoints"):
-            df_2d = process_timepoint([timepoint, colony, reader, resolution_level])
+        for ai in tqdm(range(len(args)), desc="Processing timepoints"):
+            df_2d = process_timepoint(args[ai])
             dflist.append(df_2d)
     else:
         with Pool(cpu_count()) as p:
-            dflist = list(tqdm(p.imap_unordered(process_timepoint, [(timepoint, colony, reader, resolution_level) for timepoint in range(reader.dims.T)]), total=reader.dims.T, desc="Processing timepoints"))
+            dflist = list(tqdm(p.imap_unordered(process_timepoint, [args[ai] for ai in range(len(args))]), total=len(args), desc="Processing timepoints"))
         
     # concatenate the dataframe
     df = pd.concat(dflist)
@@ -62,7 +69,7 @@ if __name__ == "__main__":
         print(colony)
         output_directory = Path(__file__).parents[6] / "local_storage" / "pseudo_cell_boundaries"
         resolution_level = 1 # default is to run analysis using the 2.5x downsampled images for speed
-        get_pseudo_cell_boundaries_for_movie(colony,
+        df = get_pseudo_cell_boundaries_for_movie(colony,
                                               resolution_level,
                                                 output_directory,
                                                 parallel=False,
