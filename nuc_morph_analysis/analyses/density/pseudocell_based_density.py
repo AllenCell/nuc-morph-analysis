@@ -36,8 +36,8 @@ dfm = pd.merge(df, dfp, on=['colony','index_sequence','label_img'], suffixes=(''
 dfm.head()
 
 #%% 
-# important set all edge cells to have a nuc_area_per_cell of nan after merging into the main dataframe
-dfm.loc[dfm['colony_depth']==1,'nuc_area_per_cell'] = np.nan
+# important set all edge cells to have a 2d_area_nuc_cell_ratio of nan after merging into the main dataframe
+dfm.loc[dfm['colony_depth']==1,'2d_area_nuc_cell_ratio'] = np.nan
 dfm.loc[dfm['colony_depth']==1,'2d_area_pseudo_cell'] = np.nan
 dfm.loc[dfm['colony_depth']==1,'2d_area_nucleus'] = np.nan
 
@@ -49,12 +49,12 @@ fig,ax = plt.subplots(figsize=(4,3))
 for colony in ['medium','large']:
     
     dfsub = dfm[dfm['colony']==colony]
-    dfsub.dropna(subset=['nuc_area_per_cell'],inplace=True)
+    dfsub.dropna(subset=['2d_area_nuc_cell_ratio'],inplace=True)
 
     # remove edge cells
     # dfsub = dfsub.loc[dfsub['colony_depth']>2]
     # create a pivot of the dataframe to get a 2d array of track_id x timepoint with each value being the density
-    pivot = dfsub.pivot(index='colony_time', columns='track_id', values='nuc_area_per_cell')
+    pivot = dfsub.pivot(index='colony_time', columns='track_id', values='2d_area_nuc_cell_ratio')
     pivot.head()
 
     mean = pivot.median(axis=1)

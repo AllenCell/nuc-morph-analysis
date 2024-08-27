@@ -275,7 +275,7 @@ def get_pseudo_cell_boundaries(colony, timepoint, reader, resolution_level,retur
     # now merge the two dataframes
     df_2d = merge_2d_features(pseudo_cell_features_df, nucleus_features_df)
    
-    # define the density measure (nuc_area_per_cell)
+    # define the density measure (2d_area_nuc_cell_ratio)
     df_2d = define_density_feature(df_2d)
 
     df_2d = choose_columns(df_2d)

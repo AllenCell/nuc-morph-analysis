@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from nuc_morph_analysis.analyses.dataset_images_for_figures.figure_helper import return_glasbey_on_dark
 from skimage.measure import find_contours
 
-def colorize_image(mip, dft, feature='nuc_area_per_cell'):
+def colorize_image(mip, dft, feature='2d_area_nuc_cell_ratio'):
     """
     Function create an image where the segmentation image objects (e.g. nuclei)
     are colored by the a given feature from the dataframe of that timepoint 
@@ -43,7 +43,7 @@ if RESOLUTION_LEVEL>0:
 
 df_2d, img_dict = pseudo_cell_helper.get_pseudo_cell_boundaries(colony, TIMEPOINT, reader, RESOLUTION_LEVEL, return_img_dict=True)
 #%%
-# now color the nucleus segmentation by the nuc_area_per_cell feature
+# now color the nucleus segmentation by the 2d_area_nuc_cell_ratio feature
 # first load the dataset and merge
 df = global_dataset_filtering.load_dataset_with_features(dataset='all_baseline',load_local=True)
 dfm = pd.merge(df, df_2d, on=['label_img','index_sequence'], suffixes=('', '_pc'))
@@ -52,8 +52,8 @@ dfm = pd.merge(df, df_2d, on=['label_img','index_sequence'], suffixes=('', '_pc'
 dfsub = dfm[dfm['colony']==colony]
 dft = dfsub[dfsub['index_sequence']==TIMEPOINT]
 
-# now create an image where the nuclei are colored by the nuc_area_per_cell feature 
-recolored_img = colorize_image(img_dict['mip_of_labeled_image'], dft, feature='nuc_area_per_cell')
+# now create an image where the nuclei are colored by the 2d_area_nuc_cell_ratio feature 
+recolored_img = colorize_image(img_dict['mip_of_labeled_image'], dft, feature='2d_area_nuc_cell_ratio')
 
 # add the recolored image to the img_dict
 img_dict['recolored_img'] = recolored_img
@@ -160,7 +160,7 @@ for index, row in dft.iterrows():
 
     # now draw the density image colored in viridis colormap
     pixels = cell_mip == row['label_img']
-    value = row['nuc_area_per_cell']
+    value = row['2d_area_nuc_cell_ratio']
 
     color_for_value = plt.cm.viridis(value)
     color_for_value = np.array(color_for_value) * 255

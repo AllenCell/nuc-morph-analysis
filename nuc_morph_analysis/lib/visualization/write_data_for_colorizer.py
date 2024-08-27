@@ -230,7 +230,7 @@ FEATURE_COLUMNS = {
         NucMorphFeatureSpec('label_pseudo_cell'),
         NucMorphFeatureSpec('2d_area_pseudo_cell'),
         NucMorphFeatureSpec('2d_area_nucleus'),
-        NucMorphFeatureSpec('nuc_area_per_cell'),
+        NucMorphFeatureSpec('2d_area_nuc_cell_ratio'),
 
     ],
 }
