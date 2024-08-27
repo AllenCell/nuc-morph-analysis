@@ -50,9 +50,13 @@ def get_dataframe_by_info(info):
 
     # Load dataframe by file format
     if path.endswith("csv"):
-        return pd.read_csv(path)
+        df = pd.read_csv(path)
+        df['source_manifest'] = [path]*df.shape[0]
+        return df
     elif path.endswith("parquet"):
-        return pd.read_parquet(path)
+        df = pd.read_parquet(path)
+        df['source_manifest'] = [path]*df.shape[0]
+        return df
     else:
         raise ValueError(f"Unknown format {path.split('.')[-1]}")
 
