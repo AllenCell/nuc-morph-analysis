@@ -45,6 +45,7 @@ def get_dataframe_by_info(info):
         record = fms.get_file_by_id(fmsid)
         path = get_valid_path(record)
     else:
+        print("NOTE: NOT READING FROM FMS, using S3 instead!")
         path = str(info["s3_path"])
 
     # Load dataframe by file format
