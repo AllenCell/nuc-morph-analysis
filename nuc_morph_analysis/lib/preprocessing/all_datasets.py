@@ -22,7 +22,7 @@ datasets = {
     "all_baseline": {  # this is the common info for all baseline datasets
         # FMS ID for 2024-07-08_main_manifest.parquet generated from morflowgenesis v0.3.0
         # with generate_main_manifest.py at commit 6e9eb0962343113ab3999ce6b59d8331ddab9a45
-        "fmsid": "bba1e456d91f4857904327efccd1657a",  # morflowgenesis v0.3.0
+        "fmsid": "8e8c3173a5a648dabad916d2ae9e4828",  # morflowgenesis v0.3.0 updated with 2d_area from watershed PR
         "s3_path": INTERMEDIATE_MANIFEST_DIR / "2024-06-25_baseline_intermediate_manifest.parquet",
         "pixel_size": PIXEL_SIZE_YX_100x,
         "time_interval": 5,  # min
