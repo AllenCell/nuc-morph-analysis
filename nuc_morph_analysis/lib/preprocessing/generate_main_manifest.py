@@ -155,6 +155,4 @@ validate_formation_breakdown(df)
 
 # %%
 write_main_manifest(df)
-write_main_manifest(df, format="parquet")
-
 # %%
