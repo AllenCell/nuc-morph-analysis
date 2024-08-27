@@ -13,7 +13,6 @@ import pandas as pd
 from pandas.core.groupby.generic import DataFrameGroupBy
 import time
 from pathlib import Path
-from nuc_morph_analysis.analyses.density.TEMP_new_density_features_for_TFE import add_new_features
 
 from nuc_morph_analysis.lib.preprocessing.load_data import (
     get_dataset_pixel_size,
@@ -392,9 +391,6 @@ def make_dataset(
 
     # load the dataset once
     df_all = load_dataset_with_features("all_baseline", remove_growth_outliers=False, load_local=False)
-
-    # temporary line of code to add the new density features 
-    df_all = add_new_features(df_all)
 
     for filter in filters:
         output_dir_subset = Path(output_dir) / filter

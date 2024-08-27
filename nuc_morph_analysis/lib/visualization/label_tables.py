@@ -72,6 +72,9 @@ def get_scale_factor_table(dataset="all_baseline"):
         ("colony_area"): PIXEL_SIZE_YX_20x**2,
         ("nucleus_colony_area_ratio"): pix_size**2 / PIXEL_SIZE_YX_20x**2,
         ("seg_twoD_zMIP_area"): pix_size**2,
+        ("2d_area_nuc_cell_ratio"): 1,
+        ("2d_area_nucleus"): (pix_size/2.5)**2, # resolution_level 1 is 2.5x downsampled
+        ("2d_area_pseudo_cell"): (pix_size/2.5)**2, # resolution_level 1 is 2.5x downsampled
     }
 
     # add non dxdt columns and other non-traditional columns
@@ -216,6 +219,11 @@ LABEL_TABLE = {
     "colony_area": "area of colony (brightfield)",
     "nucleus_colony_area_ratio": "ratio of nuclear area to colony area",
     "seg_twoD_zMIP_area": "total projected nuclear area",
+    # 2D area features
+    "2d_area_nuc_cell_ratio": "Nucleus area/(Pseudo)cell area",
+    "2d_area_nucleus": "Nuclear area",
+    "2d_area_pseudo_cell": "(Pseudo)cell area",
+
 }
 # now add the dxdt columns
 
@@ -345,6 +353,9 @@ COLORIZER_LABEL_TABLE = {
     "baseline_colonies_dataset": "Baseline colonies dataset filter",
     "full_interphase_dataset": "Full-interphase dataset filter",
     "lineage_annotated_dataset": "Lineage-annotated dataset filter",
+    "2d_area_nuc_cell_ratio": "Nuclear area to (pseudo)cell area ratio",
+    "2d_area_nucleus": "Nuclear area",
+    "2d_area_pseudo_cell": "(Pseudo)cell area",
 }
 
 # units for quantities
@@ -370,6 +381,8 @@ UNIT_TABLE = {
         "difference_SA_at_B",
         "colony_area",
         "seg_twoD_zMIP_area",
+        "2d_area_nucleus",
+        "2d_area_pseudo_cell",
     ): "(μm²)",
     (
         "volume",
@@ -414,6 +427,7 @@ UNIT_TABLE = {
         "late_growth_rate_by_endpoints",
     ): "(μm\u00B3/hr)",
     "exp_growth_coeff_BC": "(hr⁻¹)",
+    "2d_area_nuc_cell_ratio": "", # no unit, since ratio
 }
 
 # now add the dxdt columns
