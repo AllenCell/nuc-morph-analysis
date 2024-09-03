@@ -42,6 +42,7 @@ reader = load_data.get_dataset_segmentation_file_reader(colony)
 if RESOLUTION_LEVEL>0:
     reader.set_resolution_level(RESOLUTION_LEVEL)
 
+# perform watershed based pseudo cell segmentation
 df_2d, img_dict = pseudo_cell_helper.get_pseudo_cell_boundaries(colony, TIMEPOINT, reader, RESOLUTION_LEVEL, return_img_dict=True)
 #%%
 # now color the nucleus segmentation by the 2d_area_nuc_cell_ratio feature
@@ -60,10 +61,10 @@ recolored_img = colorize_image(img_dict['mip_of_labeled_image'], dft, feature='2
 img_dict['recolored_img'] = recolored_img
 
 #%%
-# now visualize the results
+# now display all of the intermediates of the
+# watershed based pseudo cell segmentation
 x1,y1 = 500,200
 w,h = 500,500
-
 for full_crop, sizes in [('crop',(500,200,500,500)),('full',(0,0,recolored_img.shape[1],recolored_img.shape[0]))]:
     x1,y1,w,h = sizes
     crop_exp = np.index_exp[y1:y1+h,x1:x1+w]
@@ -153,6 +154,8 @@ for full_crop, sizes in [('crop',(500,200,500,500)),('full',(0,0,recolored_img.s
     plt.show()
 
 #%%
+# now create a plot drawing the boundaries of the nuclei and cells
+# overlayed on the image colored with the 2d_area_nuc_cell_ratio
 rgb_array0_255, _, _ = return_glasbey_on_dark()
 
 fig, axlist = plt.subplots(1, 1, figsize=(6, 4))
