@@ -6,6 +6,7 @@ import pandas as pd
 from nuc_morph_analysis.lib.preprocessing import global_dataset_filtering
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 from nuc_morph_analysis.analyses.dataset_images_for_figures.figure_helper import return_glasbey_on_dark
 from skimage.measure import find_contours
 
@@ -68,23 +69,27 @@ for full_crop, sizes in [('crop',(500,200,500,500)),('full',(0,0,recolored_img.s
     crop_exp = np.index_exp[y1:y1+h,x1:x1+w]
     nrows = 2
     ncols = np.ceil(len(img_dict)/2).astype(int)
-    fig,ax = plt.subplots(nrows,ncols,figsize=(ncols*4,nrows*4))
-    ax = ax.flatten()
+    fig,axr = plt.subplots(nrows,ncols,figsize=(ncols*4,nrows*4))
+    axx = np.asarray([axr]).flatten()
     for i,key in enumerate(img_dict.keys()):
-        ax[i].imshow(img_dict[key][crop_exp],
+        ax = axx[i]
+        assert type(ax) is plt.Axes
+        ax.imshow(img_dict[key][crop_exp],
                     interpolation='nearest',)
-        ax[i].set_title(key)
+        ax.set_title(key)
 
     # record the size of the last axis
-    position = ax[-1].get_position().bounds
+    right_ax = axx[-1]
+    assert type(right_ax) is plt.Axes
+    position = right_ax.get_position().bounds
 
     # add colorbars to the last axes
-    cbar = plt.colorbar(ax[-1].imshow(recolored_img[crop_exp],interpolation='nearest'))
+    cbar = plt.colorbar(right_ax.imshow(recolored_img[crop_exp],interpolation='nearest'))
     cbar.set_label('Nucleus area/Cell area')
     # resize the last axis to be its original size before the colorbar was present
-    ax[-1].set_position(position)
+    right_ax.set_position(position)
     # move the colorbar to the right of the last axis
-    cbar.ax.set_position([position[0]+position[2]+0.05,position[1],0.05,position[3]])
+    cbar.ax.set_position((position[0]+position[2]+0.05,position[1],0.05,position[3]))
 
     # now save the figure
     savedir = Path(__file__).parent / 'figures' / 'pseudo_cell_validation'
@@ -109,32 +114,32 @@ for full_crop, sizes in [('crop',(500,200,500,500)),('full',(0,0,recolored_img.s
     keys = ['recolored_img','pseudo_cells_img','recolored_img_depth']
     nrows = np.ceil(len(keys)).astype(int)
     ncols = 1
-    fig,ax = plt.subplots(nrows,ncols,figsize=(ncols*4,nrows*4))
-    ax = ax.flatten()
-    
+    fig,axlist = plt.subplots(nrows,ncols,figsize=(ncols*4,nrows*4))
+    axlist = np.asarray([axlist]).flatten()    
     for i,key in enumerate(keys):
         if 'depth' in key:
             # use a categorical colormap
-            cmap = 'tab20'
+            cmapstr = 'tab20'
         else:
-            cmap = 'viridis'
+            cmapstr = 'viridis'
 
         img = img_dict[key][crop_exp]
-        mappable = ax[i].imshow(img,
+        mappable = axlist[i].imshow(img,
                     interpolation='nearest',
-                    cmap = cmap)
-        ax[i].set_title(key)
+                    cmap = cmapstr)
+        axlist[i].set_title(key)
 
         # record the size of the last axis
-        position = ax[i].get_position().bounds
+        position = axlist[i].get_position().bounds
 
         # add colorbars to the last axes
-        cbar = plt.colorbar(mappable,ax=ax[i])
+        cbar = plt.colorbar(mappable,ax=axlist[i])
         cbar.set_label(key)
     # resize the last axis to be its original size before the colorbar was present
-        ax[i].set_position(position)
+        axlist[i].set_position(position)
     # move the colorbar to the right of the last axis
-        cbar.ax.set_position([position[0]+position[2]+0.05,position[1],0.05,position[3]])
+        # cbar.ax.set_position(tuple([position[0]+position[2]+0.05,position[1],0.05,position[3]])))
+        cbar.ax.set_position((position[0]+position[2]+0.05,position[1],0.05,position[3]))
 
     # now save the figure
     savedir = Path(__file__).parent / 'figures' / 'pseudo_cell_validation'
@@ -150,7 +155,7 @@ for full_crop, sizes in [('crop',(500,200,500,500)),('full',(0,0,recolored_img.s
 #%%
 rgb_array0_255, _, _ = return_glasbey_on_dark()
 
-fig, ax = plt.subplots(1, 1, figsize=(6, 4))
+fig, axlist = plt.subplots(1, 1, figsize=(6, 4))
 nuc_mip = img_dict['mip_of_labeled_image']
 cell_mip = img_dict['pseudo_cells_img']
 new_img = np.zeros(list(nuc_mip.shape) + [3]).astype('uint8')
@@ -161,8 +166,10 @@ for index, row in dft.iterrows():
     # now draw the density image colored in viridis colormap
     pixels = cell_mip == row['label_img']
     value = row['2d_area_nuc_cell_ratio']
-
-    color_for_value = plt.cm.viridis(value)
+    value = float(value)
+    
+    cmap = cm.get_cmap(cmapstr)
+    color_for_value = np.array(cmap(value))
     color_for_value = np.array(color_for_value) * 255
     new_img[pixels] = color_for_value[:3].astype('uint8')
 
@@ -172,7 +179,7 @@ for index, row in dft.iterrows():
     contours = find_contours(nucleus_boundary, 0.5)
     # draw contours
     for contour in contours:
-        ax.plot(contour[:, 1], contour[:, 0], linewidth=1, color=color/255)
+        axlist.plot(contour[:, 1], contour[:, 0], linewidth=1, color=color/255)
 
     # get the cell boundary
     cell = cell_mip == row['label_img']
@@ -180,7 +187,7 @@ for index, row in dft.iterrows():
     contours = find_contours(cell, 0.5)
     # draw contours
     for contour in contours:
-        ax.plot(contour[:, 1], contour[:, 0], linewidth=1, color=color/255)
+        axlist.plot(contour[:, 1], contour[:, 0], linewidth=1, color=color/255)
 
 plt.imshow(img_dict['recolored_img'],
            interpolation='nearest',)
