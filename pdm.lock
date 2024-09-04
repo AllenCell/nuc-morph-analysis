@@ -5,7 +5,7 @@
 groups = ["default", "dev", "internal"]
 strategy = []
 lock_version = "4.4.1"
-content_hash = "sha256:4708f57228691bc604d97de1447ad4910887025714b55a05459631456c4284cc"
+content_hash = "sha256:c920472ed48de4f84906ed339eb722cf0c299408d6a7b8bff96db2ada941a68d"
 
 [[package]]
 name = "aicscytoparam"
@@ -67,6 +67,18 @@ dependencies = [
 files = [
     {file = "aicsimageio-4.14.0-py2.py3-none-any.whl", hash = "sha256:b3df2beba7d000c35660816116d562bfe96ed2beb79713b023a7579e5e72c646"},
     {file = "aicsimageio-4.14.0.tar.gz", hash = "sha256:0f6684587b1d833ce5b10f3e81314e2a89269cd94bd09747fcd6460f3119855c"},
+]
+
+[[package]]
+name = "aicspylibczi"
+version = "3.2.0"
+summary = "A python module and a python extension for Zeiss (CZI/ZISRAW) microscopy files."
+dependencies = [
+    "numpy>=1.14.1",
+]
+files = [
+    {file = "aicspylibczi-3.2.0-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:4ba081e470003ea613d592db06063f849665de5d24e4bf3c42b310d74ee2bdf6"},
+    {file = "aicspylibczi-3.2.0.tar.gz", hash = "sha256:435d1544421cacc05838aa31afaade85da0972bd3638bfe008fae6e023248ad0"},
 ]
 
 [[package]]
@@ -413,6 +425,26 @@ dependencies = [
 files = [
     {file = "bioio_base-1.0.4-py3-none-any.whl", hash = "sha256:187ae976323b15250c978527fe271e1a9707f5712f3517ddeff1e160b2515e53"},
     {file = "bioio_base-1.0.4.tar.gz", hash = "sha256:92fc4f5676e83103333da1903aa3ccc7825a333229b72bfcd200dd3dfdde360b"},
+]
+
+[[package]]
+name = "bioio-czi"
+version = "1.0.1"
+requires_python = ">=3.9"
+summary = "A Bioio reader plugin for reading czi images."
+dependencies = [
+    "aicspylibczi>=3.2.0",
+    "bioio-base>=0.2.0",
+    "dask[array]>=2021.4.1",
+    "fsspec>=2022.8.0",
+    "lxml<5,>=4.6",
+    "numpy>=1.16",
+    "ome-types>=0.3.4",
+    "xarray>=0.16.1",
+]
+files = [
+    {file = "bioio_czi-1.0.1-py3-none-any.whl", hash = "sha256:7f6e507f1fdcf55537a177cff045a1e2301c28692852e20976b8246263607f27"},
+    {file = "bioio_czi-1.0.1.tar.gz", hash = "sha256:b80197633647e4095facfb8373b8fe25da84d0981f2f201c1f4c75a950c8ddb9"},
 ]
 
 [[package]]

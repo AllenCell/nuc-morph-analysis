@@ -44,6 +44,7 @@ dependencies = [
     "colour-science>=0.4.4",
     "opencv-python-headless>=4.10.0.82",
     "yarl>=1.9.4",
+    "bioio-czi>=1.0.1",
 ]
 
 [project.optional-dependencies]
