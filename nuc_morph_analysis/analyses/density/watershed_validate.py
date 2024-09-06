@@ -4,6 +4,8 @@ from nuc_morph_analysis.lib.preprocessing.twoD_zMIP_area import pseudo_cell_help
 from pathlib import Path
 import pandas as pd
 from nuc_morph_analysis.lib.preprocessing import global_dataset_filtering
+from nuc_morph_analysis.lib.preprocessing import filter_data
+
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
@@ -49,7 +51,8 @@ df_2d, img_dict = pseudo_cell_helper.get_pseudo_cell_boundaries(colony, TIMEPOIN
 # now load the tracking dataset and merge with the pseudo cell dataframe
 # first load the dataset and merge
 df = global_dataset_filtering.load_dataset_with_features(dataset='all_baseline',load_local=True)
-dfm = pd.merge(df, df_2d, on=['label_img','index_sequence'], suffixes=('', '_pc'))
+df = filter_data.all_timepoints_minimal_filtering(df)
+dfm = pd.merge(df, df_2d, on=['label_img','index_sequence'], suffixes=('', '_pc'),how='left')
 
 # now get the subset of the dataframe for the colony and timepoint
 dfsub = dfm[dfm['colony']==colony]
@@ -133,43 +136,32 @@ def plot_colorized_image_with_contours(img_dict,dft,feature,cmapstr,categorical=
         nuc_mip = img_dict['mip_of_labeled_image'][0]
         cell_mip = img_dict['pseudo_cells_img'][0]
 
-        # create the colorized image image
-        cimg = colorize_image(nuc_mip, dft, feature=feature)
 
+        # create the colorized image image
+        if feature == 'zeros':
+            cimg = np.zeros_like(nuc_mip)
+        else:
+            cimg = colorize_image(nuc_mip, dft, feature=feature)
+            
         # define the colormap for the image
         cmap = cm.get_cmap(cmapstr)
+        if categorical:
+            cimg = np.round(cimg).astype('uint16')
+
+        # rgb = np.take(np.uint16(cmaparr*255),cimg.astype('uint16'),axis=0)
     
         # create the figure
         fig, axlist = plt.subplots(1, 1, figsize=(6, 4))
+# 
 
+        vmin,vmax = (0,cmap.N) if categorical else (None,None)
+        mappable = axlist.imshow(cimg, interpolation='nearest',cmap=cmap,
+                                    vmin=vmin,vmax=vmax,
+                                    )
+        cbar = plt.colorbar(mappable,ax=axlist,label=feature)
         if categorical:
-            # make first row of cmap = 0
-            cmaparr2 = np.asarray(cm.get_cmap('viridis').colors)
-
-            cmaparr = np.asarray(cmap.colors)
-            cmaparr = np.vstack([cmaparr2[0],cmaparr])
-        
-            # now create a new matplotlib colormap with this array
-            new_cmap = cm.colors.ListedColormap(cmaparr)
-
-            # now create an RGB image from the colorized image
-            rgb = np.take(np.uint16(cmaparr*255),cimg.astype('uint16'),axis=0)
-
-        
-            # add colorbar
-            mappable = axlist.imshow(rgb, interpolation='nearest',cmap=new_cmap)
-            axlist.imshow(rgb, interpolation='nearest')
-            cbar = plt.colorbar(cm.ScalarMappable(cmap=new_cmap),ax=axlist,
-                                boundaries=np.arange(0,new_cmap.N+1,1),
-                                values=np.arange(0,new_cmap.N,1),
-                                label=feature)
-            # set the ticks
-            cbar.set_ticks(np.arange(0.5,new_cmap.N+0.5,1),labels=np.arange(0,new_cmap.N,1))
-
-        else:
-            mappable = axlist.imshow(cimg, interpolation='nearest',cmap=cmap)
-            cbar = plt.colorbar(mappable,ax=axlist,label=feature)
-
+            cbar.set_ticks(np.arange(0.5,cmap.N+0.5,1),labels=np.arange(0,cmap.N,1))
+            
         if draw_contours:
             # create the contours
             contour_list = get_contours_from_pair_of_2d_seg_image(nuc_mip,cell_mip)
@@ -190,10 +182,14 @@ def plot_colorized_image_with_contours(img_dict,dft,feature,cmapstr,categorical=
                     dpi=300,
                     bbox_inches='tight')
 
-plot_colorized_image_with_contours(img_dict,dft,'colony_depth','tab10',categorical=True,draw_contours=False)
-plot_colorized_image_with_contours(img_dict,dft,'colony_depth','tab10',categorical=True,draw_contours=True)
-plot_colorized_image_with_contours(img_dict,dft,'2d_area_nuc_cell_ratio','viridis',categorical=False,draw_contours=False)
-plot_colorized_image_with_contours(img_dict,dft,'2d_area_nuc_cell_ratio','viridis',categorical=False,draw_contours=True)
-plot_colorized_image_with_contours(img_dict,dft,'density','viridis',categorical=False,draw_contours=False)
-plot_colorized_image_with_contours(img_dict,dft,'density','viridis',categorical=False,draw_contours=True)
+# plot_colorized_image_with_contours(img_dict,dft,'colony_depth','tab10',categorical=True,draw_contours=False)
+# plot_colorized_image_with_contours(img_dict,dft,'colony_depth','tab10',categorical=True,draw_contours=True)
+# plot_colorized_image_with_contours(img_dict,dft,'2d_area_nuc_cell_ratio','viridis',categorical=False,draw_contours=False)
+# plot_colorized_image_with_contours(img_dict,dft,'2d_area_nuc_cell_ratio','viridis',categorical=False,draw_contours=True)
+# plot_colorized_image_with_contours(img_dict,dft,'density','viridis',categorical=False,draw_contours=False)
+# plot_colorized_image_with_contours(img_dict,dft,'density','viridis',categorical=False,draw_contours=True)
+plot_colorized_image_with_contours(img_dict,dft,'zeros','viridis',categorical=False,draw_contours=True)
+
+#%%
+
 
