@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from nuc_morph_analysis.lib.visualization.plotting_tools import get_plot_labels_for_metric
 from nuc_morph_analysis.lib.visualization.notebook_tools import save_and_show_plot
+from nuc_morph_analysis.lib.preprocessing import global_dataset_filtering
+from nuc_morph_analysis.lib.preprocessing import filter_data
 from pathlib import Path
 #%%
 # set figure directory
@@ -11,9 +13,8 @@ figdir = Path(__file__).parent / "figures"
 figdir.mkdir(exist_ok=True)
 
 # TEMP: loading local for testing and speed
-from nuc_morph_analysis.lib.preprocessing import global_dataset_filtering
 dfm = global_dataset_filtering.load_dataset_with_features(dataset='all_baseline',load_local=True)
-
+dfm = filter_data.all_timepoints_minimal_filtering(dfm)
 #%% 
 # important set all edge cells to have a 2d_area_nuc_cell_ratio of nan after merging into the main dataframe
 dfm.loc[dfm['colony_depth']==1,'2d_area_nuc_cell_ratio'] = np.nan
