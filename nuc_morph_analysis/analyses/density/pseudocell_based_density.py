@@ -38,8 +38,8 @@ for y_col in ['2d_area_nuc_cell_ratio','density']:
         pivot.head()
 
         mean = pivot.median(axis=1)
-        lower = pivot.quantile(0.25,axis=1)
-        upper = pivot.quantile(0.75,axis=1)
+        lower = pivot.quantile(0.05,axis=1)
+        upper = pivot.quantile(0.95,axis=1)
         
         xscale_factor, xlabel, xunit, xlimit = get_plot_labels_for_metric(x_col)
         x = mean.index * xscale_factor
@@ -49,9 +49,10 @@ for y_col in ['2d_area_nuc_cell_ratio','density']:
         yu = upper.values * yscale_factor
         
         ax.plot(x, y, label=COLONY_LABELS[colony], color=COLONY_COLORS[colony])
-        ax.fill_between(x, yl, yu, alpha=0.5)
+        ax.fill_between(x, yl, yu, alpha=0.2, color=COLONY_COLORS[colony],
+                        edgecolor='none')
         ax.set_xlabel(f"{xlabel} {xunit}")
-        ax.set_ylabel(f"{ylabel} {yunit}")
+        ax.set_ylabel(f"{ylabel} {yunit}\n(90% interpercentile range)")
 
 
     ax.legend(loc="upper right", handletextpad=0.7, frameon=False)
