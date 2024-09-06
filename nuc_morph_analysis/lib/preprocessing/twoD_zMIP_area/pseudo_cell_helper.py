@@ -1,6 +1,5 @@
 #%%
 import numpy as np
-import matplotlib.pyplot as plt
 from skimage.segmentation import watershed
 from scipy.ndimage import distance_transform_edt
 from bioio.writers import OmeTiffWriter
@@ -8,7 +7,6 @@ from pathlib import Path
 from skimage.measure import regionprops_table
 import pandas as pd
 from nuc_morph_analysis.lib.preprocessing.system_info import PIXEL_SIZE_YX_100x
-from nuc_morph_analysis.lib.preprocessing import load_data
 
 #%% define key functions
 def get_pseudo_cell_boundaries_from_labeled_nucleus_image(labeled_nucleus_image, return_nucleus=False, return_img_dict=False):
@@ -72,11 +70,11 @@ def get_pseudo_cell_boundaries_from_labeled_nucleus_image(labeled_nucleus_image,
         return pseudo_cells_img, mip_of_labeled_image
     elif return_img_dict:
         img_dict = {
-            'mip_of_labeled_image':mip_of_labeled_image,
-            'binarized_mip':binarized_mip,
-            'distance':distance,
-            'watershed_img':watershed_img,
-            'pseudo_cells_img':pseudo_cells_img,
+            'mip_of_labeled_image':(mip_of_labeled_image,"MIP of input segmentation"),
+            'binarized_mip':(binarized_mip, "Binarization of MIP"),
+            'distance':(distance, "Distance Transform"),
+            'watershed_img':(watershed_img, "Watershed of Distance Transform"),
+            'pseudo_cells_img':(pseudo_cells_img, "Pseudo Cell Segmentation"),
         }
         return pseudo_cells_img, mip_of_labeled_image, img_dict
     else:
@@ -109,7 +107,6 @@ def save_pseudo_cell_image(pseudo_cell_image, output_directory, colony, timepoin
     save_name = f"{colony}_pseudo_cell_image_T{str(timepoint_frame).zfill(3)}_res{resolution_level}.ome.tif"
     save_path = Path(save_dir) / save_name
     OmeTiffWriter.save(pseudo_cell_image, save_path, dim_order="YX")
-
 
 def extract_2d_features(label_image, colony='',timepoint=0, reader=None, resolution_level=0):
     
@@ -175,7 +172,6 @@ def extract_2d_features(label_image, colony='',timepoint=0, reader=None, resolut
     df = df[df['label_img']!=0]
 
     return df
-
 
 def merge_2d_features(pseudo_cell_features_df, nucleus_features_df):
     """
