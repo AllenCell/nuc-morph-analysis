@@ -314,6 +314,7 @@ def label_nuclei_that_neighbor_current_death_event(df):
     df = identify_frames_of_death(df)
     df = mark_frames_of_death(df)
     df = find_neighbors_of_cells(df,bool_col='frame_of_death',new_col='has_dying_neighbor')
+    df = expand_boolean_labels_in_time(df, 'has_dying_neighbor', iterations=6, direction='forward')
     return df
 
 
