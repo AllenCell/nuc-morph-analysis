@@ -35,89 +35,25 @@ def colorize_image(mip, dft, feature='2d_area_nuc_cell_ratio'):
         recolored_img[mip==row['label_img']] = row[feature]
     return recolored_img
 
-
-# set the details
-TIMEPOINT = 48
-colony = 'medium'
-RESOLUTION_LEVEL = 1
-# load the segmentation image
-reader = load_data.get_dataset_segmentation_file_reader(colony)
-if RESOLUTION_LEVEL>0:
-    reader.set_resolution_level(RESOLUTION_LEVEL)
-
-# perform watershed based pseudo cell segmentation
-df_2d, img_dict = pseudo_cell_helper.get_pseudo_cell_boundaries(colony, TIMEPOINT, reader, RESOLUTION_LEVEL, return_img_dict=True)
-#%%
-# now load the tracking dataset and merge with the pseudo cell dataframe
-# first load the dataset and merge
-df = global_dataset_filtering.load_dataset_with_features(dataset='all_baseline',load_local=True)
-df = filter_data.all_timepoints_minimal_filtering(df)
-dfm = pd.merge(df, df_2d, on=['label_img','index_sequence'], suffixes=('', '_pc'),how='left')
-
-# now get the subset of the dataframe for the colony and timepoint
-dfsub = dfm[dfm['colony']==colony]
-dft = dfsub[dfsub['index_sequence']==TIMEPOINT]
-
-
-#%%
-# now display all of the intermediates of the
-# watershed based pseudo cell segmentation
-mip = img_dict['mip_of_labeled_image'][0]
-for full_crop, sizes in [('crop',(500,200,500,500)),('full',(0,0,mip.shape[1],mip.shape[0]))]:
-    x1,y1,w,h = sizes
-    crop_exp = np.index_exp[y1:y1+h,x1:x1+w]
-    nrows = 1
-    ncols = len(img_dict)
-    fig,axr = plt.subplots(nrows,ncols,figsize=(ncols*4,nrows*4))
-    axx = np.asarray([axr]).flatten()
-    for i,key in enumerate(img_dict.keys()):
-        ax = axx[i]
-        assert type(ax) is plt.Axes
-        img = img_dict[key][0]
-        label = img_dict[key][1]
-        ax.imshow(img[crop_exp],
-                    interpolation='nearest',)
-        ax.set_title(label)
-
-    # record the size of the last axis
-    right_ax = axx[-1]
-    assert type(right_ax) is plt.Axes
-    position = right_ax.get_position().bounds
-
-    # now save the figure
-    savedir = Path(__file__).parent / 'figures' / 'pseudo_cell_validation'
-    savedir.mkdir(exist_ok=True,parents=True)
-    savename = f'{colony}_{TIMEPOINT}_{full_crop}_res{RESOLUTION_LEVEL}.png'   
-    savepath = savedir / savename
-    plt.savefig(savepath,
-                dpi=300,
-                bbox_inches='tight')
-    print(f'Saved figure to {savepath}')
-    plt.show()
-
-#%%
-# now create a plot drawing the boundaries of the nuclei and cells
-# overlayed on the image colored with the 2d_area_nuc_cell_ratio
-
 def get_contours_from_pair_of_2d_seg_image(nuc_mip,cell_mip):
-    contour_list = [] # (label, nucleus_contour, cell_contour, color)
-    rgb_array0_255, _, _ = return_glasbey_on_dark()
-    for label_img in range(0,nuc_mip.max()+1):
-        color = np.float64(rgb_array0_255[label_img % len(rgb_array0_255)])
+        contour_list = [] # (label, nucleus_contour, cell_contour, color)
+        rgb_array0_255, _, _ = return_glasbey_on_dark()
+        for label_img in range(0,nuc_mip.max()+1):
+            color = np.float64(rgb_array0_255[label_img % len(rgb_array0_255)])
 
-        # get the nucleus boundary
-        nucleus_boundary = nuc_mip == label_img
-        # get contours
-        nuc_contours = find_contours(nucleus_boundary, 0.5)
-        
-        # get the cell boundary
-        cell = cell_mip == label_img
-        # get contours
-        cell_contours = find_contours(cell, 0.5)
+            # get the nucleus boundary
+            nucleus_boundary = nuc_mip == label_img
+            # get contours
+            nuc_contours = find_contours(nucleus_boundary, 0.5)
+            
+            # get the cell boundary
+            cell = cell_mip == label_img
+            # get contours
+            cell_contours = find_contours(cell, 0.5)
 
-        contour_list.append((label_img,nuc_contours,cell_contours,color))
+            contour_list.append((label_img,nuc_contours,cell_contours,color))
 
-    return contour_list
+        return contour_list
 
 def draw_contours_on_image(axlist,contour_list):
     # draw contours
@@ -128,8 +64,9 @@ def draw_contours_on_image(axlist,contour_list):
             axlist.plot(contour[:, 1], contour[:, 0], linewidth=1, color=color/255)
     return axlist
 
-def plot_colorized_image_with_contours(img_dict,dft,feature,cmapstr,categorical=False,draw_contours=True):
+def plot_colorized_image_with_contours(img_dict,dft,feature,cmapstr,colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=False,draw_contours=True):
     # define the input images
+    mip = img_dict['mip_of_labeled_image'][0]
     for full_crop, sizes in [('crop',(500,200,500,500)),('full',(0,0,mip.shape[1],mip.shape[0]))]:
         x1,y1,w,h = sizes
         crop_exp = np.index_exp[y1:y1+h,x1:x1+w]
@@ -174,7 +111,7 @@ def plot_colorized_image_with_contours(img_dict,dft,feature,cmapstr,categorical=
         plt.title(f'{titlestr}')
 
         # now save the figure
-        savedir = Path(__file__).parent / 'figures' / 'pseudo_cell_validation'
+        savedir = Path(__file__).parent / 'figures' / 'pseudo_cell_validation_extras'
         savedir.mkdir(exist_ok=True,parents=True)
         savename = f'{colony}_{TIMEPOINT}_{full_crop}_res{RESOLUTION_LEVEL}_{feature}_{draw_contours}.png'
         savepath = savedir / savename
@@ -182,14 +119,75 @@ def plot_colorized_image_with_contours(img_dict,dft,feature,cmapstr,categorical=
                     dpi=300,
                     bbox_inches='tight')
 
-# plot_colorized_image_with_contours(img_dict,dft,'colony_depth','tab10',categorical=True,draw_contours=False)
-# plot_colorized_image_with_contours(img_dict,dft,'colony_depth','tab10',categorical=True,draw_contours=True)
-# plot_colorized_image_with_contours(img_dict,dft,'2d_area_nuc_cell_ratio','viridis',categorical=False,draw_contours=False)
-# plot_colorized_image_with_contours(img_dict,dft,'2d_area_nuc_cell_ratio','viridis',categorical=False,draw_contours=True)
-# plot_colorized_image_with_contours(img_dict,dft,'density','viridis',categorical=False,draw_contours=False)
-# plot_colorized_image_with_contours(img_dict,dft,'density','viridis',categorical=False,draw_contours=True)
-plot_colorized_image_with_contours(img_dict,dft,'zeros','viridis',categorical=False,draw_contours=True)
+def make_validation_plot(TIMEPOINT=48,colony='medium',RESOLUTION_LEVEL=1,plot_everything=True):
+    # load the segmentation image
+    reader = load_data.get_dataset_segmentation_file_reader(colony)
+    if RESOLUTION_LEVEL>0:
+        reader.set_resolution_level(RESOLUTION_LEVEL)
+
+    # perform watershed based pseudo cell segmentation
+    df_2d, img_dict = pseudo_cell_helper.get_pseudo_cell_boundaries(colony, TIMEPOINT, reader, RESOLUTION_LEVEL, return_img_dict=True)
+
+    # now load the tracking dataset and merge with the pseudo cell dataframe
+    # first load the dataset and merge
+    df = global_dataset_filtering.load_dataset_with_features(dataset='all_baseline',load_local=True)
+    df = filter_data.all_timepoints_minimal_filtering(df)
+    dfm = pd.merge(df, df_2d, on=['label_img','index_sequence'], suffixes=('', '_pc'),how='left')
+
+    # now get the subset of the dataframe for the colony and timepoint
+    dfsub = dfm[dfm['colony']==colony]
+    dft = dfsub[dfsub['index_sequence']==TIMEPOINT]
+
+    # now display all of the intermediates of the
+    # watershed based pseudo cell segmentation
+    mip = img_dict['mip_of_labeled_image'][0]
+    for full_crop, sizes in [('crop',(500,200,500,500)),('full',(0,0,mip.shape[1],mip.shape[0]))]:
+        x1,y1,w,h = sizes
+        crop_exp = np.index_exp[y1:y1+h,x1:x1+w]
+        nrows = 1
+        ncols = len(img_dict)
+        fig,axr = plt.subplots(nrows,ncols,figsize=(ncols*4,nrows*4))
+        axx = np.asarray([axr]).flatten()
+        for i,key in enumerate(img_dict.keys()):
+            ax = axx[i]
+            assert type(ax) is plt.Axes
+            img = img_dict[key][0]
+            label = img_dict[key][1]
+            ax.imshow(img[crop_exp],
+                        interpolation='nearest',)
+            ax.set_title(label)
+
+        # record the size of the last axis
+        right_ax = axx[-1]
+        assert type(right_ax) is plt.Axes
+        position = right_ax.get_position().bounds
+
+        # now save the figure
+        savedir = Path(__file__).parent / 'figures' / 'pseudo_cell_validation'
+        savedir.mkdir(exist_ok=True,parents=True)
+        savename = f'{colony}_{TIMEPOINT}_{full_crop}_res{RESOLUTION_LEVEL}.png'   
+        savepath = savedir / savename
+        plt.savefig(savepath,
+                    dpi=300,
+                    bbox_inches='tight')
+        print(f'Saved figure to {savepath}')
+        plt.show()
+
+    # now create a plot drawing the boundaries of the nuclei and cells
+    # overlayed on the image colored with the 2d_area_nuc_cell_ratio
+    if plot_everything:
+        plot_colorized_image_with_contours(img_dict,dft,'colony_depth','tab10',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=True,draw_contours=False)
+        plot_colorized_image_with_contours(img_dict,dft,'colony_depth','tab10',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=True,draw_contours=True)
+        plot_colorized_image_with_contours(img_dict,dft,'2d_area_nuc_cell_ratio','viridis',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=False,draw_contours=False)
+        plot_colorized_image_with_contours(img_dict,dft,'2d_area_nuc_cell_ratio','viridis',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=False,draw_contours=True)
+        plot_colorized_image_with_contours(img_dict,dft,'density','viridis',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=False,draw_contours=False)
+        plot_colorized_image_with_contours(img_dict,dft,'density','viridis',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=False,draw_contours=True)
+        plot_colorized_image_with_contours(img_dict,dft,'zeros','viridis',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=False,draw_contours=True)
+
+if __name__ == '__main__':
+    # set the details
+    make_validation_plot()
 
 #%%
-
-
+make_validation_plot(TIMEPOINT=0,colony='small',RESOLUTION_LEVEL=1,plot_everything=True)
+    
