@@ -89,5 +89,6 @@ for curr_ax in axx:
 
 savename = f"{colony}-{track_id}-{CMAP}t={str(time_list)}"
 savepath = str(figdir / savename)
+plt.tight_layout()
 save_and_show_plot(savepath,file_extension='.png',figure=fig)
 plt.show()

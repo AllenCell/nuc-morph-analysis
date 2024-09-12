@@ -41,23 +41,33 @@ img= lazy_img.compute()
 
 dft = dfm[dfm['index_sequence']==TIMEPOINT]
 
-column_list = ['has_mitotic_neighbor_formation_backward_dilated','has_mitotic_neighbor_breakdown_forward_dilated','has_mitotic_neighbor_dilated','exiting_mitosis']
+column_list = ['has_mitotic_neighbor_breakdown','has_mitotic_neighbor_formation','has_mitotic_neighbor','has_mitotic_neighbor_formation_backward_dilated','has_mitotic_neighbor_breakdown_forward_dilated','has_mitotic_neighbor_dilated','exiting_mitosis']
 # now plot the image with the mitotic neighbors
 for col in column_list:
-    dft[f'{col}2'] = dft[f'{col}'] +1 
-    colored_img = colorize_image(img.max(axis=0),dft,feature=f'{col}2')
-    fig,ax = plt.subplots(figsize=(3,3))
-    plt.imshow(colored_img,
-               cmap = CMAP,
-               vmin=0,
-               vmax=4,
-               interpolation='nearest')
+    # colored_img = colorize_image(img.max(axis=0),dft,feature=f'{col}2')
+    colormap_dict = {}
+    colormap_dict.update({f"{col}_empty":(col,False,1,(0.4,0.4,0.4),f"")})
+    colormap_dict.update({f"{col}":(col,True,2,(1,1,0),f"{col}")})
+    colormap_dict.update({f"breakdown":('frame_of_breakdown',True,3,(1,0,1),f"breakdown event")})
+    colormap_dict.update({f"formation":('frame_of_formation',True,4,(0,1,1),f"formation event")})
+
+
+    fig,ax = plt.subplots(figsize=(5,5))
+    _ = plot_colorized_img_with_labels(ax,img,dft.copy(),colormap_dict)
+
+    # fig,ax = plt.subplots(figsize=(3,3))
+    # plt.imshow(colored_img,
+    #            cmap = CMAP,
+    #            vmin=0,
+    #            vmax=4,
+    #            interpolation='nearest')
     
     plt.title(f'neighbors of mitotic cells\n{col}')
     plt.axis('off')
 
     savename = figdir / f'{colony}-{TIMEPOINT}-{col}-{CMAP}_neighbors.png'
     savepath = figdir / savename
+    plt.tight_layout()
     save_and_show_plot(savepath.as_posix(),
                        file_extension='.png',
                        figure=fig,
@@ -82,4 +92,13 @@ colormap_dict.update({f'{col}_{i}':(col,i,i+1,cmap1.colors[i],f"{i} mitotic neig
 colormap_dict.update({'frame_of_breakdown':('frame_of_breakdown',True,8,(1,0,0),f"breakdown event")})
 fig,ax = plt.subplots(figsize=(5,5))
 _ = plot_colorized_img_with_labels(ax,img,dft,colormap_dict)
+plt.tight_layout()
+savename = figdir / f'{colony}-{TIMEPOINT}-{col}-{CMAP}_number_of_neighbors.png'
+savepath = figdir / savename
+plt.tight_layout()
+save_and_show_plot(savepath.as_posix(),
+                    file_extension='.png',
+                    figure=fig,
+)
+plt.show()
 
