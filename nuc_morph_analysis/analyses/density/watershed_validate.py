@@ -10,6 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from nuc_morph_analysis.analyses.dataset_images_for_figures.figure_helper import return_glasbey_on_dark
+# from nuc_morph_analysis.lib.preprocessing import labeling_neighbors_helper
 from skimage.measure import find_contours
 
 
@@ -175,11 +176,20 @@ def make_validation_plot(TIMEPOINT=48,colony='medium',RESOLUTION_LEVEL=1,plot_ev
 
     # now create a plot drawing the boundaries of the nuclei and cells
     # overlayed on the image colored with the 2d_area_nuc_cell_ratio
+    
+    dft['2d_area_cyto'] = dft['2d_area_pseudo_cell'] - dft['2d_area_nucleus']
+    # dft = labeling_neighbors_helper.label_nuclei_that_neighbor_current_mitotic_event(dft)
+    # dft = filter_data.apply_density_related_filters(dft)
+
     if plot_everything:
         plot_colorized_image_with_contours(img_dict,dft,'colony_depth','tab10',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=True,draw_contours=False)
         plot_colorized_image_with_contours(img_dict,dft,'colony_depth','tab10',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=True,draw_contours=True)
         plot_colorized_image_with_contours(img_dict,dft,'2d_area_nuc_cell_ratio','viridis',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=False,draw_contours=False)
         plot_colorized_image_with_contours(img_dict,dft,'2d_area_nuc_cell_ratio','viridis',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=False,draw_contours=True)
+        plot_colorized_image_with_contours(img_dict,dft,'2d_area_pseudo_cell','viridis',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=False,draw_contours=False)
+        plot_colorized_image_with_contours(img_dict,dft,'2d_area_pseudo_cell','viridis',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=False,draw_contours=True)
+        plot_colorized_image_with_contours(img_dict,dft,'2d_area_cyto','viridis',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=False,draw_contours=False)
+        plot_colorized_image_with_contours(img_dict,dft,'2d_area_cyto','viridis',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=False,draw_contours=True)    
         plot_colorized_image_with_contours(img_dict,dft,'density','viridis',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=False,draw_contours=False)
         plot_colorized_image_with_contours(img_dict,dft,'density','viridis',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=False,draw_contours=True)
         plot_colorized_image_with_contours(img_dict,dft,'zeros','viridis',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=False,draw_contours=True)
