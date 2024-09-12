@@ -65,3 +65,37 @@ for col in column_list:
     plt.show()
 
 
+#%%
+# and color by number of mitotic neighbors
+# now plot the image with the mitotic neighbors
+df = global_dataset_filtering.load_dataset_with_features(dataset='all_baseline',load_local=True)
+dfm = labeling_neighbors_helper.label_nuclei_that_neighbor_current_mitotic_event(df)
+#%%
+import numpy as np
+t = 57
+lazy_img = reader.get_image_dask_data("ZYX",T=t)
+img= lazy_img.compute()
+
+dft = dfm[dfm['index_sequence']==t]
+col = 'number_of_mitotic_frame_of_breakdown_neighbors'
+dft[f'{col}2'] = dft[f'{col}']
+dft.loc[dft[f'{col}']==0,f'{col}2']=np.nan
+dft.loc[dft['frame_of_breakdown'],f'{col}2']=6
+colored_img = colorize_image(img.max(axis=0),dft,feature=f'{col}2')
+fig,ax = plt.subplots(figsize=(5,5))
+plt.imshow(colored_img,
+            cmap = CMAP,
+            vmin=0,
+            vmax=8,
+            interpolation='nearest')
+
+plt.title(f'How many mitotic cells do you neighbor?\n{col}\nt={t}')
+plt.axis('off')
+plt.colorbar()
+savename = figdir / f'{colony}-{t}-{col}-{CMAP}_number_of_mitotics_neighbored.png'
+savepath = figdir / savename
+save_and_show_plot(savepath.as_posix(),
+                    file_extension='.png',
+                    figure=fig,
+)
+plt.show()    

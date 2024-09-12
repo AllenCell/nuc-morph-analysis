@@ -63,16 +63,29 @@ def find_neighbors_of_cells(df,bool_col=None,new_col=None):
     df[new_col] = False
     df[new_col] = df[new_col].astype(bool)
 
+    df[f'number_of_mitotic_{bool_col}_neighbors'] = [0]*len(df)
+
     if bool_col is not None:
         dfmsub = df[df[bool_col]]
     else:
         dfmsub = df
 
-    dfmsub['neighbor_list'] = dfmsub['neighbors'].apply(lambda x: eval(x)) # perhaps move this out of the loop?
+    # convert the string representation of list of neighbors to a list
+    dfmsub['neighbor_list'] = dfmsub['neighbors'].apply(lambda x: eval(x)) 
+
+
     list_of_neighbors = dfmsub['neighbor_list'].values
     if len(list_of_neighbors)>0:
         single_list = np.concatenate(dfmsub['neighbor_list'].values) # get a list of all the neighbor cellids
         df.loc[df['CellId'].isin(single_list),new_col] = True
+
+        # now count the number of times each CellId appears in single_list
+        # and store that in the `number_of_mitotic_{bool_col}_neighbors` column
+        values,counts = np.unique(single_list,return_counts=True)
+        df.set_index('CellId',inplace=True)
+        df.loc[values,f'number_of_mitotic_{bool_col}_neighbors'] = counts
+        df.reset_index(inplace=True)
+
     else:
         print('NOTE: No neighbors found for',bool_col)
         df.loc[:,new_col] = False
@@ -226,9 +239,11 @@ def combine_formation_and_breakdown_labels(df):
     Returns
     -------
     df : pd.DataFrame
-        the dataframe with the new column `has_mitotic_neighbor_dilated`
+        the dataframe with the new column `has_mitotic_neighbor_dilated` and `has_mitotic_neighbor`
     """
     df['has_mitotic_neighbor_dilated'] = df['has_mitotic_neighbor_breakdown_forward_dilated'] | df['has_mitotic_neighbor_formation_backward_dilated']
+    df['has_mitotic_neighbor'] = df['has_mitotic_neighbor_breakdown'] | df['has_mitotic_neighbor_formation']
+    
     return df
 
 def label_nuclei_that_neighbor_current_mitotic_event(df,iterations=9):

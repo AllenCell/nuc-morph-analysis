@@ -87,4 +87,9 @@ savepath = str(figdir / savename)
 save_and_show_plot(savepath,file_extension='.png',figure=fig)
 plt.show()
 
-
+#%%
+df = global_dataset_filtering.load_dataset_with_features(dataset='all_baseline',load_local=True)
+dfm = labeling_neighbors_helper.label_nuclei_that_neighbor_current_mitotic_event(df)
+#%%
+dfm = dfm.loc[dfm['has_mitotic_neighbor'],:]
+dfm[['colony','index_sequence','number_of_mitotic_frame_of_breakdown_neighbors','has_mitotic_neighbor_breakdown']].sort_values('number_of_mitotic_frame_of_breakdown_neighbors',ascending=False)
