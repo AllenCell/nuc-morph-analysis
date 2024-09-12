@@ -8,7 +8,7 @@ from pathlib import Path
 import os
 import matplotlib.pyplot as plt
 from nuc_morph_analysis.lib.preprocessing import load_data
-from nuc_morph_analysis.analyses.neighbor_of_X import labeling_neighbors_helper
+from nuc_morph_analysis.lib.preprocessing import labeling_neighbors_helper
 from nuc_morph_analysis.lib.visualization.plotting_tools import colorize_image
 
 
