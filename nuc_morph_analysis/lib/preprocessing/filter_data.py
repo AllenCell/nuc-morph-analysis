@@ -972,3 +972,17 @@ def track_level_features(df):
     # keep single value per track
     df = df_subset_columns.groupby("track_id").first().reset_index()
     return df
+
+
+def apply_density_related_filters(dfm):
+
+    # remove cells that have mitotic neighbors
+    dfm = dfm[dfm['has_mitotic_neighbor_dilated']==False]
+    dfm = dfm[dfm['has_dying_neighbor_forward_dilated']==False]
+
+    # remove cells that are exiting mitosis
+    dfm = dfm[dfm['exiting_mitosis']==False]
+
+    # remove weirdly shaped cells
+    dfm = filter_out_non_interphase_size_shape_flag(dfm)
+    return dfm

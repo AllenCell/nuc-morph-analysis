@@ -7,25 +7,34 @@ from nuc_morph_analysis.lib.visualization.notebook_tools import save_and_show_pl
 from nuc_morph_analysis.lib.preprocessing import global_dataset_filtering
 from nuc_morph_analysis.lib.preprocessing import filter_data
 from pathlib import Path
+from nuc_morph_analysis.analyses.neighbor_of_X import labeling_neighbors_helper
+from sklearn.linear_model import LinearRegression
+from nuc_morph_analysis.lib.preprocessing.filter_data import apply_density_related_filters
+
 #%%
 # set figure directory
 figdir = Path(__file__).parent / "figures"
 figdir.mkdir(exist_ok=True)
 
 # TEMP: loading local for testing and speed
-dfm = global_dataset_filtering.load_dataset_with_features(dataset='all_baseline',load_local=True)
+df = global_dataset_filtering.load_dataset_with_features(dataset='all_baseline',load_local=True)
+#%%
+df = labeling_neighbors_helper.label_nuclei_that_neighbor_current_mitotic_event(df)
+df = labeling_neighbors_helper.label_nuclei_that_neighbor_current_death_event(df)
+
+#%% now apply the filtering
+dfm = df.copy()
+# apply minimal filtering to ensure only good segmentations are present
 dfm = filter_data.all_timepoints_minimal_filtering(dfm)
-#%% 
-# important set all edge cells to have a 2d_area_nuc_cell_ratio of nan after merging into the main dataframe
-dfm.loc[dfm['colony_depth']==1,'2d_area_nuc_cell_ratio'] = np.nan
-dfm.loc[dfm['colony_depth']==1,'2d_area_pseudo_cell'] = np.nan
-dfm.loc[dfm['colony_depth']==1,'2d_area_nucleus'] = np.nan
+
+dfm = apply_density_related_filters(dfm)
 
 #%% # plot density over time for each colony  along colony time 
 x_col = "colony_time"
 y_col = '2d_area_nuc_cell_ratio'
-column_val = 'track_id'
-for y_col in ['2d_area_nuc_cell_ratio','density']:
+column_val = 'label_img'
+dfm['2d_area_cyto'] = dfm['2d_area_pseudo_cell'] - dfm['2d_area_nucleus']
+for y_col in ['2d_area_nuc_cell_ratio','density','2d_area_nucleus','2d_area_cyto']:
     fig,ax = plt.subplots(figsize=(4,3))
 
     for colony in ['small','medium','large']:
@@ -62,7 +71,7 @@ for y_col in ['2d_area_nuc_cell_ratio','density']:
             f"{figdir}/{y_col}_vs_{x_col}_by_colony",
             file_extension=ext,
             dpi=300,
-            transparent=True,
+            transparent=False,
         )
     plt.show()
 
@@ -71,7 +80,6 @@ for y_col in ['2d_area_nuc_cell_ratio','density']:
 # plot density as a function of nucleus size (and compare to old density metric)
 colony='medium'
 x_col = '2d_area_nucleus'
-from sklearn.linear_model import LinearRegression
 for yi,y_col in enumerate(['2d_area_nuc_cell_ratio','density']):
 
     dfsub = dfm[dfm['colony']==colony].copy()
