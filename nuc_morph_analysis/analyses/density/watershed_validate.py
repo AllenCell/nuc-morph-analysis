@@ -10,7 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from nuc_morph_analysis.analyses.dataset_images_for_figures.figure_helper import return_glasbey_on_dark
-# from nuc_morph_analysis.lib.preprocessing import labeling_neighbors_helper
+from nuc_morph_analysis.lib.preprocessing import labeling_neighbors_helper
 from skimage.measure import find_contours
 
 
@@ -132,6 +132,8 @@ def make_validation_plot(TIMEPOINT=48,colony='medium',RESOLUTION_LEVEL=1,plot_ev
     # now load the tracking dataset and merge with the pseudo cell dataframe
     # first load the dataset and merge
     df = global_dataset_filtering.load_dataset_with_features(dataset='all_baseline',load_local=True)
+    df = labeling_neighbors_helper.label_nuclei_that_neighbor_current_mitotic_event(df)
+    df = labeling_neighbors_helper.label_nuclei_that_neighbor_current_death_event(df)
     df = filter_data.all_timepoints_minimal_filtering(df)
     dfm = pd.merge(df, df_2d, on=['label_img','index_sequence'], suffixes=('', '_pc'),how='left')
 
@@ -178,8 +180,7 @@ def make_validation_plot(TIMEPOINT=48,colony='medium',RESOLUTION_LEVEL=1,plot_ev
     # overlayed on the image colored with the 2d_area_nuc_cell_ratio
     
     dft['2d_area_cyto'] = dft['2d_area_pseudo_cell'] - dft['2d_area_nucleus']
-    # dft = labeling_neighbors_helper.label_nuclei_that_neighbor_current_mitotic_event(dft)
-    # dft = filter_data.apply_density_related_filters(dft)
+    dft = filter_data.apply_density_related_filters(dft)
 
     if plot_everything:
         plot_colorized_image_with_contours(img_dict,dft,'colony_depth','tab10',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=True,draw_contours=False)
