@@ -8,8 +8,8 @@ from pathlib import Path
 import os
 import matplotlib.pyplot as plt
 from nuc_morph_analysis.lib.preprocessing import load_data
-from nuc_morph_analysis.analyses.mitotic_neighbors import labeling_neighbors_helper
-from nuc_morph_analysis.analyses.density.watershed_validate import colorize_image
+from nuc_morph_analysis.analyses.neighbor_of_X import labeling_neighbors_helper
+from nuc_morph_analysis.lib.visualization.plotting_tools import colorize_image
 
 # TEMP: loading local for testing and speed
 df = global_dataset_filtering.load_dataset_with_features(dataset='all_baseline',load_local=True)

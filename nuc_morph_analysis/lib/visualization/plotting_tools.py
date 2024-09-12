@@ -747,3 +747,25 @@ def plot_weighted_scatterplot_by_frame(
         return fig, axs, fig_a, ax_a
 
     return fig, axs
+
+def colorize_image(mip, dft, feature='2d_area_nuc_cell_ratio'):
+    """
+    Function create an image where the segmentation image objects (e.g. nuclei)
+    are colored by the a given feature from the dataframe of that timepoint 
+
+    Parameters
+    ----------
+    mip : np.array
+        the max intensity projection of the labeled image
+    dft : pd.DataFrame
+        the dataframe of the timepoint
+    feature : str
+        the feature to color the image by
+    """
+    
+    # now recolor the image by matching the pixel values in image to label_img in dft
+    recolored_img = np.zeros_like(mip).astype('float32')
+    recolored_img[mip>0]=np.nan
+    for _,row in dft.iterrows():
+        recolored_img[mip==row['label_img']] = row[feature]
+    return recolored_img
