@@ -9,7 +9,8 @@ import os
 import matplotlib.pyplot as plt
 from nuc_morph_analysis.lib.preprocessing import load_data
 from nuc_morph_analysis.lib.preprocessing import labeling_neighbors_helper
-from nuc_morph_analysis.lib.visualization.plotting_tools import colorize_image
+from nuc_morph_analysis.lib.visualization.plotting_tools import colorize_image, plot_colorized_img_with_labels
+
 
 # TEMP: loading local for testing and speed
 df = global_dataset_filtering.load_dataset_with_features(dataset='all_baseline',load_local=True)
@@ -59,21 +60,19 @@ for ti,t in enumerate(time_list):
     lazy_img = reader.get_image_dask_data("ZYX",T=t)
     img= lazy_img.compute()[crop_exp]
 
-    dft = dfc[dfc['index_sequence']==t]
+    dft = dfm[dfm['index_sequence']==t]
+   
+    colormap_dict = {} #type:ignore
+    cmap1 = plt.get_cmap('Dark2_r')
+    colormap_dict.update({'nothing':('frame_of_breakdown',False,1,(0.4,0.4,0.4),f"")}) 
+    colormap_dict.update({'track':('track_id',track_id,2,(0.5,0.0,0.0),f"cell that will divide")}) #type:ignore
+    colormap_dict.update({'frame_of_breakdown':('frame_of_breakdown',True,8,(1.0,0.0,1.0),f"breakdown event")})
+    colormap_dict.update({'has_mitotic_neighbor_breakdown_dilated':('has_mitotic_neighbor_breakdown_forward_dilated',True,3,(1,1,0),f"has mitotic neighbor (forward)")})
+    colormap_dict.update({'has_mitotic_neighbor_breakdown':('has_mitotic_neighbor_breakdown',True,4,(0,1,0),f"has mitotic neighbor")})
 
-    col = 'has_mitotic_neighbor_dilated'
-    # now plot the image with the mitotic neighbors
-    dft = dfm[dfm['index_sequence']==t].copy()
-    dft[f'{col}2'] = dft[f'{col}'] +1 
-    dft.loc[dft['track_id']==track_id,f'{col}2'] = 3
-    dft.loc[dft['predicted_breakdown']==t,f'{col}2'] = 4
-    colored_img = np.uint8(colorize_image(img.max(axis=0),dft,feature=f'{col}2'))
-    current_ax.imshow(colored_img,
-                vmin=0,
-                vmax=8,
-                cmap=CMAP,
-                interpolation='nearest')
 
+    show_legend=True if ti==len(time_list)-1 else False
+    current_ax = plot_colorized_img_with_labels(current_ax,img,dft,colormap_dict,show_legend=show_legend)
     current_ax.set_title(f't={t}')
 
 # set axis.off for all axes
@@ -86,10 +85,3 @@ savename = f"{colony}-{track_id}-{CMAP}t={str(time_list)}"
 savepath = str(figdir / savename)
 save_and_show_plot(savepath,file_extension='.png',figure=fig)
 plt.show()
-
-#%%
-df = global_dataset_filtering.load_dataset_with_features(dataset='all_baseline',load_local=True)
-dfm = labeling_neighbors_helper.label_nuclei_that_neighbor_current_mitotic_event(df)
-#%%
-dfm = dfm.loc[dfm['has_mitotic_neighbor'],:]
-dfm[['colony','index_sequence','number_of_mitotic_frame_of_breakdown_neighbors','has_mitotic_neighbor_breakdown']].sort_values('number_of_mitotic_frame_of_breakdown_neighbors',ascending=False)
