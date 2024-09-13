@@ -1,6 +1,6 @@
 #%%
 from nuc_morph_analysis.lib.preprocessing import load_data
-from nuc_morph_analysis.lib.preprocessing.twoD_zMIP_area import pseudo_cell_helper
+from nuc_morph_analysis.lib.preprocessing.twoD_zMIP_area import pseudo_cell_helper, watershed_workflow
 from pathlib import Path
 import pandas as pd
 from nuc_morph_analysis.lib.preprocessing import global_dataset_filtering
@@ -127,7 +127,7 @@ def make_validation_plot(TIMEPOINT=48,colony='medium',RESOLUTION_LEVEL=1,plot_ev
         reader.set_resolution_level(RESOLUTION_LEVEL)
 
     # perform watershed based pseudo cell segmentation
-    df_2d, img_dict = pseudo_cell_helper.get_pseudo_cell_boundaries(colony, TIMEPOINT, reader, RESOLUTION_LEVEL, return_img_dict=True)
+    df_2d, img_dict = watershed_workflow.get_image_and_run(colony, TIMEPOINT, reader, RESOLUTION_LEVEL, return_img_dict=True)
 
     # now load the tracking dataset and merge with the pseudo cell dataframe
     # first load the dataset and merge
@@ -197,8 +197,4 @@ def make_validation_plot(TIMEPOINT=48,colony='medium',RESOLUTION_LEVEL=1,plot_ev
 
 if __name__ == '__main__':
     # set the details
-    make_validation_plot()
-
-#%%
-make_validation_plot(TIMEPOINT=0,colony='small',RESOLUTION_LEVEL=1,plot_everything=True)
-    
+    make_validation_plot(plot_everything=False)

@@ -2,8 +2,6 @@
 import numpy as np
 from skimage.segmentation import watershed
 from scipy.ndimage import distance_transform_edt
-from bioio.writers import OmeTiffWriter
-from pathlib import Path
 from skimage.measure import regionprops_table
 import pandas as pd
 from nuc_morph_analysis.lib.preprocessing.system_info import PIXEL_SIZE_YX_100x
@@ -80,35 +78,7 @@ def get_pseudo_cell_boundaries_from_labeled_nucleus_image(labeled_nucleus_image,
     else:
         return pseudo_cells_img
 
-def save_pseudo_cell_image(pseudo_cell_image, output_directory, colony, timepoint_frame, resolution_level=0,):
-    """
-    function for saving the pseudo cell image to the output directory
-
-    Parameters
-    ----------
-    pseudo_cell_image : np.array
-        the labeled pseudo cell image (2D) where each cell has a unique label corresponding to the label in the nucleus image
-    output_directory : str
-        the output directory to save the pseudo cell image
-    colony : str
-        the colony name
-    timepoint_frame : int
-        the timepoint frame to save the pseudo cell image
-    resolution_level : int
-        the resolution level (OME-ZARR) to save the pseudo cell image 
-
-    Returns
-    -------
-    None
-    """
-    pseudo_cell_image = pseudo_cell_image.astype(np.uint16)
-    save_dir = Path(output_directory) / colony 
-    Path(save_dir).mkdir(parents=True, exist_ok=True)
-    save_name = f"{colony}_pseudo_cell_image_T{str(timepoint_frame).zfill(3)}_res{resolution_level}.ome.tif"
-    save_path = Path(save_dir) / save_name
-    OmeTiffWriter.save(pseudo_cell_image, save_path, dim_order="YX")
-
-def extract_2d_features(label_image, colony='',timepoint=0, reader=None, resolution_level=0):
+def extract_2d_features(label_image):
     
     """
     extract 2d shape features from the label image
@@ -117,30 +87,12 @@ def extract_2d_features(label_image, colony='',timepoint=0, reader=None, resolut
     ----------
     label_image : np.array
         the labeled image (2D) where each object has a unique label
-    colony : str
-        the colony name
-    timepoint : int
-        the timepoint frame
-    reader : zarr reader
-        the reader, necessary for determining pixel size
-    resolution_level : int
-        the resolution level to load from the OME-ZARR (0 is full, 1 is 2.5x downsampled...equivalent to 20x image size)
 
     Returns
     -------
     df : pd.DataFrame
         the dataframe containing the features
     """
-
-    # determine pixel size ratio since OME-ZARR does not store pixel size
-    # correctly for different resolution levels yet
-
-    reader.set_resolution_level(0)
-    shape0 = reader.shape[-1]
-    reader.set_resolution_level(resolution_level)
-    shape1 = reader.shape[-1]
-    pixel_ratio = shape0/shape1
-
 
     prop_list = regionprops_table(label_image,
                                 properties=('label',
@@ -160,17 +112,65 @@ def extract_2d_features(label_image, colony='',timepoint=0, reader=None, resolut
                                             ),
                                     )
     df =  pd.DataFrame(prop_list)
+    return df
+
+def add_metadata_to_df(df, colony, timepoint, resolution_level=0):
+    """
+    add metadata to the dataframe that is important for merging with the tracking manifest(s)
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        the dataframe containing the features
+    colony : str
+        the colony name
+    timepoint : int
+        the timepoint frame
+    resolution_level : int
+        the resolution level to load from the OME-ZARR (0 is full, 1 is 2.5x downsampled...equivalent to 20x image size)
+
+    Returns
+    -------
+    df : pd.DataFrame
+        the dataframe containing the features with metadata added
+    """
+    
     df['resolution_level'] = resolution_level
     df['index_sequence'] = timepoint
     df['colony'] = colony
-    df['pixel_size'] = PIXEL_SIZE_YX_100x*pixel_ratio
 
     # rename all columns to have prefix "2d_"
     df.columns = ['2d_'+col if col not in ['label','index_sequence','colony'] else col for col in df.columns]
     df['label_img'] = df['label']
     # drop rows where label_img is 0
     df = df[df['label_img']!=0]
+    return df
 
+def add_pixel_size_info(df, resolution_level, reader=None):
+    """
+    add pixel size to the dataframe after adjusting the size for the resolution level
+    Parameters
+    ----------
+    df : pd.DataFrame
+        the dataframe containing the features
+    resolution_level : int
+        the resolution level to load from the OME-ZARR (0 is full, 1 is 2.5x downsampled...equivalent to 20x image size)
+    reader : zarr reader from bioio
+        the reader for the OME-ZARR file image
+
+    """
+    # determine pixel size ratio since OME-ZARR does not store pixel size
+    # correctly for different resolution levels yet
+    
+    if resolution_level>0:
+        reader.set_resolution_level(0)
+        shape0 = reader.shape[-1]
+        reader.set_resolution_level(resolution_level)
+        shape1 = reader.shape[-1]
+        pixel_ratio = shape0/shape1
+    else:
+        pixel_ratio = 1
+    df['pixel_size'] = PIXEL_SIZE_YX_100x*pixel_ratio
     return df
 
 def merge_2d_features(pseudo_cell_features_df, nucleus_features_df):
@@ -192,10 +192,12 @@ def merge_2d_features(pseudo_cell_features_df, nucleus_features_df):
     df_2d = pd.merge(pseudo_cell_features_df, nucleus_features_df, on=['colony','label_img','index_sequence'], suffixes=('_pseudo_cell', '_nucleus'))
     return df_2d
 
-def define_density_feature(df_2d):
+def define_density_features(df_2d):
     """
-    define the density feature in the 2D dataframe
-    the density feature is defined as the area of a nucleus divided by the area of the (pseudo) cell
+    define density features in the 2D dataframe
+    the first density feature (2d_area_nuc_cell_ratio) is defined as the area of a nucleus divided by the area of the (pseudo) cell
+    the second density feature (inv_cyto_density) is defined as the inverse of the cytoplasmic area
+        a sub feature (2d_area_cyto) is also defined as the area of the (pseudo) cell minus the area of the nucleus
 
     Parameters
     ----------
@@ -205,9 +207,11 @@ def define_density_feature(df_2d):
     Returns
     -------
     df_2d : pd.DataFrame
-        the 2D dataframe with the density feature added (2d_area_nuc_cell_ratio)
+        the 2D dataframe with the density features added (2d_area_nuc_cell_ratio, inv_cyto_density, 2d_area_cyto)
     """
-    df_2d['2d_area_nuc_cell_ratio'] = df_2d['2d_area_nucleus'] / df_2d['2d_area_pseudo_cell']
+    df_2d['2d_area_nuc_cell_ratio'] = df_2d['2d_area_nucleus'] / df_2d['2d_area_pseudo_cell'] # unitless
+    df_2d['2d_area_cyto'] = df_2d['2d_area_pseudo_cell'] - df_2d['2d_area_nucleus'] # units of pixel_area
+    df_2d['inv_cyto_density'] = 1/df_2d['2d_area_cyto'] # units of 1/pixel_area
     return df_2d
 
 def choose_columns(df_2d):
@@ -225,12 +229,14 @@ def choose_columns(df_2d):
         the 2D dataframe with the columns chosen
     """
     merge_cols = ['label_img','index_sequence','colony']
-    feature_cols = ['2d_area_pseudo_cell','2d_area_nucleus','2d_area_nuc_cell_ratio','2d_resolution_level_nucleus','2d_resolution_level_pseudo_cell']
+    feature_cols = ['2d_area_pseudo_cell','2d_area_nucleus','2d_area_nuc_cell_ratio',
+                    '2d_area_cyto','inv_cyto_density',
+                    '2d_resolution_level_nucleus','2d_resolution_level_pseudo_cell']
     columns_to_keep = merge_cols + feature_cols
     df_2d = df_2d[columns_to_keep]
     return df_2d
 
-def get_pseudo_cell_boundaries(colony, timepoint, reader, resolution_level,return_img_dict=False):
+def get_pseudo_cell_boundaries(labeled_nucleus_image, colony='test', timepoint=0, reader=None, resolution_level=0, return_img_dict=False):
     """
     determine pseudo cell boundaries for each nuclues in a labeled nucleus image and extract 2d_features
     the pseudo cell boundary is determined by a watershed segmentation of the max projection of the labeled nucleus image
@@ -239,12 +245,14 @@ def get_pseudo_cell_boundaries(colony, timepoint, reader, resolution_level,retur
 
     Parameters
     ----------
+    labeled_nucleus_image : np.array
+        the labeled nucleus image (3D) where each nucleus has a unique label
     colony : str
-        the colony name
+        the colony name, default is 'test'
     timepoint : int
-        the timepoint frame
+        the timepoint frame, default is 0
     reader : zarr reader from bioio
-        the reader for the OME-ZARR file image
+        the reader for the OME-ZARR file image, default is None
     resolution_level : int
         the resolution level to load from the OME-ZARR (0 is full, 1 is 2.5x downsampled...equivalent to 20x image size)
     return_img_dict : bool
@@ -258,24 +266,33 @@ def get_pseudo_cell_boundaries(colony, timepoint, reader, resolution_level,retur
     img_dict : dict
         the dictionary of images for validation
     """
-    labeled_nucleus_image = reader.get_image_dask_data("ZYX", T=timepoint, C=0).compute()
+    # require image to be integer type
+    assert labeled_nucleus_image.dtype in [np.uint8, np.uint16, np.int32, np.int64]
+
     if return_img_dict:
         pseudo_cell_image,nucleus_image,img_dict = get_pseudo_cell_boundaries_from_labeled_nucleus_image(labeled_nucleus_image,return_img_dict=True)
     else:
         pseudo_cell_image,nucleus_image = get_pseudo_cell_boundaries_from_labeled_nucleus_image(labeled_nucleus_image,return_nucleus=True)
 
     # extract features from 2D label image
-    pseudo_cell_features_df = extract_2d_features(pseudo_cell_image, colony=colony, timepoint=timepoint, reader=reader, resolution_level=resolution_level)
-    nucleus_features_df = extract_2d_features(nucleus_image, colony=colony, timepoint=timepoint, reader=reader, resolution_level=resolution_level)
+    pseudo_cell_features_df = extract_2d_features(pseudo_cell_image)
+    nucleus_features_df = extract_2d_features(nucleus_image)
+
+    # add timepoint, colony, pixel_size, label_img to the dataframes
+    pseudo_cell_features_df = add_metadata_to_df(pseudo_cell_features_df, colony, timepoint, resolution_level)
+    nucleus_features_df = add_metadata_to_df(nucleus_features_df, colony, timepoint, resolution_level)
+    
+    # add pixel size info to the dataframes
+    pseudo_cell_features_df = add_pixel_size_info(pseudo_cell_features_df, resolution_level, reader)
+    nucleus_features_df = add_pixel_size_info(nucleus_features_df, resolution_level, reader)
 
     # now merge the two dataframes
     df_2d = merge_2d_features(pseudo_cell_features_df, nucleus_features_df)
    
     # define the density measure (2d_area_nuc_cell_ratio)
-    df_2d = define_density_feature(df_2d)
+    df_2d = define_density_features(df_2d)
 
     df_2d = choose_columns(df_2d)
-
 
     if return_img_dict:
         return df_2d, img_dict
