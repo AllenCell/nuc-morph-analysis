@@ -57,6 +57,7 @@ def load_dataset_with_features(
                 experiment_group = load_data.get_dataset_experiment_group_by_name(dataset)
                 df_master = load_local_dataset(f"all_{experiment_group}", title="with_features")
                 df_master = df_master.loc[df_master.colony == dataset]
+            df_master.set_index("CellId", inplace=True) #parquet saves index as column
         except FileNotFoundError:
             load_local = False
 
@@ -73,6 +74,8 @@ def load_dataset_with_features(
 
         n_tracks_prefilter = df["track_id"].nunique()
         print(f"{n_tracks_prefilter} tracks before any filtering")
+        if 'level_0' in df.columns:
+            print('WARNING: level_0 column found in df, dropping')
         df_all = process_all_tracks(df, dataset, remove_growth_outliers, num_workers)
         df_all_filtered = filter_data.all_timepoints_minimal_filtering(df_all)
         n_tracks = df_all_filtered["track_id"].nunique()
@@ -145,9 +148,9 @@ def write_local(df, dataset, title, destdir=None, format="parquet"):
     """
     filename = name_local_file(dataset, title, destdir, format)
     if format == "parquet":
-        df.to_parquet(filename, index=False)
+        df.to_parquet(filename, index=True)
     elif format == "csv":
-        df.to_csv(filename, index=False)
+        df.to_csv(filename, index=True)
     else:
         raise ValueError(f"Unknown format: {format}")
 
@@ -176,6 +179,7 @@ def process_all_tracks(df, dataset, remove_growth_outliers, num_workers):
         Flag to remove tracks that are growth feature outliers
     """
     # add outlier flags
+    assert df.index.name == "CellId"
     df = filter_data.flag_missed_apoptotic(df)
     df = is_tp_outlier.outlier_detection(df)
     df = add_features.add_division_entry_and_exit_annotations(df)
@@ -276,7 +280,7 @@ def merge_datasets(df_all, df_full):
     df_full.reset_index(inplace=True)
     df_master = df_all.merge(df_full, on="CellId", how="outer")
     df_master["is_full_track"].fillna(False, inplace=True)
-    df_master.set_index("CellId")
+    df_master.set_index("CellId", inplace=True) 
     return df_master
 
 

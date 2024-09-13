@@ -20,7 +20,7 @@ def correct_cellids_with_missing_neighbors(df):
     """
 
     # one CellId is weird and has neighbors = None, so we need to change that
-    df.loc[df['CellId']=='ed8124da9dfe45bc3b64d65aeb7446ff70db4255d41309bb5d1eb9b4','neighbors'] = '[]'
+    df.loc['ed8124da9dfe45bc3b64d65aeb7446ff70db4255d41309bb5d1eb9b4','neighbors'] = '[]'
     return df
 
 def mark_frames_of_formation_and_breakdown(df):
@@ -66,9 +66,9 @@ def find_neighbors_of_cells(df,bool_col=None,new_col=None):
     df[f'number_of_mitotic_{bool_col}_neighbors'] = [0]*len(df)
 
     if bool_col is not None:
-        dfmsub = df[df[bool_col]]
+        dfmsub = df.loc[df[bool_col],[bool_col,'neighbors']].copy()
     else:
-        dfmsub = df
+        dfmsub = df[bool_col,'neighbors'].copy()
 
     # convert the string representation of list of neighbors to a list
     dfmsub['neighbor_list'] = dfmsub['neighbors'].apply(lambda x: eval(x)) 
@@ -77,14 +77,13 @@ def find_neighbors_of_cells(df,bool_col=None,new_col=None):
     list_of_neighbors = dfmsub['neighbor_list'].values
     if len(list_of_neighbors)>0:
         single_list = np.concatenate(dfmsub['neighbor_list'].values) # get a list of all the neighbor cellids
-        df.loc[df['CellId'].isin(single_list),new_col] = True
+        
+        df.loc[df.index.isin(single_list),new_col] = True
 
         # now count the number of times each CellId appears in single_list
         # and store that in the `number_of_mitotic_{bool_col}_neighbors` column
         values,counts = np.unique(single_list,return_counts=True)
-        df.set_index('CellId',inplace=True)
         df.loc[values,f'number_of_mitotic_{bool_col}_neighbors'] = counts
-        df.reset_index(inplace=True)
 
     else:
         print('NOTE: No neighbors found for',bool_col)
@@ -167,8 +166,11 @@ def expand_boolean_labels_in_time(df, feature, iterations=4, direction='forward'
     dilated_matrix = pd.DataFrame(dilated_matrix, index=pivot.index, columns=pivot.columns)
     dilated_matrix = dilated_matrix.stack().reset_index()
     dilated_matrix.columns = [x_col,column_val,f"{feature}_{direction}_dilated"]
-    df = pd.merge(df,dilated_matrix, on=[x_col,column_val],how='left',suffixes=('','_dilated'))
-    return df
+    #must reset index to keep CellId as a column after merge
+    if 'level_0' in df.columns:
+        df = df.drop(columns='level_0')
+    df = pd.merge(df.reset_index(),dilated_matrix, on=[x_col,column_val],how='left',suffixes=('','_dilated'))
+    return df.reset_index().set_index('CellId')
 
 def perform_boolean_dilation_on_pivot(pivot, iterations, direction):
     """
@@ -269,13 +271,14 @@ def label_nuclei_that_neighbor_current_mitotic_event(df,iterations=9):
         and `has_mitotic_neighbor_formation_backward_dilated` and
         the combined column `has_mitotic_neighbor_dilated`
     """
-    
+    assert df.index.name == 'CellId'
     df = correct_cellids_with_missing_neighbors(df)
     df = mark_frames_of_formation_and_breakdown(df)
     df = mark_all_neighbors_of_mitotic_events(df)
     df = expand_boolean_labels_in_time(df, 'has_mitotic_neighbor_breakdown', iterations, direction='forward')
     df = expand_boolean_labels_in_time(df, 'has_mitotic_neighbor_formation', iterations, direction='backward')
     df = combine_formation_and_breakdown_labels(df)
+    assert df.index.name == 'CellId'
     return df
 
 
@@ -298,8 +301,11 @@ def identify_frames_of_death(df):
     dft = df.loc[df.termination == 2,:]
     dftg = dft.groupby('track_id').agg({'index_sequence':'max'}).reset_index()
     dftg['identified_death'] = np.uint16(dftg['index_sequence'].values)
-    df = pd.merge(df,dftg[['track_id','identified_death']],on='track_id',how='left',suffixes=('','_death'))
-    return df
+    # reset index to merge sp that CellId index is preserved as columns
+    if 'level_0' in df.columns:
+        df = df.drop(columns='level_0')
+    df = pd.merge(df.reset_index(),dftg[['track_id','identified_death']],on='track_id',how='left',suffixes=('','_death'))
+    return df.reset_index().set_index('CellId')
 
 def mark_frames_of_death(df):
     """
@@ -325,11 +331,13 @@ def mark_frames_of_death(df):
     return df
 
 def label_nuclei_that_neighbor_current_death_event(df):
+    assert(df.index.name == 'CellId')
     df = correct_cellids_with_missing_neighbors(df)
     df = identify_frames_of_death(df)
     df = mark_frames_of_death(df)
     df = find_neighbors_of_cells(df,bool_col='frame_of_death',new_col='has_dying_neighbor')
     df = expand_boolean_labels_in_time(df, 'has_dying_neighbor', iterations=6, direction='forward')
+    assert(df.index.name == 'CellId')
     return df
 
 
