@@ -63,7 +63,7 @@ def find_neighbors_of_cells(df,bool_col=None,new_col=None):
     df[new_col] = False
     df[new_col] = df[new_col].astype(bool)
 
-    df[f'number_of_mitotic_{bool_col}_neighbors'] = [0]*len(df)
+    df[f'number_of_{bool_col}_neighbors'] = [0]*len(df)
 
     if bool_col is not None:
         dfmsub = df.loc[df[bool_col],[bool_col,'neighbors']].copy()
@@ -83,7 +83,7 @@ def find_neighbors_of_cells(df,bool_col=None,new_col=None):
         # now count the number of times each CellId appears in single_list
         # and store that in the `number_of_mitotic_{bool_col}_neighbors` column
         values,counts = np.unique(single_list,return_counts=True)
-        df.loc[values,f'number_of_mitotic_{bool_col}_neighbors'] = counts
+        df.loc[values,f'number_of_{bool_col}_neighbors'] = counts
 
     else:
         print('NOTE: No neighbors found for',bool_col)

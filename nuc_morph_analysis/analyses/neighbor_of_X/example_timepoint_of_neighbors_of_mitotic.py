@@ -77,7 +77,7 @@ img= lazy_img.compute()
 dft = dfm[dfm['index_sequence']==t]
 colormap_dict = {}
 cmap1 = plt.get_cmap('Dark2_r')
-col = 'number_of_mitotic_frame_of_breakdown_neighbors'
+col = 'number_of_frame_of_breakdown_neighbors'
 colormap_dict.update({f'{col}_{i}':(col,i,i+1,cmap1.colors[i],f"{i} mitotic neighbors") for i in range(dfm[col].max()+1)}) # type: ignore
 colormap_dict.update({'frame_of_breakdown':('frame_of_breakdown',True,8,(1,0,0),f"breakdown event")})
 fig,ax = plt.subplots(figsize=(5,5))
