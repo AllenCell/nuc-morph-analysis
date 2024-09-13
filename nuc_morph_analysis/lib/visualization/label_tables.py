@@ -57,6 +57,7 @@ def get_scale_factor_table(dataset="all_baseline"):
         ("mesh_sa"): pix_size**2,
         ("volume", "volume_sub"): pix_size**3,
         ("density", "avg_density", "avg_early_density", "avg_late_density"): 1 / pix_size**2,
+        
         (
             "colony_time",
             "sync_time_Ff",
@@ -72,9 +73,14 @@ def get_scale_factor_table(dataset="all_baseline"):
         ("colony_area"): PIXEL_SIZE_YX_20x**2,
         ("nucleus_colony_area_ratio"): pix_size**2 / PIXEL_SIZE_YX_20x**2,
         ("seg_twoD_zMIP_area"): pix_size**2,
-        ("2d_area_nuc_cell_ratio"): 1,
-        ("2d_area_nucleus"): (pix_size/2.5)**2, # resolution_level 1 is 2.5x downsampled
+        (
+            "2d_area_nucleus",
+            "2d_area_pseudo_cell",
+            "2d_area_cyto",
+            ): (pix_size/2.5)**2, # resolution_level 1 is 2.5x downsampled
         ("2d_area_pseudo_cell"): (pix_size/2.5)**2, # resolution_level 1 is 2.5x downsampled
+        ("inv_cyto_density"): 1 / (pix_size/2.5)**2, # resolution level =1 is 2.5x downsampled
+        ("2d_area_nuc_cell_ratio"): 1,
     }
 
     # add non dxdt columns and other non-traditional columns
@@ -223,6 +229,8 @@ LABEL_TABLE = {
     "2d_area_nuc_cell_ratio": "Nucleus area/(Pseudo)cell area",
     "2d_area_nucleus": "Nuclear area",
     "2d_area_pseudo_cell": "(Pseudo)cell area",
+    "2d_area_cyto": "Cytoplasmic area",
+    "inv_cyto_density": "Density",
 
 }
 # now add the dxdt columns
@@ -356,6 +364,8 @@ COLORIZER_LABEL_TABLE = {
     "2d_area_nuc_cell_ratio": "Nuclear area to (pseudo)cell area ratio",
     "2d_area_nucleus": "Nuclear area",
     "2d_area_pseudo_cell": "(Pseudo)cell area",
+    "2d_area_cyto": "Cytoplasmic area",
+    "inv_cyto_density": "Cytoplasmic density",
 }
 
 # units for quantities
@@ -383,6 +393,7 @@ UNIT_TABLE = {
         "seg_twoD_zMIP_area",
         "2d_area_nucleus",
         "2d_area_pseudo_cell",
+        "2d_area_cyto",
     ): "(μm²)",
     (
         "volume",
@@ -402,6 +413,7 @@ UNIT_TABLE = {
         "avg_early_density",
         "avg_late_density",
         "avg_density",
+        "inv_cyto_density",
     ): "(μm⁻²)",
     # Temporal
     (

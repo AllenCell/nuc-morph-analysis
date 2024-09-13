@@ -35,9 +35,9 @@ x_col = "colony_time"
 y_col = '2d_area_nuc_cell_ratio'
 column_val = 'label_img'
 feature_list = ['2d_area_nuc_cell_ratio','density','2d_area_nucleus','2d_area_pseudo_cell',
-                # '2d_area_cyto','inv_cyto_density',
+                '2d_area_cyto','inv_cyto_density',
                 ]
-for y_col in ['2d_area_nuc_cell_ratio','density','2d_area_nucleus','2d_area_pseudo_cell','2d_area_cyto','inv_cyto_density']:
+for y_col in feature_list:
     fig,ax = plt.subplots(figsize=(4,3))
 
     for colony in ['small','medium','large']:
