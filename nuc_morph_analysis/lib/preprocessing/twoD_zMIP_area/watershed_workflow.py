@@ -4,18 +4,12 @@ from pathlib import Path
 from tqdm import tqdm
 import pandas as pd
 from multiprocessing import Pool, cpu_count
-from time import time
 
 def get_image_and_run(colony,timepoint,reader,resolution_level,return_img_dict=False):
     if resolution_level>0:
         reader.set_resolution_level(resolution_level)
     img = reader.get_image_dask_data("ZYX", T=timepoint, C=0).compute()
-    if return_img_dict:
-        df_2d, img_dict =  pseudo_cell_helper.get_pseudo_cell_boundaries(img,colony, timepoint, reader, resolution_level, return_img_dict=return_img_dict)
-        return df_2d, img_dict
-    else:
-        df_2d = pseudo_cell_helper.get_pseudo_cell_boundaries(img,colony, timepoint, reader, resolution_level, return_img_dict=return_img_dict)
-        return df_2d
+    return pseudo_cell_helper.get_pseudo_cell_boundaries(img,colony, timepoint, reader, resolution_level, return_img_dict=return_img_dict)
 
 def process_timepoint(args):
     timepoint, colony, reader, resolution_level = args

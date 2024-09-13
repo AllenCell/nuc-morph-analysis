@@ -278,9 +278,6 @@ def get_pseudo_cell_boundaries(labeled_nucleus_image, colony='test', timepoint=0
     pseudo_cell_features_df = extract_2d_features(pseudo_cell_image)
     nucleus_features_df = extract_2d_features(nucleus_image)
 
-    # record the columns to keep
-    columns_to_keep = pseudo_cell_features_df.columns.tolist() + nucleus_features_df.columns.tolist()
-
     # add timepoint, colony, pixel_size, label_img to the dataframes
     pseudo_cell_features_df = add_metadata_to_df(pseudo_cell_features_df, colony, timepoint, resolution_level)
     nucleus_features_df = add_metadata_to_df(nucleus_features_df, colony, timepoint, resolution_level)

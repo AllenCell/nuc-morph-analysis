@@ -1,6 +1,6 @@
 #%%
 from nuc_morph_analysis.lib.preprocessing import load_data
-from nuc_morph_analysis.lib.preprocessing.twoD_zMIP_area import pseudo_cell_helper, watershed_workflow
+from nuc_morph_analysis.lib.preprocessing.twoD_zMIP_area import watershed_workflow
 from pathlib import Path
 import pandas as pd
 from nuc_morph_analysis.lib.preprocessing import global_dataset_filtering

@@ -1,6 +1,5 @@
 #%%
 import numpy as np
-from bioio import BioImage
 from nuc_morph_analysis.lib.preprocessing.twoD_zMIP_area import pseudo_cell_helper
 
 NUCLEUS_SIZE=20
