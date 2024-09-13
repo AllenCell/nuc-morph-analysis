@@ -97,18 +97,18 @@ def extract_2d_features(label_image):
     prop_list = regionprops_table(label_image,
                                 properties=('label',
                                             'area',
-                                            # 'bbox',
-                                            # 'centroid',
-                                            # 'convex_area',
-                                            # 'eccentricity',
-                                            # 'equivalent_diameter',
-                                            # 'extent',
-                                            # 'filled_area',
-                                            # 'major_axis_length',
-                                            # 'minor_axis_length',
-                                            # 'orientation',
-                                            # 'perimeter',
-                                            # 'solidity',
+                                            'bbox',
+                                            'centroid',
+                                            'convex_area',
+                                            'eccentricity',
+                                            'equivalent_diameter',
+                                            'extent',
+                                            'filled_area',
+                                            'major_axis_length',
+                                            'minor_axis_length',
+                                            'orientation',
+                                            'perimeter',
+                                            'solidity',
                                             ),
                                     )
     df =  pd.DataFrame(prop_list)
@@ -278,6 +278,9 @@ def get_pseudo_cell_boundaries(labeled_nucleus_image, colony='test', timepoint=0
     pseudo_cell_features_df = extract_2d_features(pseudo_cell_image)
     nucleus_features_df = extract_2d_features(nucleus_image)
 
+    # record the columns to keep
+    columns_to_keep = pseudo_cell_features_df.columns.tolist() + nucleus_features_df.columns.tolist()
+
     # add timepoint, colony, pixel_size, label_img to the dataframes
     pseudo_cell_features_df = add_metadata_to_df(pseudo_cell_features_df, colony, timepoint, resolution_level)
     nucleus_features_df = add_metadata_to_df(nucleus_features_df, colony, timepoint, resolution_level)
@@ -292,7 +295,7 @@ def get_pseudo_cell_boundaries(labeled_nucleus_image, colony='test', timepoint=0
     # define the density measure (2d_area_nuc_cell_ratio)
     df_2d = define_density_features(df_2d)
 
-    df_2d = choose_columns(df_2d)
+    # df_2d = choose_columns(df_2d)
 
     if return_img_dict:
         return df_2d, img_dict

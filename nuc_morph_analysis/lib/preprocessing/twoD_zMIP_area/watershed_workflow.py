@@ -7,6 +7,8 @@ from multiprocessing import Pool, cpu_count
 from time import time
 
 def get_image_and_run(colony,timepoint,reader,resolution_level,return_img_dict=False):
+    if resolution_level>0:
+        reader.set_resolution_level(resolution_level)
     img = reader.get_image_dask_data("ZYX", T=timepoint, C=0).compute()
     if return_img_dict:
         df_2d, img_dict =  pseudo_cell_helper.get_pseudo_cell_boundaries(img,colony, timepoint, reader, resolution_level, return_img_dict=return_img_dict)
@@ -19,7 +21,7 @@ def process_timepoint(args):
     timepoint, colony, reader, resolution_level = args
     return get_image_and_run(colony,timepoint,reader,resolution_level)
 
-def get_pseudo_cell_boundaries_for_movie(colony, resolution_level=1, output_directory=None, parallel=False, save_df=False, testing=False):
+def get_pseudo_cell_boundaries_for_movie(colony, resolution_level=0, output_directory=None, parallel=False, save_df=False, testing=False):
     """
     function for returning the pseudo cell boundaries at all timepoints
     the psuedo cell boundary is a watershed segmentation of the max projection of the segmentation image
@@ -46,9 +48,6 @@ def get_pseudo_cell_boundaries_for_movie(colony, resolution_level=1, output_dire
     """
     # load the segmentation iamge
     reader = load_data.get_dataset_segmentation_file_reader(colony)
-    if resolution_level>0:
-        reader.set_resolution_level(resolution_level)
-
     args = [(timepoint, colony, reader, resolution_level) for timepoint in range(reader.dims.T)]
     if testing:
         args = args[:5]
