@@ -17,7 +17,7 @@ from nuc_morph_analysis.analyses.colony_context.colony_context_analysis import (
     add_fov_touch_timepoint_for_colonies,
 )
 from nuc_morph_analysis.analyses.height.add_colony_time import add_colony_time_all_datasets
-
+from nuc_morph_analysis.lib.preprocessing import labeling_neighbors_helper
 
 def load_dataset_with_features(
     dataset="all_baseline",
@@ -180,6 +180,10 @@ def process_all_tracks(df, dataset, remove_growth_outliers, num_workers):
     df = is_tp_outlier.outlier_detection(df)
     df = add_features.add_division_entry_and_exit_annotations(df)
     df = filter_data.add_and_pool_outlier_flags(df, remove_growth_outliers=remove_growth_outliers)
+
+    # add labels for neighbors of mitotic and dying cells
+    df = labeling_neighbors_helper.label_nuclei_that_neighbor_current_mitotic_event(df)
+    df = labeling_neighbors_helper.label_nuclei_that_neighbor_current_death_event(df)
 
     # add features
     df = add_features.add_aspect_ratio(df)

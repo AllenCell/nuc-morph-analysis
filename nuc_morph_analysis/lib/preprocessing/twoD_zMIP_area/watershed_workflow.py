@@ -6,10 +6,18 @@ import pandas as pd
 from multiprocessing import Pool, cpu_count
 from time import time
 
+def get_image_and_run(colony,timepoint,reader,resolution_level,return_img_dict=False):
+    img = reader.get_image_dask_data("ZYX", T=timepoint, C=0).compute()
+    if return_img_dict:
+        df_2d, img_dict =  pseudo_cell_helper.get_pseudo_cell_boundaries(img,colony, timepoint, reader, resolution_level, return_img_dict=return_img_dict)
+        return df_2d, img_dict
+    else:
+        df_2d = pseudo_cell_helper.get_pseudo_cell_boundaries(img,colony, timepoint, reader, resolution_level, return_img_dict=return_img_dict)
+        return df_2d
+
 def process_timepoint(args):
     timepoint, colony, reader, resolution_level = args
-    df_2d = pseudo_cell_helper.get_pseudo_cell_boundaries(colony, timepoint, reader, resolution_level)
-    return df_2d
+    return get_image_and_run(colony,timepoint,reader,resolution_level)
 
 def get_pseudo_cell_boundaries_for_movie(colony, resolution_level=1, output_directory=None, parallel=False, save_df=False, testing=False):
     """
@@ -43,7 +51,7 @@ def get_pseudo_cell_boundaries_for_movie(colony, resolution_level=1, output_dire
 
     args = [(timepoint, colony, reader, resolution_level) for timepoint in range(reader.dims.T)]
     if testing:
-        args = args[:20]
+        args = args[:5]
 
     if parallel==False:
         dflist = []
@@ -73,4 +81,5 @@ if __name__ == "__main__":
                                               resolution_level,
                                                 output_directory,
                                                 parallel=False,
-                                                save_df=False)
+                                                save_df=False,
+                                                testing=True)
