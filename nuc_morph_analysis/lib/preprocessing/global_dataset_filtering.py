@@ -57,7 +57,6 @@ def load_dataset_with_features(
                 experiment_group = load_data.get_dataset_experiment_group_by_name(dataset)
                 df_master = load_local_dataset(f"all_{experiment_group}", title="with_features")
                 df_master = df_master.loc[df_master.colony == dataset]
-            df_master.set_index("CellId", inplace=True) #parquet saves index as column
         except FileNotFoundError:
             load_local = False
 
