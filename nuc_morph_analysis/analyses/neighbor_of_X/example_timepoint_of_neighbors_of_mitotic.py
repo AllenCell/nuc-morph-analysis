@@ -22,7 +22,6 @@ frames = 10
 colony = 'medium'
 dfc = df.loc[df['colony']==colony].copy()
 dfm = dfc.loc[(df['index_sequence']>=TIMEPOINT - frames) | (df['index_sequence']<=TIMEPOINT + frames)].copy()
-dfm = labeling_neighbors_helper.label_nuclei_that_neighbor_current_mitotic_event(dfm,)
 
 #%%
 # set figure directory
@@ -78,8 +77,6 @@ for col in column_list:
 #%%
 # and color by number of mitotic neighbors
 # now plot the image with the mitotic neighbors
-df = global_dataset_filtering.load_dataset_with_features(dataset='all_baseline',load_local=True)
-dfm = labeling_neighbors_helper.label_nuclei_that_neighbor_current_mitotic_event(df)
 #%%
 t = 57
 lazy_img = reader.get_image_dask_data("ZYX",T=t)

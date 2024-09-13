@@ -35,6 +35,7 @@ dfm = dfc.loc[(dfc['index_sequence'].isin(time_list))].copy()
 # except for track_id = 87172
 dfm.loc[dfm['track_id']!=track_id,'predicted_breakdown'] = -1
 dfm.loc[:,'predicted_formation'] = -1
+# recompute the features
 dfm = labeling_neighbors_helper.label_nuclei_that_neighbor_current_mitotic_event(dfm)
 
 #%%

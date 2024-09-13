@@ -14,7 +14,7 @@ from nuc_morph_analysis.lib.visualization.plotting_tools import colorize_image
 
 # TEMP: loading local for testing and speed
 df = global_dataset_filtering.load_dataset_with_features(dataset='all_baseline',load_local=True)
-df = labeling_neighbors_helper.identify_frames_of_death(df)
+# df = labeling_neighbors_helper.identify_frames_of_death(df)
 #%%
 # for testing only use a subset of timepoints
 CMAP = 'Dark2_r'
@@ -25,8 +25,8 @@ RESOLUTION_LEVEL = 1
 colony = 'medium'
 dfc = df.loc[df['colony']==colony].copy()
 dfm = dfc.loc[(dfc['index_sequence']==TIMEPOINT)].copy()
-
-dfm = labeling_neighbors_helper.label_nuclei_that_neighbor_current_death_event(dfm)
+# dfm.set_index('CellId',inplace=True)
+# dfm = labeling_neighbors_helper.label_nuclei_that_neighbor_current_death_event(dfm)
 #%%
 # set figure directory
 figdir = Path(__file__).parent / "figures" / "example_timepoint_neighbors_of_dying"
