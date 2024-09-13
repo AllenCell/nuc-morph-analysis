@@ -15,7 +15,7 @@ def process_timepoint(args):
     timepoint, colony, reader, resolution_level = args
     return get_image_and_run(colony,timepoint,reader,resolution_level)
 
-def get_pseudo_cell_boundaries_for_movie(colony, resolution_level=0, output_directory=None, parallel=False, save_df=False, testing=False):
+def get_pseudo_cell_boundaries_for_movie(colony, resolution_level=1, output_directory=None, parallel=False, save_df=False, testing=False):
     """
     function for returning the pseudo cell boundaries at all timepoints
     the psuedo cell boundary is a watershed segmentation of the max projection of the segmentation image
