@@ -9,7 +9,7 @@ import os
 import matplotlib.pyplot as plt
 from nuc_morph_analysis.lib.preprocessing import load_data
 from nuc_morph_analysis.lib.preprocessing import labeling_neighbors_helper
-from nuc_morph_analysis.lib.visualization.plotting_tools import colorize_image, plot_colorized_img_with_labels
+from nuc_morph_analysis.lib.visualization.plotting_tools import plot_colorized_img_with_labels
 
 
 # TEMP: loading local for testing and speed

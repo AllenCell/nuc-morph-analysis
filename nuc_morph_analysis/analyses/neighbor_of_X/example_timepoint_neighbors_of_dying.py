@@ -3,12 +3,10 @@
 # from nuc_morph_analysis.lib.visualization.plotting_tools import get_plot_labels_for_metric
 from nuc_morph_analysis.lib.visualization.notebook_tools import save_and_show_plot
 from nuc_morph_analysis.lib.preprocessing import global_dataset_filtering
-import numpy as np
 from pathlib import Path
 import os
 import matplotlib.pyplot as plt
 from nuc_morph_analysis.lib.preprocessing import load_data
-from nuc_morph_analysis.lib.preprocessing import labeling_neighbors_helper
 from nuc_morph_analysis.lib.visualization.plotting_tools import plot_colorized_img_with_labels
 
 # TEMP: loading local for testing and speed
