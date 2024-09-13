@@ -53,13 +53,6 @@ for col in column_list:
 
     fig,ax = plt.subplots(figsize=(5,5))
     _ = plot_colorized_img_with_labels(ax,img,dft.copy(),colormap_dict)
-
-    # fig,ax = plt.subplots(figsize=(3,3))
-    # plt.imshow(colored_img,
-    #            cmap = CMAP,
-    #            vmin=0,
-    #            vmax=4,
-    #            interpolation='nearest')
     
     plt.title(f'neighbors of mitotic cells\n{col}')
     plt.axis('off')
@@ -70,6 +63,7 @@ for col in column_list:
     save_and_show_plot(savepath.as_posix(),
                        file_extension='.png',
                        figure=fig,
+                       transparent=False,
     )
     plt.show()
 

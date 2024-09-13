@@ -1,6 +1,4 @@
 #%%
-# from nuc_morph_analysis.lib.visualization.reference_points import COLONY_COLORS, COLONY_LABELS
-# from nuc_morph_analysis.lib.visualization.plotting_tools import get_plot_labels_for_metric
 from nuc_morph_analysis.lib.visualization.notebook_tools import save_and_show_plot
 from nuc_morph_analysis.lib.preprocessing import global_dataset_filtering
 import numpy as np
@@ -9,11 +7,10 @@ import os
 import matplotlib.pyplot as plt
 from nuc_morph_analysis.lib.preprocessing import load_data
 from nuc_morph_analysis.lib.preprocessing import labeling_neighbors_helper
-from nuc_morph_analysis.lib.visualization.plotting_tools import colorize_image, plot_colorized_img_with_labels
+from nuc_morph_analysis.lib.visualization.plotting_tools import plot_colorized_img_with_labels
 
 # TEMP: loading local for testing and speed
 df = global_dataset_filtering.load_dataset_with_features(dataset='all_baseline',load_local=True)
-df = labeling_neighbors_helper.identify_frames_of_death(df)
 #%%
 # for testing only use a subset of timepoints
 CMAP = 'Dark2_r'
@@ -90,5 +87,6 @@ for curr_ax in axx:
 savename = f"{colony}-{track_id}-{CMAP}t={str(time_list)}"
 savepath = str(figdir / savename)
 plt.tight_layout()
-save_and_show_plot(savepath,file_extension='.png',figure=fig)
+save_and_show_plot(savepath,file_extension='.png',figure=fig,
+                   transparent=False)
 plt.show()

@@ -36,6 +36,7 @@ dfm = dfc.loc[(dfc['index_sequence'].isin(time_list))].copy()
 dfm.loc[dfm['track_id']!=track_id,'predicted_breakdown'] = -1
 dfm.loc[:,'predicted_formation'] = -1
 # recompute the features
+dfm.drop(columns=['has_mitotic_neighbor_breakdown','has_mitotic_neighbor_formation','has_mitotic_neighbor','has_mitotic_neighbor_formation_backward_dilated','has_mitotic_neighbor_breakdown_forward_dilated','has_mitotic_neighbor_dilated','exiting_mitosis'],inplace=True)
 dfm = labeling_neighbors_helper.label_nuclei_that_neighbor_current_mitotic_event(dfm)
 
 #%%
@@ -85,5 +86,6 @@ for curr_ax in axx:
 savename = f"{colony}-{track_id}-{CMAP}t={str(time_list)}"
 savepath = str(figdir / savename)
 plt.tight_layout()
-save_and_show_plot(savepath,file_extension='.png',figure=fig)
+save_and_show_plot(savepath,file_extension='.png',figure=fig,
+                   transparent=False)
 plt.show()
