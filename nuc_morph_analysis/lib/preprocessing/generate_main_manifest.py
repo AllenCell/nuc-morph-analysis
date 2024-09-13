@@ -24,9 +24,6 @@ from nuc_morph_analysis.lib.preprocessing.generate_manifest_helper import (
     write_result,
     update_id_by_colony,
 )
-from nuc_morph_analysis.lib.preprocessing.twoD_zMIP_area import watershed_workflow
-
-
 
 # %%
 @warn_slow("60min")  # takes about 60 min (fomerly; In testing takes about 4-5 minutes)
