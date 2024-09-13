@@ -225,12 +225,6 @@ FEATURE_COLUMNS = {
         NucMorphFeatureSpec("SA_fold_change_fromB"),
         NucMorphFeatureSpec("delta_SA_BC"),
         NucMorphFeatureSpec("SA_vol_ratio"),
-        # new columns
-        NucMorphFeatureSpec('label_pseudo_cell'),
-        NucMorphFeatureSpec('2d_area_pseudo_cell'),
-        NucMorphFeatureSpec('2d_area_nucleus'),
-        NucMorphFeatureSpec('2d_area_nuc_cell_ratio'),
-
     ],
 }
 
@@ -390,7 +384,7 @@ def make_dataset(
         filters = [args.filter]
 
     # load the dataset once
-    df_all = load_dataset_with_features("all_baseline", remove_growth_outliers=False, load_local=False)
+    df_all = load_dataset_with_features("all_baseline", remove_growth_outliers=False)
 
     for filter in filters:
         output_dir_subset = Path(output_dir) / filter
