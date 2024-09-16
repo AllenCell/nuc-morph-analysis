@@ -175,6 +175,9 @@ def get_data(cvol, save_path=Path("./"), num_workers=1):
     save_path: path to save pdf
     num_workers: how many workers to use for multiprocessing
     """
+    
+    assert df.index.name == "CellId", "CellId must be the index of the dataframe"
+
     df = global_dataset_filtering.load_dataset_with_features(remove_growth_outliers=False)
     df = filter_data.filter_all_outliers(df)
 
@@ -196,11 +199,11 @@ def get_data(cvol, save_path=Path("./"), num_workers=1):
     # subset to relevant neighbor IDs
     neighbor_ids = list(df_cvol["neighbors"].apply(lambda x: ast.literal_eval(x)).values)
     neighbor_ids = [
-        item for sublist in neighbor_ids for item in sublist if item in df["CellId"].values
+        item for sublist in neighbor_ids for item in sublist if item in df.index.values
     ]
 
     # Reset index because compute_density expects a CellId column
-    df_all = df.loc[df["CellId"].isin(neighbor_ids)].reset_index()
+    df_all = df.loc[df.index.isin(neighbor_ids)].reset_index()
 
     # compute distance/density metric
     neigh_stats = compute_density(df_cvol, df_all, num_workers)
