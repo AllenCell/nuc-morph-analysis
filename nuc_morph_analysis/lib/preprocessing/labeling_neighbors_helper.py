@@ -2,6 +2,19 @@ import numpy as np
 import pandas as pd
 from scipy.ndimage import binary_dilation
 
+"""
+Example for how to find neighbors of a breakdown event
+
+1. corrects cellIds with missing neighbors to avoid errors
+2. it looks for all breakdown events (predicted_breakdown), and marks them in the columns frame_of_breakdown as True.
+3. then select rows (i.e. CellIds) where frame_of_breakdown==True, identify all the neighbors for those cells
+4. create a new columns called has_mitotic_neighbor_breakdown and mark it as True for all of those neighbors.
+5. Then, because the mitotic cell will lack a segmentation after breakdown, create a new column called has_mitotic_neighbor_forward_dilated. 
+For each track_id, expand all has_mitotic_neighbor_breakdown==True values forward in time by 45 minutes 
+(which is the upper bound for mitotic durations in these colonies)
+(this is repeated for frame_of_formation but to expand the True values backwards in time)
+"""
+
 def correct_cellids_with_missing_neighbors(df):
     """
     Function to correct the `neighbors` column in the dataframe
@@ -125,7 +138,8 @@ def mark_all_neighbors_of_mitotic_events(df):
 def expand_boolean_labels_in_time(df, feature, iterations=4, direction='forward'):
     """
     Function to expand boolean labels in time
-    by dilating the boolean labels in time
+    by dilating the boolean labels in time defined a connectivity matrix
+    that allows for the dilation to occur in a specific direction (up or down in time)
 
     the workflow converts the boolean labels to a pivot table and assumes that the index is the timepoint
     and that the time values are sorted in ascending order (e.g. 0,1,2,3,4,5,6,7,8,9,10 from top to bottom)
@@ -250,12 +264,15 @@ def combine_formation_and_breakdown_labels(df):
 
 def label_nuclei_that_neighbor_current_mitotic_event(df,iterations=9):
     """
-    Function to label the nuclei that neighbor the current mitotic event
-    it looks for all formation and breakdown events, 
-    then marks/labels the neighbors of those events at that timepoint
-    and expands those labels to capture the other timepoints where the 
+    Function to label the nuclei that neighbor a current mitotic event
+    it looks for all formation and breakdown events, and marks them in the columns 
+    `frame_of_formation` and `frame_of_breakdown` as True.
+    then all neighbors of those events at that timepoint are marked as
+    `has_mitotic_neighbor_breakdown` or `has_mitotic_neighbor_formation` respectively.
+    These labels are then expands forward or backward in time to capture the other timepoints where the 
     mitotic cells lack a segmentation
-    
+    (note the function also corrects cellIds with missing neighbors to avoid errors)
+
     Parameters
     ----------
     df : pd.DataFrame
@@ -330,13 +347,37 @@ def mark_frames_of_death(df):
     df['frame_of_death'] = df['index_sequence']==df['identified_death']
     return df
 
-def label_nuclei_that_neighbor_current_death_event(df):
+def label_nuclei_that_neighbor_current_death_event(df,iterations=6):
+    """
+    Function to label the nuclei that neighbor the a apoptotic (or general death) event
+    it looks for all death events (termination==2), and marks them as `frame_of_death`
+    then all neighbors of those events at that timepoint are marked as `has_dying_neighbor`
+    then the labels are expanded to capture the other timepoints where the space left by
+    the dying cell is still being filled (since the segmentation of a dying cell may be missing aftert frame_of_death)
+    (note the function also corrects cellIds with missing neighbors to avoid errors)
+    
+    Parameters
+    ----------
+    df : pd.DataFrame
+        the dataframe with the apoptotic event predictions
+        (also needs neighbors column)
+    iterations : int
+        the number of iterations to dilate the boolean labels
+        default is 6, or 30 minutes
+        
+    Returns
+    -------    
+    df : pd.DataFrame
+        the dataframe with the new columns `has_mitotic_neighbor_breakdown_forward_dilated`
+        and `has_mitotic_neighbor_formation_backward_dilated` and
+        the combined column `has_mitotic_neighbor_dilated`
+    """
     assert(df.index.name == 'CellId')
     df = correct_cellids_with_missing_neighbors(df)
     df = identify_frames_of_death(df)
     df = mark_frames_of_death(df)
     df = find_neighbors_of_cells(df,bool_col='frame_of_death',new_col='has_dying_neighbor')
-    df = expand_boolean_labels_in_time(df, 'has_dying_neighbor', iterations=6, direction='forward')
+    df = expand_boolean_labels_in_time(df, 'has_dying_neighbor', iterations=iterations, direction='forward')
     assert(df.index.name == 'CellId')
     return df
 
