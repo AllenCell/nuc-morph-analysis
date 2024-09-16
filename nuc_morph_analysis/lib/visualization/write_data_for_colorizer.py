@@ -392,7 +392,7 @@ def make_dataset(
         filters = [args.filter]
 
     # load the dataset once
-    df_all = load_dataset_with_features("all_baseline", remove_growth_outliers=False, load_local=False)
+    df_all = load_dataset_with_features("all_baseline", remove_growth_outliers=False)
 
     for filter in filters:
         output_dir_subset = Path(output_dir) / filter

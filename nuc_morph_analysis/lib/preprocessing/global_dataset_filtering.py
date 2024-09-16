@@ -73,6 +73,8 @@ def load_dataset_with_features(
 
         n_tracks_prefilter = df["track_id"].nunique()
         print(f"{n_tracks_prefilter} tracks before any filtering")
+        if 'level_0' in df.columns:
+            print('WARNING: level_0 column found in df, dropping')
         df_all = process_all_tracks(df, dataset, remove_growth_outliers, num_workers)
         df_all_filtered = filter_data.all_timepoints_minimal_filtering(df_all)
         n_tracks = df_all_filtered["track_id"].nunique()
@@ -145,9 +147,9 @@ def write_local(df, dataset, title, destdir=None, format="parquet"):
     """
     filename = name_local_file(dataset, title, destdir, format)
     if format == "parquet":
-        df.to_parquet(filename, index=False)
+        df.to_parquet(filename, index=True)
     elif format == "csv":
-        df.to_csv(filename, index=False)
+        df.to_csv(filename, index=True)
     else:
         raise ValueError(f"Unknown format: {format}")
 
@@ -176,6 +178,7 @@ def process_all_tracks(df, dataset, remove_growth_outliers, num_workers):
         Flag to remove tracks that are growth feature outliers
     """
     # add outlier flags
+    assert df.index.name == "CellId"
     df = filter_data.flag_missed_apoptotic(df)
     df = is_tp_outlier.outlier_detection(df)
     df = add_features.add_division_entry_and_exit_annotations(df)
@@ -276,7 +279,7 @@ def merge_datasets(df_all, df_full):
     df_full.reset_index(inplace=True)
     df_master = df_all.merge(df_full, on="CellId", how="outer")
     df_master["is_full_track"].fillna(False, inplace=True)
-    df_master.set_index("CellId")
+    df_master.set_index("CellId", inplace=True) 
     return df_master
 
 
@@ -332,7 +335,7 @@ def add_change_over_time(df):
     """
     dfm = df.copy()
     for bin_interval in compute_change_over_time.BIN_INTERVAL_LIST:
-        dfm = compute_change_over_time.run_script(dfm, bin_interval_list=[bin_interval])
+        dfm = compute_change_over_time.run_script(dfm, bin_interval=bin_interval)
 
     # now check that all columns in df have the same dtype as columns in dfm
     for col in df.columns:
