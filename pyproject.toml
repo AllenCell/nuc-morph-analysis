@@ -103,6 +103,7 @@ module = [
     "sklearn",
     "sklearn.decomposition",
     "sklearn.exposure",
+    "sklearn.linear_model",
     "sklearn.model_selection",
     "sklearn.pipeline",
     "sklearn.preprocessing",
