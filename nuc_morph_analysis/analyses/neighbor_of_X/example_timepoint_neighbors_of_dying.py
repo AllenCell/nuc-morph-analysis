@@ -1,6 +1,4 @@
 #%%
-# from nuc_morph_analysis.lib.visualization.reference_points import COLONY_COLORS, COLONY_LABELS
-# from nuc_morph_analysis.lib.visualization.plotting_tools import get_plot_labels_for_metric
 from nuc_morph_analysis.lib.visualization.notebook_tools import save_and_show_plot
 from nuc_morph_analysis.lib.preprocessing import global_dataset_filtering
 from pathlib import Path
@@ -13,7 +11,6 @@ from nuc_morph_analysis.lib.visualization.plotting_tools import plot_colorized_i
 df = global_dataset_filtering.load_dataset_with_features(dataset='all_baseline',load_local=True)
 #%%
 # for testing only use a subset of timepoints
-CMAP = 'Dark2_r'
 track_id = 87124
 TIMEPOINT = int(df.loc[df['track_id']==track_id,'identified_death'].values[0])
 RESOLUTION_LEVEL = 1
@@ -26,7 +23,6 @@ dfm = dfc.loc[(dfc['index_sequence']==TIMEPOINT)].copy()
 figdir = Path(__file__).parent / "figures" / "example_timepoint_neighbors_of_dying"
 os.makedirs(figdir,exist_ok=True)
 
-# now load image at timepoint
 # load the segmentation image
 reader = load_data.get_dataset_segmentation_file_reader(colony)
 if RESOLUTION_LEVEL>0:
@@ -47,16 +43,14 @@ for col in column_list:
     colormap_dict.update({f"{col}":(col,True,2,(1,1,0),f"{col}")})
     colormap_dict.update({f"death":('frame_of_death',True,3,(1,0,1),f"death event")})
 
-
-    fig,ax = plt.subplots(figsize=(5,5))
+    fig,ax = plt.subplots(figsize=(5,5),layout='constrained')
     _ = plot_colorized_img_with_labels(ax,img,dft.copy(),colormap_dict)
 
     plt.title(f'neighbors of dying cells\n{col}\nt={TIMEPOINT}')
     plt.axis('off')
 
-    savename = figdir / f'{colony}-{TIMEPOINT}-{col}-{CMAP}_neighbors.png'
+    savename = figdir / f'{colony}-{TIMEPOINT}-{col}_neighbors.png'
     savepath = figdir / savename
-    plt.tight_layout()
     save_and_show_plot(savepath.as_posix(),
                        file_extension='.png',
                        figure=fig,
