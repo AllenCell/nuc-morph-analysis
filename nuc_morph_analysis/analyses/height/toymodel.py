@@ -176,8 +176,6 @@ def get_data(cvol, save_path=Path("./"), num_workers=1):
     num_workers: how many workers to use for multiprocessing
     """
     
-    assert df.index.name == "CellId", "CellId must be the index of the dataframe"
-
     df = global_dataset_filtering.load_dataset_with_features(remove_growth_outliers=False)
     df = filter_data.filter_all_outliers(df)
 
