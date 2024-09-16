@@ -33,7 +33,9 @@ def correct_cellids_with_missing_neighbors(df):
     """
 
     # one CellId is weird and has neighbors = None, so we need to change that
-    df.loc['ed8124da9dfe45bc3b64d65aeb7446ff70db4255d41309bb5d1eb9b4','neighbors'] = '[]'
+    # df.loc['ed8124da9dfe45bc3b64d65aeb7446ff70db4255d41309bb5d1eb9b4','neighbors'] = '[]'
+    df['neighbors'] = df['neighbors'].astype(str)
+    df.loc[df['neighbors']=='None','neighbors'] = '[]'
     return df
 
 def mark_frames_of_formation_and_breakdown(df):
