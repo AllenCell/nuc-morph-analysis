@@ -17,6 +17,7 @@ from sklearn.preprocessing import StandardScaler
 from tqdm import tqdm
 from nuc_morph_analysis.lib.preprocessing import global_dataset_filtering, filter_data
 from sklearn.model_selection import permutation_test_score
+from nuc_morph_analysis.lib.visualization.plotting_tools import get_plot_labels_for_metric
 
 pd.options.mode.chained_assignment = None  # default='warn'
 
@@ -157,11 +158,11 @@ def fit_linear_regression(
     all_perms.to_csv(save_path / "perm_scores.csv")
 
     # Save coefficient plot for max alpha value
-    save_plots(all_coef_alpha, all_test_sc, all_perms, save_path)
+    save_plots(all_coef_alpha, all_test_sc, all_perms, target, save_path)
 
     return all_coef_alpha, all_test_sc, all_perms
 
-def save_plots(all_coef_alpha, all_test_sc, all_perms, save_path):
+def save_plots(all_coef_alpha, all_test_sc, all_perms, target, save_path):
 
     # subset to max alpha
     max_alpha = all_coef_alpha['alpha'].max()
@@ -185,9 +186,10 @@ def save_plots(all_coef_alpha, all_test_sc, all_perms, save_path):
     )
     g.fig.subplots_adjust(top=0.8) # adjust the Figure in rp
     g.fig.suptitle(f'p-value {p_value}, test r^2 {test_r2_mean}+-{test_r2_std}')
-    g.set_xticklabels(rotation=90)
-    print(f'Saving coefficients_{max_alpha}.png')
-    g.savefig(save_path / f'coefficients_{max_alpha}.png')
+    label_list = [get_plot_labels_for_metric(col)[1] for col in all_coef_alpha['Column'].unique()]
+    g.set_xticklabels(label_list, rotation=90)
+    print(f'Saving coefficients_{target}_alpha_{max_alpha}.png')
+    g.savefig(save_path / f'coefficients_{target}_alpha_{max_alpha}.png')
 
 def list_of_strings(arg):
     return arg.split(",")
