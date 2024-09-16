@@ -25,8 +25,9 @@ from nuc_morph_analysis.lib.preprocessing.generate_manifest_helper import (
     update_id_by_colony,
 )
 
+
 # %%
-@warn_slow("60min")  # takes about 60 min (fomerly; In testing takes about 4-5 minutes)
+@warn_slow("9min")  # In testing takes about 4-5 minutes
 def generate_manifest_one_colony(morflowgenesis_df, colony, manual_lineage_annotations=None):
     """
     Parameters
@@ -88,28 +89,7 @@ def generate_manifest_one_colony(morflowgenesis_df, colony, manual_lineage_annot
     # --------------------------
     # density and other add_colony_metrics features
     logging.info("Calculating colony metrics")
-    step5_df = step4_df.copy()
-    step5_df = add_colony_metrics(step5_df)
-
-    # --------------------------
-    # STEP 6: calculate 2D object-based density
-    # --------------------------
-    logging.info("Calculating image-based density metrics")
-    step6_df = step5_df.copy()
-    density_df = watershed_workflow.get_pseudo_cell_boundaries_for_movie(colony)
-    # now merge the density_df with the main dataframe
-    step6_df = pd.merge(step6_df,
-                            density_df,
-                            on=['colony','index_sequence','label_img'],
-                            suffixes=('', '__pc'),
-                            how='left')
-    # now remove columns with __pc suffix
-    step6_df = step6_df[step6_df.columns.drop(list(step6_df.filter(regex='__pc')))]
-    print(step6_df.shape)
-    print("step5_df.shape",step5_df.shape)
-    print("step6_df.shape",step6_df.shape)
-
-    return step6_df
+    return add_colony_metrics(step4_df)
 
 
 @warn_slow("90s")  # Usually takes 20-30s
