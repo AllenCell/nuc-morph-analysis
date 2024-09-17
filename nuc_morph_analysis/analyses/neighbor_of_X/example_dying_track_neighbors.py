@@ -53,7 +53,9 @@ if RESOLUTION_LEVEL==1:
 crop_exp = np.index_exp[:,y-w:y+w,x-w:x+w]
 nrows = 2
 ncols = np.ceil(len(time_list)/nrows).astype(int)
-fig,ax = plt.subplots(nrows,ncols,figsize=(ncols*2.5,nrows*2.5), layout='constrained')
+fig,ax = plt.subplots(nrows,ncols,figsize=(ncols*2.5,nrows*2.5), 
+                    #   layout='constrained',
+                      )
 axx = np.asarray([ax]).flatten()
 for ti,t in enumerate(time_list):
     current_ax = axx[ti]
