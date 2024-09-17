@@ -26,6 +26,7 @@ warnings.simplefilter(action="ignore", category=FutureWarning)
 def main(cols, target, alpha_range, tolerance, save_path, cached_dataframe=None):
 
     save_path = Path(save_path)
+    save_path = save_path / Path("linear_regression")
     save_path.mkdir(parents=True, exist_ok=True)
 
     if not cached_dataframe:
@@ -45,6 +46,7 @@ def fit_linear_regression(
     cols - input features
     target - target to predict
     alpha - hyperparameter for lasso
+    tol - tolerance to check drop in r^2 for finding best alpha (ex. 0.02)
     save_path - location to save files
     """
     sns.set_context("talk")
@@ -57,7 +59,6 @@ def fit_linear_regression(
 
     # find best alpha for Lasso model
     for alpha_ind, this_alpha in enumerate(alpha):
-        all_coefs = []
         print("fitting alpha", this_alpha)
 
         # drop any nan rows
@@ -134,10 +135,8 @@ def fit_linear_regression(
             [model[1].coef_ for model in cv_model["estimator"]], columns=cols
         )
 
-        all_coefs.append(coefs)
-        all_coefs = pd.concat(all_coefs, axis=0).reset_index(drop=True)
-        all_coefs["alpha"] = this_alpha
-        all_coef_alpha.append(all_coefs)
+        coefs["alpha"] = this_alpha
+        all_coef_alpha.append(coefs)
 
     # Get test scores for all alpha
     all_test_sc = pd.concat(all_test_sc, axis=0).reset_index(drop=True)
