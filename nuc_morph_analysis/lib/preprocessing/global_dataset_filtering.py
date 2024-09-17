@@ -236,7 +236,9 @@ def process_full_tracks(df_all, thresh, pix_size, interval):
         # For LRM
         df_full = add_features.add_feature_at(df_full, frame, 'height', 'height_percentile', pix_size) 
         df_full = add_features.add_feature_at(df_full, frame, 'density', 'density', pix_size)
-        df_full = add_features.add_feature_at(df_full, frame, 'aspect_ratio', 'aspect_ratio')
+        df_full = add_features.add_feature_at(df_full, frame, 'xy_aspect', 'xy_aspect')
+        df_full = add_features.add_feature_at(df_full, frame, 'SA_vol_ratio', 'SA_vol_ratio')
+
         
     df_full = add_features.add_duration_in_frames(df_full, "Ff", "frame_transition")
     df_full = add_features.add_duration_in_frames(df_full, "frame_transition", "Fb")
@@ -250,7 +252,7 @@ def process_full_tracks(df_all, thresh, pix_size, interval):
     df_full = add_growth_features.fit_tracks_to_time_powerlaw(df_full, "volume", interval)
     
     # For LRM
-    ft_list = ['height', 'density', 'volume', 'mesh_sa']
+    ft_list = ['height', 'density', 'volume', 'mesh_sa', 'xy_aspect', 'SA_vol_ratio']
     multiplier_list = [pix_size, 1 / pix_size**2, pix_size**3, pix_size**2]
     df_full = add_features.add_mean_feature_over_trajectory(df_full, ft_list, multiplier_list)
     df_full = add_features.add_std_feature_over_trajectory(df_full, ft_list, multiplier_list)
