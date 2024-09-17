@@ -70,8 +70,8 @@ for ti,t in enumerate(time_list):
     colormap_dict.update({'nothing':('has_dying_neighbor',False,1,(0.4,0.4,0.4),f"")})
     colormap_dict.update({'track':('track_id',track_id,2,(0.5,0.0,0.0),f"cell that will die")}) #type:ignore
     colormap_dict.update({'frame_of_death':('frame_of_death',True,8,(1.0,0.0,0.5),f"moment of death")})
-    colormap_dict.update({'neighbors_dying_cell_forward':('has_dying_neighbor_forward_dilated',True,3,(1,1,0),f"has mitotic neighbor (forward)")})
-    colormap_dict.update({'has_dying_neighbor':('has_dying_neighbor',True,4,(0,1,0),f"has mitotic neighbor")})
+    colormap_dict.update({'neighbors_dying_cell_forward':('has_dying_neighbor_forward_dilated',True,3,(1,1,0),f"has dying neighbor (forward)")})
+    colormap_dict.update({'has_dying_neighbor':('has_dying_neighbor',True,4,(0,1,0),f"has dying neighbor")})
 
     show_legend=True if ti==len(time_list)-1 else False
     current_ax = plot_colorized_img_with_labels(current_ax,img,dft,colormap_dict,show_legend=show_legend)

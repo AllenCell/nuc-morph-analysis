@@ -283,7 +283,7 @@ def combine_formation_and_breakdown_labels(df):
     
     return df
 
-def label_nuclei_that_neighbor_current_mitotic_event(df,iterations=9):
+def label_nuclei_that_neighbor_current_mitotic_event(df,iterations=6):
     """
     Function to label the nuclei that neighbor a current mitotic event
     it looks for all formation and breakdown events, and marks them in the columns 
