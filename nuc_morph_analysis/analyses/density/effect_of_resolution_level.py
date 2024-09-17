@@ -35,8 +35,8 @@ for feature in feature_list:
     fig,ax = plt.subplots(figsize=(2.5,2.5),layout = 'constrained')
     
     if 'ratio' in feature: # ratio features
-        xunits = 1
-        yunits = 1
+        xunits = 1.0
+        yunits = 1.0
         unitstr = ''
     elif 'inv_cyto' in feature: # density features
         xunits = 1/((0.108)**2)
@@ -47,9 +47,13 @@ for feature in feature_list:
         yunits = (0.108*2.5)**2
         unitstr = 'um^2'
 
-
-    x = dfm[feature+'_0'].values.reshape(-1,1) * xunits
-    y = dfm[feature+'_1'].values.reshape(-1,1) * yunits
+    x = dfm[feature+'_0'].values
+    assert type(x) == np.ndarray # important for mypy
+    x = x.reshape(-1,1) * xunits
+    
+    y = dfm[feature+'_1'].values
+    assert type(y) == np.ndarray # important for mypy
+    y = y.reshape(-1,1) * yunits
 
     # compute the correlation
     r2 = metrics.r2_score(x, y)

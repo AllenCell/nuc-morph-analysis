@@ -100,6 +100,8 @@ module = [
     "skimage.exposure",
     "skimage.morphology",
     "skimage.registration",
+    "skimage.segmentation",
+    "skimage.measure",
     "sklearn",
     "sklearn.decomposition",
     "sklearn.exposure",
