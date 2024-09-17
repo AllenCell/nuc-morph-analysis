@@ -974,15 +974,53 @@ def track_level_features(df):
     return df
 
 
-def apply_density_related_filters(dfm):
+def apply_density_related_filters(dfm, apply_to_nucleus_too=False, verbose=False):
+    """
+    this filter marks all features from 2d pseudocell segmenation as NaN if they have
+    a mitotic neighbor, a dying neighbor, are exiting mitosis, are weirdly shaped,
+    or are at the edge of the colony. This is because the 2d pseudocell segmentation
+    is only reliable when these conditions are met. 
 
+    by default it does not apply these features to the 2d nuclear segmentation features
+    because the nuclear segmentation is reliable.
+
+    Parameters
+    ----------
+    dfm: DataFrame
+        The dataset dataframe
+    apply_to_nucleus_too: bool
+        Flag to apply the filter to the nuclear segmentation features in
+        the same way as the cytoplasmic segmentation features are filtered
+    verbose: bool
+        Flag to print out the percentage of cells filtered
+    
+    Returns
+    -------
+    dfm: DataFrame
+        Returns the input dataframe with the features filtered (marked as NaN)
+    """
     # remove cells that have mitotic neighbors
-    dfm = dfm[dfm['has_mitotic_neighbor_dilated']==False]
-    dfm = dfm[dfm['has_dying_neighbor_forward_dilated']==False]
+    log1 = dfm['has_mitotic_neighbor_dilated']==True
+    log2 = dfm['has_dying_neighbor_forward_dilated']==True
+    log3 = dfm['exiting_mitosis']==True # remove cells that are exiting mitosis
+    log4 = dfm["non_interphase_size_shape"] == True # remove weirdly shaped cells
+    log5 = dfm['colony_depth']==1 # remove cells that are at edge of colony
 
-    # remove cells that are exiting mitosis
-    dfm = dfm[dfm['exiting_mitosis']==False]
+    compiled_log = log1 | log2 | log3 | log4 | log5
 
-    # remove weirdly shaped cells
-    dfm = filter_out_non_interphase_size_shape_flag(dfm)
+    # define the columns to apply the filter to
+    extra_cols = ['inv_cyto_density','density','2d_area_cyto']
+    # cols = [x for x in cols if '2d_' in dfm.columns]
+    if apply_to_nucleus_too:
+        cols = [x for x in dfm.columns if ('2d_' in x)] + extra_cols
+    else:
+        cols = [x for x in dfm.columns if ('2d_' in x) & ('cell' in x)] + extra_cols
+
+    # apply the filter
+    dfm.loc[compiled_log, cols] = np.nan
+
+    if verbose:
+        percentage_of_cells_filtered = 100*np.sum(compiled_log)/len(compiled_log)
+        print(f"filtered out {percentage_of_cells_filtered:.1f}% of cells due to density related filters")
+    
     return dfm

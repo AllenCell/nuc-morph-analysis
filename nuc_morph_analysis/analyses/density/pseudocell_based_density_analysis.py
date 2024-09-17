@@ -7,32 +7,23 @@ from nuc_morph_analysis.lib.visualization.notebook_tools import save_and_show_pl
 from nuc_morph_analysis.lib.preprocessing import global_dataset_filtering
 from nuc_morph_analysis.lib.preprocessing import filter_data
 from pathlib import Path
-from nuc_morph_analysis.lib.preprocessing import labeling_neighbors_helper
-
 from sklearn.linear_model import LinearRegression
 from nuc_morph_analysis.lib.preprocessing.filter_data import apply_density_related_filters
 
 #%%
 # set figure directory
-figdir = Path(__file__).parent / "figures"
+figdir = Path(__file__).parent / "figures" / "psuedocell_based_density_analysis"
 figdir.mkdir(exist_ok=True)
 
 # TEMP: loading local for testing and speed
 df = global_dataset_filtering.load_dataset_with_features(dataset='all_baseline',load_local=True)
-#%%
-df = labeling_neighbors_helper.label_nuclei_that_neighbor_current_mitotic_event(df)
-df = labeling_neighbors_helper.label_nuclei_that_neighbor_current_death_event(df)
-
-#%% now apply the filtering
 dfm = df.copy()
+#%% now apply the filtering
 # apply minimal filtering to ensure only good segmentations are present
 dfm = filter_data.all_timepoints_minimal_filtering(dfm)
 
-dfm = apply_density_related_filters(dfm)
-
 #%% # plot density over time for each colony  along colony time 
 x_col = "colony_time"
-y_col = '2d_area_nuc_cell_ratio'
 column_val = 'label_img'
 feature_list = ['2d_area_nuc_cell_ratio','density','2d_area_nucleus','2d_area_pseudo_cell',
                 '2d_area_cyto','inv_cyto_density',
@@ -78,12 +69,11 @@ for y_col in feature_list:
         )
     plt.show()
 
-
 #%%
 # plot density as a function of nucleus size (and compare to old density metric)
 colony='medium'
 x_col = '2d_area_nucleus'
-for yi,y_col in enumerate(['2d_area_nuc_cell_ratio','density']):
+for yi,y_col in enumerate(['2d_area_nuc_cell_ratio','density','inv_cyto_density']):
 
     dfsub = dfm[dfm['colony']==colony].copy()
     dfsub.dropna(subset=[y_col],inplace=True)
@@ -107,7 +97,8 @@ for yi,y_col in enumerate(['2d_area_nuc_cell_ratio','density']):
     # label=f"R2={reg.score(x.reshape(-1,1),y):.2f}")
     ax.text(0.05,0.95,f"R2={reg.score(x.reshape(-1,1),y):.2f}",transform=ax.transAxes,ha='left',va='top')
 
-    plt.tight_layout()
+    plt.title(f"{y_col}\nvs{x_col}\nfor {colony}")
+    # plt.tight_layout()
     for ext in ['.png','.pdf']:
         save_and_show_plot(
             f"{figdir}/{y_col}_vs_{x_col}_by_colony",

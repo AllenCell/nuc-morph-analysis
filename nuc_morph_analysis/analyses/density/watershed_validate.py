@@ -12,29 +12,7 @@ import matplotlib.cm as cm
 from nuc_morph_analysis.analyses.dataset_images_for_figures.figure_helper import return_glasbey_on_dark
 from nuc_morph_analysis.lib.preprocessing import labeling_neighbors_helper
 from skimage.measure import find_contours
-
-
-def colorize_image(mip, dft, feature='2d_area_nuc_cell_ratio'):
-    """
-    Function create an image where the segmentation image objects (e.g. nuclei)
-    are colored by the a given feature from the dataframe of that timepoint 
-
-    Parameters
-    ----------
-    mip : np.array
-        the max intensity projection of the labeled image
-    dft : pd.DataFrame
-        the dataframe of the timepoint
-    feature : str
-        the feature to color the image by
-    """
-    
-    # now recolor the image by matching the pixel values in image to label_img in dft
-    recolored_img = np.zeros_like(mip).astype('float32')
-    recolored_img[mip>0]=np.nan
-    for _,row in dft.iterrows():
-        recolored_img[mip==row['label_img']] = row[feature]
-    return recolored_img
+from nuc_morph_analysis.lib.visualization.plotting_tools import colorize_image
 
 def get_contours_from_pair_of_2d_seg_image(nuc_mip,cell_mip):
         contour_list = [] # (label, nucleus_contour, cell_contour, color)
@@ -112,7 +90,7 @@ def plot_colorized_image_with_contours(img_dict,dft,feature,cmapstr,colony,TIMEP
         plt.title(f'{titlestr}')
 
         # now save the figure
-        savedir = Path(__file__).parent / 'figures' / 'pseudo_cell_validation_extras'
+        savedir = Path(__file__).parent / 'figures' / 'watershed_validate_extras'
         savedir.mkdir(exist_ok=True,parents=True)
         savename = f'{colony}_{TIMEPOINT}_{full_crop}_res{RESOLUTION_LEVEL}_{feature}_{draw_contours}.png'
         savepath = savedir / savename
@@ -166,7 +144,7 @@ def make_validation_plot(TIMEPOINT=48,colony='medium',RESOLUTION_LEVEL=1,plot_ev
         position = right_ax.get_position().bounds
 
         # now save the figure
-        savedir = Path(__file__).parent / 'figures' / 'pseudo_cell_validation'
+        savedir = Path(__file__).parent / 'figures' / 'watershed_validate'
         savedir.mkdir(exist_ok=True,parents=True)
         savename = f'{colony}_{TIMEPOINT}_{full_crop}_res{RESOLUTION_LEVEL}.png'   
         savepath = savedir / savename

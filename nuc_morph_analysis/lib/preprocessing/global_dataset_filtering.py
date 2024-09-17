@@ -201,6 +201,10 @@ def process_all_tracks(df, dataset, remove_growth_outliers, num_workers):
     if dataset == "all_baseline":
         df = add_colony_time_all_datasets(df)
 
+    # mark as NaN any pseudocell segmentation derived features
+    # that are questionable due to neighboring mitotic or apoptotic events
+    # or being at colony edge
+    df = filter_data.apply_density_related_filters(df)
     return df
 
 
