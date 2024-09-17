@@ -13,6 +13,25 @@ Example for how to find neighbors of a breakdown event
 For each track_id, expand all has_mitotic_neighbor_breakdown==True values forward in time by 45 minutes 
 (which is the upper bound for mitotic durations in these colonies)
 (this is repeated for frame_of_formation but to expand the True values backwards in time)
+
+# columns added after running the functions
+# frame_of_breakdown
+# frame_of_formation
+# number_of_frame_of_breakdown_neighbors
+# number_of_frame_of_formation_neighbors
+# has_mitotic_neighbor_breakdown
+# has_mitotic_neighbor_formation
+# has_mitotic_neighbor_breakdown_forward_dilated
+# has_mitotic_neighbor_formation_backward_dilated
+# has_mitotic_neighbor
+# has_mitotic_neighbor_dilated
+# identified_death
+# frame_of_death
+# has_dying_neighbor
+# has_dying_neighbor_forward_dilated
+# number_of_frame_of_death_neighbors
+
+
 """
 
 def correct_cellids_with_missing_neighbors(df):
@@ -264,7 +283,7 @@ def combine_formation_and_breakdown_labels(df):
     
     return df
 
-def label_nuclei_that_neighbor_current_mitotic_event(df,iterations=9):
+def label_nuclei_that_neighbor_current_mitotic_event(df,iterations=6):
     """
     Function to label the nuclei that neighbor a current mitotic event
     it looks for all formation and breakdown events, and marks them in the columns 

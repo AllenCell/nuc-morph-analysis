@@ -87,6 +87,7 @@ def load_dataset_with_features(
 
         df_master = filter_data.add_analyzed_dataset_columns(df_master, dataset)
         df_master = remove_columns(df_master)
+        assert df_master.index.name == "CellId"
 
         # check that no rows have been dropped
         if df_master.shape[0] != df.shape[0]:
@@ -205,6 +206,7 @@ def process_all_tracks(df, dataset, remove_growth_outliers, num_workers):
     # that are questionable due to neighboring mitotic or apoptotic events
     # or being at colony edge
     df = filter_data.apply_density_related_filters(df)
+    assert df.index.name == "CellId"
     return df
 
 
@@ -231,6 +233,7 @@ def process_full_tracks(df_all, thresh, pix_size, interval):
     df_full : pandas.DataFrame
         The dataframe with the calculated features.
     """
+    assert df_all.index.name == "CellId"
     df_full = filter_data.get_dataframe_of_full_tracks(
         df_all, thresh
     )  # edges and outliers are filtered here
@@ -258,6 +261,7 @@ def process_full_tracks(df_all, thresh, pix_size, interval):
 
     # Add flag for use after merging back to main manifest
     df_full = add_features.add_full_track_flag(df_full)
+    assert df_full.index.name == "CellId"
     return df_full
 
 
@@ -277,6 +281,7 @@ def merge_datasets(df_all, df_full):
     df_master : pandas.DataFrame
         The merged dataframe.
     """
+    assert df_all.index.name == "CellId"
     df_all = df_all.drop(["Ff", "Fb"], axis=1)  # these cols are updated in df_full
     df_full = df_full.drop(df_all.columns.tolist(), axis=1)
     df_all.reset_index(inplace=True)
@@ -284,6 +289,7 @@ def merge_datasets(df_all, df_full):
     df_master = df_all.merge(df_full, on="CellId", how="outer")
     df_master["is_full_track"].fillna(False, inplace=True)
     df_master.set_index("CellId", inplace=True) 
+    assert df_master.index.name == "CellId"
     return df_master
 
 

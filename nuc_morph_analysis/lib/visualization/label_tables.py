@@ -225,6 +225,10 @@ LABEL_TABLE = {
     "colony_area": "area of colony (brightfield)",
     "nucleus_colony_area_ratio": "ratio of nuclear area to colony area",
     "seg_twoD_zMIP_area": "total projected nuclear area",
+    # mitotic and apoptotic neighbor columns
+    "number_of_frame_of_breakdown_neighbors": "# of neighboring cells undergoing breakdown",
+    "number_of_frame_of_formation_neighbors": "# of neighboring cells undergoing formation",
+    "number_of_frame_of_death_neighbors": "# of neighboring cells undergoing death",
     # 2D area features
     "2d_area_nuc_cell_ratio": "Nucleus area/(Pseudo)cell area",
     "2d_area_nucleus": "Nuclear area",
@@ -361,6 +365,11 @@ COLORIZER_LABEL_TABLE = {
     "baseline_colonies_dataset": "Baseline colonies dataset filter",
     "full_interphase_dataset": "Full-interphase dataset filter",
     "lineage_annotated_dataset": "Lineage-annotated dataset filter",
+    
+    # mitotic and apoptotic neighbor columns
+    "number_of_frame_of_breakdown_neighbors": "# of neighboring cells undergoing breakdown",
+    "number_of_frame_of_formation_neighbors": "# of neighboring cells undergoing formation",
+    "number_of_frame_of_death_neighbors": "# of neighboring cells undergoing death",
     "2d_area_nuc_cell_ratio": "Nuclear area to (pseudo)cell area ratio",
     "2d_area_nucleus": "Nuclear area",
     "2d_area_pseudo_cell": "(Pseudo)cell area",
