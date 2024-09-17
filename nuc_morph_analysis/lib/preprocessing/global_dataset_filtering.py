@@ -251,10 +251,10 @@ def process_full_tracks(df_all, thresh, pix_size, interval):
     df_full = add_features.add_feature_at(df_full, "frame_transition", 'xy_aspect', 'xy_aspect')
     df_full = add_features.add_feature_at(df_full, "frame_transition", 'SA_vol_ratio', 'SA_vol_ratio')
     df_full = add_features.add_feature_at(df_full, "frame_transition", 'SA_vol_ratio', 'SA_vol_ratio')
-    df_full = add_features.add_feature_at(df_full, "frame_transition", 'transient_gr_whole_colony', 'neighbor_avg_dxdt_48_volume_whole_colony')
+    df_full = add_features.add_feature_at(df_full, "frame_transition", 'neighbor_avg_dxdt_48_volume_whole_colony', 'neighbor_avg_dxdt_48_volume_whole_colony')
     
     ft_list = ['height', 'density', 'volume', 'mesh_sa', 'xy_aspect', 'SA_vol_ratio', 'neighbor_avg_dxdt_48_volume_whole_colony']
-    multiplier_list = [pix_size, 1 / pix_size**2, pix_size**3, pix_size**2]
+    multiplier_list = [pix_size, 1 / pix_size**2, pix_size**3, pix_size**2, 1, 1, 1]
     df_full = add_features.add_mean_feature_over_trajectory(df_full, ft_list, multiplier_list)
     df_full = add_features.add_std_feature_over_trajectory(df_full, ft_list, multiplier_list)
 
