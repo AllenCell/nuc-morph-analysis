@@ -181,12 +181,12 @@ def add_std_feature_over_trajectory(df, feature_list, multiplier_list):
     feature_list : list
         List of column names
     multiplier_list : list
-        List of scale to multiply the mean by
+        List of scale to multiply the std by
         
     Returns
     -------
     df : DataFrame
-        The dataframe with the added deviation feature columns
+        The dataframe with the added standard deviation feature columns
     """
     for feature, multiplier in zip(feature_list, multiplier_list):
         for tid, dft in df.groupby("track_id"):
