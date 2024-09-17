@@ -131,8 +131,10 @@ LABEL_TABLE = {
     ("Ff", "frame_formation"): "Formation",
     ("frame_inflection", "frame_transition"): "Transtion",
     ("Fb", "frame_breakdown"): "Breakdown",
+    "time_at_A": "Time at Formation",
     "time_at_B": "Movie Time at Transition",
     "time_at_C": "Movie Time at Breakdown",
+    "colony_time_at_A": "Aligned Colony Time at Formation",
     "colony_time_at_B": "Aligned Colony Time at Transition",
     "colony_time_at_C": "Aligned Colony Time at Breakdown",
     "duration_AB": "Rapid Expansion Duration",
@@ -216,8 +218,28 @@ LABEL_TABLE = {
     "colony_area": "area of colony (brightfield)",
     "nucleus_colony_area_ratio": "ratio of nuclear area to colony area",
     "seg_twoD_zMIP_area": "total projected nuclear area",
+    # LRM feats
+    "height_at_B": "Height at start of growth",
+    "density_at_B": "Density at start of growth",
+    "xy_aspect_at_B": "XY aspect ratio at start of growth",
+    "SA_vol_ratio_at_B": "SA/Volume ratio at start of growth",
+    "neighbor_avg_dxdt_48_volume_whole_colony_at_B": "Transient growth rate of whole colony at start of growth",
+    "mean_volume": "Mean volume during growth",
+    "mean_height": "Mean height during growth",
+    "mean_density": "Mean density during growth",
+    "mean_mesh_sa": "Mean surface area during growth",
+    "mean_xy_aspect": "Mean XY aspect ratio during growth",
+    "mean_SA_vol_ratio": "Mean SA/Volume ratio during growth",
+    "mean_neighbor_avg_dxdt_48_volume_whole_colony": "Mean transient growth rate of whole colony during growth",
+    "std_volume": "Standard deviation volume during growth",
+    "std_height": "Standard deviation height during growth",
+    "std_density": "Standard deviation density during growth",
+    "std_mesh_sa": "Standard deviation surface area during growth",
+    "std_xy_aspect": "Standard deviation XY aspect ratio during growth",
+    "std_SA_vol_ratio": "Standard deviation SA/Volume ratio during growth",
+    "std_neighbor_avg_dxdt_48_volume_whole_colony": "Standard deviation transient growth rate of whole colony during growth",
 }
-# now add the dxdt columns
+
 
 
 def convert_to_hr(bin_interval, dataset="all_baseline"):
