@@ -244,6 +244,8 @@ def process_full_tracks(df_all, thresh, pix_size, interval):
     df_full = add_growth_features.add_early_growth_rate(df_full, interval)
     df_full = add_growth_features.add_late_growth_rate_by_endpoints(df_full)
     df_full = add_growth_features.fit_tracks_to_time_powerlaw(df_full, "volume", interval)
+    df_full = add_growth_features.fit_tracks_to_model(df_full, interval, "exponential")
+    df_full = add_growth_features.fit_tracks_to_model(df_full, interval, "linear")
 
     # Add flag for use after merging back to main manifest
     df_full = add_features.add_full_track_flag(df_full)

@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sb
 from scipy.optimize import curve_fit
-from nuc_morph_analysis.lib.preprocessing.curve_fitting import powerfunc
+from nuc_morph_analysis.lib.preprocessing.curve_fitting import powerfunc, line, exponential
 from nuc_morph_analysis.lib.visualization.notebook_tools import save_and_show_plot
 from nuc_morph_analysis.lib.visualization.plotting_tools import get_plot_labels_for_metric
 
@@ -167,8 +167,129 @@ def fit_tracks_to_time_powerlaw(
     return df
 
 
+def fit_tracks_to_model(
+    df,
+    interval,
+    model="power",
+    plot=False,
+):
+    """
+
+    Parameters
+    ----------
+    df : DataFrame
+        full tracks dataframe
+    interval : float
+        The time interval in minutes
+    model : str, optional
+        The model to fit to. The default is "power". Other options are "exponential" and "linear".
+    plot : bool, optional
+        If True, a plot of the volume vs time for each track and its exponential fit is displayed. The default is False.
+
+    Returns
+    -------
+    df : Dataframe
+        The input dataframe with an additional columns with linearity fit parameters added
+    """
+
+    # get parameters based on fitting volume or SA
+    atB_0 = 550
+    t_scale0 = np.nan
+    model_name = model
+    if model == "power":
+        rate_0 = 35
+        tscale_0 = 1
+        model_name = "linearity"
+        modelfunc = powerfunc
+    elif model == "exponential":
+        rate_0 = 0.05
+        modelfunc = exponential
+    elif model == "linear":
+        rate_0 = 50
+        modelfunc = line
+    else:
+        raise ValueError(
+            "Function currently only fits volumes to power law, exponential or linear model."
+        )
+    trackdir = f"volume/figures/linearity/volume/tracks/"
+    yscale, ylabel, yunits, _ = get_plot_labels_for_metric("volume")
+
+    features = [
+        f"tscale_{model_name}fit_volume",
+        f"atB_{model_name}fit_volume",
+        f"rate_{model_name}fit_volume",
+        f"RMSE_{model_name}fit_volume",
+    ]
+    for feature in features:
+        df[feature] = np.nan
+
+    fail_count = 0
+    for track, df_track in df.groupby("track_id"):
+
+        try:
+            # trim tracks to transition to breakdown
+            transition = df_track["frame_transition"].min()
+            fb = df_track["Fb"].values.min()
+            df_track = df_track.sort_values("index_sequence")
+            df_track_trim = df_track[
+                (df_track.index_sequence > transition) & (df_track.index_sequence <= fb)
+            ]
+
+            # get trimmed track times and volumes
+            x = df_track_trim["index_sequence"].values * interval / 60
+            x -= x[0]
+            y = df_track_trim["volume"].values * yscale
+
+            # fit trimmed track to model with initial guesses
+            if model == "power":
+                popt, _ = curve_fit(modelfunc, x, y, [rate_0, atB_0, tscale_0])
+                tscale = popt[2]
+            else:
+                popt, _ = curve_fit(modelfunc, x, y, [rate_0, atB_0])
+                tscale = np.nan
+            
+            # get fits parameters, residuals and mse
+            rate = popt[0]
+            atB = popt[1]
+            z = modelfunc(x, *popt)
+            res = z - y
+            rmse = np.sqrt(np.nanmean(res**2))
+            
+            # plot real track and fitted model
+            if plot is True and model == "power":
+                plt.plot(x, y, label=f"Track ID: {track}", c="grey", alpha=0.5)
+                plt.plot(
+                    x,
+                    z,
+                    c="red",
+                    alpha=0.5,
+                    label=f"tscale {np.round(tscale,2)}, atB {np.round(atB)}, "
+                    f"r {np.round(rate)}, RMSE {np.round(rmse)}",
+                )
+                plt.legend()
+                plt.ylabel(f"{ylabel} {yunits}")
+                plt.xlabel("Time (hr)")
+                plt.tight_layout()
+                save_and_show_plot(f"{trackdir}/track{track}", quiet=True)
+                plt.close()
+
+            # add fit parameters and error to manifest
+            df.loc[df_track.index, f"tscale_{model_name}fit_volume"] = tscale
+            df.loc[df_track.index, f"atB_{model_name}fit_volume"] = atB
+            df.loc[df_track.index, f"rate_{model_name}fit_volume"] = rate
+            df.loc[df_track.index, f"RMSE_{model_name}fit_volume"] = rmse
+
+        except Exception:
+            fail_count += 1
+
+    if fail_count > 0:
+        print(f"Failed volume {model} model fit count: {fail_count}")
+
+    return df
+
+
 def plot_fit_parameter_distribution(
-    df_all, figdir, feature, by_colony_flag=False, density_flag=True, nbins=20
+    df_all, figdir, feature, by_colony_flag=False, density_flag=True, allmodels_flag=False, nbins=20
 ):
     """
     This function plots the mean volume fold change for
@@ -185,6 +306,8 @@ def plot_fit_parameter_distribution(
         Flag for whether to separate data out by colony
     density_flag: bool
         Flag for whether to use density instead of histogram
+    allmodels_flag: bool
+        Flag for whether to plot all three volume model errors (power law, exponential, linear)
     nbins: int
         Number of bins for histogram
     """
@@ -212,33 +335,56 @@ def plot_fit_parameter_distribution(
 
     _, ax = plt.subplots(1, 1, figsize=(5, 4), dpi=300)
 
-    for color, colony, label, ind in zip(colors, colonies, labels, [0, 2, 4, 6]):
+    if not allmodels_flag:
 
-        if by_colony_flag and colony != "all_baseline":
-            df = df_all[df_all["colony"] == colony]
-        else:
+        for color, colony, label, ind in zip(colors, colonies, labels, [0, 2, 4, 6]):
+
+            if by_colony_flag and colony != "all_baseline":
+                df = df_all[df_all["colony"] == colony]
+            else:
+                df = df_all
+
+            if density_flag:
+                # get kde and find feature value giving max to add to legend
+                sb.kdeplot(df[feature], color=color, ax=ax)
+                x = ax.lines[ind].get_xdata()  # Get the x data of the distribution
+                y = ax.lines[ind].get_ydata()  # Get the y data of the distribution
+                maxid = np.argmax(y)  # The id of the peak (maximum of y data)
+                label += f" ({np.round(x[maxid],2)})"
+                # replot kde now with complete label
+                sb.kdeplot(df[feature], color=color, label=label, ax=ax)
+
+            else:
+                plt.hist(df[feature], histtype="step", bins=nbins, color=color, label=label)
+    
+    else:
+
+        for color, model, model_name, ind in zip(
+                ["k", "r", "b"],
+                ["linearity", "linear", "exponential"],
+                ["Power law", "Linear", "Exponential"],
+                [0, 2, 4]):
+
             df = df_all
 
-        if density_flag:
             # get kde and find feature value giving max to add to legend
-            sb.kdeplot(df[feature], color=color, ax=ax)
+            sb.kdeplot(df[f"RMSE_{model}fit_volume"], color=color, ax=ax)
             x = ax.lines[ind].get_xdata()  # Get the x data of the distribution
             y = ax.lines[ind].get_ydata()  # Get the y data of the distribution
             maxid = np.argmax(y)  # The id of the peak (maximum of y data)
-            label += f" ({np.round(x[maxid],2)})"
+            label = f"{model_name} ({np.round(x[maxid],2)})"
             # replot kde now with complete label
-            sb.kdeplot(df[feature], color=color, label=label, ax=ax)
+            sb.kdeplot(df[f"RMSE_{model}fit_volume"], color=color, label=label, ax=ax)
 
-        else:
-            plt.hist(df[feature], histtype="step", bins=nbins, color=color, label=label)
 
     if "tscale" in feature:
         plt.axvline(1, color="k", linestyle=":")
     if "RMSE" in feature:
-        plt.axvline(5.49, color="k", linestyle=":", label=f"Error (5.49 {xunits[1:-1]})")
+        plt.axvline(5.54, color="k", linestyle=":", label=f"Segmnetation error (5.54 {xunits[1:-1]})")
 
     plt.xlabel(f"{xlabel} {xunits}")
     plt.ylabel(ylabel)
+    plt.xlim(0, 50)
     plt.legend(prop={"size": 12})
     plt.tight_layout()
     save_and_show_plot(figlabel)
