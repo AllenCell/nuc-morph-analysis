@@ -99,13 +99,9 @@ def plot_colorized_image_with_contours(img_dict,dft,feature,cmapstr,colony,TIMEP
                     bbox_inches='tight')
 
 def make_validation_plot(TIMEPOINT=48,colony='medium',RESOLUTION_LEVEL=1,plot_everything=True):
-    # load the segmentation image
-    reader = load_data.get_dataset_segmentation_file_reader(colony)
-    if RESOLUTION_LEVEL>0:
-        reader.set_resolution_level(RESOLUTION_LEVEL)
 
     # perform watershed based pseudo cell segmentation
-    df_2d, img_dict = watershed_workflow.get_image_and_run(colony, TIMEPOINT, reader, RESOLUTION_LEVEL, return_img_dict=True)
+    df_2d, img_dict = watershed_workflow.get_image_and_run(colony, TIMEPOINT, RESOLUTION_LEVEL, return_img_dict=True)
 
     # now load the tracking dataset and merge with the pseudo cell dataframe
     # first load the dataset and merge

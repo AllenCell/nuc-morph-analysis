@@ -2,6 +2,7 @@ from nuc_morph_analysis.lib.preprocessing import load_data
 from nuc_morph_analysis.lib.preprocessing.twoD_zMIP_area import pseudo_cell_helper
 from tqdm import tqdm
 import pandas as pd
+from pathlib import Path
 from multiprocessing import get_context, cpu_count
 
 def get_image_and_run(colony,timepoint,resolution_level,return_img_dict=False):

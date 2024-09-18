@@ -16,7 +16,7 @@ reader = load_data.get_dataset_segmentation_file_reader(colony)
 # now perform watershed_workflow for resolution_level 0 and 1
 df_2d_list=[]
 for resolution_level in [0,1]:
-    df_2d = watershed_workflow.get_image_and_run(colony, timepoint, reader, resolution_level, return_img_dict=False)
+    df_2d = watershed_workflow.get_image_and_run(colony, timepoint, resolution_level, return_img_dict=False)
     df_2d_list.append(df_2d)
 
 #%%

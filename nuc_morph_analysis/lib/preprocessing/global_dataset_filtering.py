@@ -364,4 +364,4 @@ def add_change_over_time(df):
 # %%
 if __name__ == "__main__":
     for dataset in ["all_baseline", "all_feeding_control", "all_drug_perturbation"]:
-        df = load_dataset_with_features(dataset, save_local=True, num_workers=32)
+        df = load_dataset_with_features(dataset, load_local=False, save_local=True, num_workers=32)
