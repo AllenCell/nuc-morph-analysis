@@ -99,7 +99,7 @@ def generate_manifest_one_colony(morflowgenesis_df, colony, manual_lineage_annot
     # --------------------------
     logging.info("Calculating image-based density metrics")
     step6_df = step5_df.copy()
-    density_df = watershed_workflow.get_pseudo_cell_boundaries_for_movie(colony)
+    density_df = watershed_workflow.get_pseudo_cell_boundaries_for_movie(colony,parallel=True)
     # now merge the density_df with the main dataframe
     step6_df = pd.merge(step6_df,
                             density_df,
@@ -128,31 +128,34 @@ def write_main_manifest(df, destdir=None, format="parquet"):
     """
     write_result(df, "main_manifest", destdir, format)
 
-
-# %%
-dataset = "large"
-morflowgenesis_df = load_data.load_morflowgenesis_dataframe(dataset)
-
-termination_df = load_data.load_apoptosis_annotations(dataset)
-df_with_apop_annotation = track_matching_apoptosis.merge_termination_annotations(
-    morflowgenesis_df, termination_df
-)
-df = generate_manifest_one_colony(df_with_apop_annotation, dataset)
-
-# %%
-for dataset in ["small", "medium"]:
+def run_workflow():
+    # %%
+    dataset = "large"
     morflowgenesis_df = load_data.load_morflowgenesis_dataframe(dataset)
-    annotations_for_morflowgenesis = load_data.load_lineage_annotations(dataset)
 
-    output = generate_manifest_one_colony(
-        morflowgenesis_df, dataset, annotations_for_morflowgenesis
+    termination_df = load_data.load_apoptosis_annotations(dataset)
+    df_with_apop_annotation = track_matching_apoptosis.merge_termination_annotations(
+        morflowgenesis_df, termination_df
     )
-    df = pd.concat([df, output], axis="rows")
+    df = generate_manifest_one_colony(df_with_apop_annotation, dataset)
+
+    # %%
+    for dataset in ["small", "medium"]:
+        morflowgenesis_df = load_data.load_morflowgenesis_dataframe(dataset)
+        annotations_for_morflowgenesis = load_data.load_lineage_annotations(dataset)
+
+        output = generate_manifest_one_colony(
+            morflowgenesis_df, dataset, annotations_for_morflowgenesis
+        )
+        df = pd.concat([df, output], axis="rows")
 
 
-# %% Each track should have a single formation/breakdown value
-validate_formation_breakdown(df)
+    # %% Each track should have a single formation/breakdown value
+    validate_formation_breakdown(df)
 
-# %%
-write_main_manifest(df)
-# %%
+    # %%
+    write_main_manifest(df)
+    # %%
+
+if __name__ == "__main__":
+    run_workflow()

@@ -1,19 +1,20 @@
 from nuc_morph_analysis.lib.preprocessing import load_data
 from nuc_morph_analysis.lib.preprocessing.twoD_zMIP_area import pseudo_cell_helper
-from pathlib import Path
 from tqdm import tqdm
 import pandas as pd
-from multiprocessing import Pool, cpu_count
+from multiprocessing import get_context, cpu_count
 
-def get_image_and_run(colony,timepoint,reader,resolution_level,return_img_dict=False):
+def get_image_and_run(colony,timepoint,resolution_level,return_img_dict=False):
+    reader = load_data.get_dataset_segmentation_file_reader(colony)
     if resolution_level>0:
         reader.set_resolution_level(resolution_level)
     img = reader.get_image_dask_data("ZYX", T=timepoint, C=0).compute()
-    return pseudo_cell_helper.get_pseudo_cell_boundaries(img,colony, timepoint, reader, resolution_level, return_img_dict=return_img_dict)
+    del reader # close the reader so it doesn't have pickling issues in multiprocessing
+    return pseudo_cell_helper.get_pseudo_cell_boundaries(img,colony, timepoint, resolution_level, return_img_dict=return_img_dict)
 
 def process_timepoint(args):
-    timepoint, colony, reader, resolution_level = args
-    return get_image_and_run(colony,timepoint,reader,resolution_level)
+    timepoint, colony, resolution_level = args
+    return get_image_and_run(colony,timepoint,resolution_level)
 
 def get_pseudo_cell_boundaries_for_movie(colony, resolution_level=1, output_directory=None, parallel=False, save_df=False, testing=False):
     """
@@ -42,9 +43,12 @@ def get_pseudo_cell_boundaries_for_movie(colony, resolution_level=1, output_dire
     """
     # load the segmentation iamge
     reader = load_data.get_dataset_segmentation_file_reader(colony)
-    args = [(timepoint, colony, reader, resolution_level) for timepoint in range(reader.dims.T)]
+    args = [(timepoint, colony, resolution_level) for timepoint in range(reader.dims.T)]
+    del reader # close the reader so it doesn't have pickling issues in multiprocessing
+
+    nworkers = cpu_count()
     if testing:
-        args = args[:5]
+        args = args[0:nworkers*2]
 
     if parallel==False:
         dflist = []
@@ -52,11 +56,33 @@ def get_pseudo_cell_boundaries_for_movie(colony, resolution_level=1, output_dire
             df_2d = process_timepoint(args[ai])
             dflist.append(df_2d)
     else:
-        with Pool(cpu_count()) as p:
-            dflist = list(tqdm(p.imap_unordered(process_timepoint, [args[ai] for ai in range(len(args))]), total=len(args), desc="Processing timepoints"))
-        
+        step = nworkers*2
+        arg_set = [args[ai:ai+step] for ai in range(0,len(args),step)]
+        print("number of sets to process:",len(arg_set))
+        print("step size:",step)
+        dflist_list = []
+        # for arg_subset in tqdm(arg_set, desc="Processing timepoints"):
+        ai = 0
+        while ai < len(arg_set):
+            # code is set up this way to retry if encountrering aiohttp.client_exceptions.ServerDisconnectedError: Server disconnected
+            try:
+                arg_subset = arg_set[ai]
+                with get_context('spawn').Pool(nworkers) as p:
+                    dflist = list(tqdm(p.imap_unordered(process_timepoint, arg_subset), initial= ai*step, total=(ai*step)+len(arg_subset), desc="Processing timepoints"))
+                    dflist_list.extend(dflist)
+                ai += 1
+            
+            # catch exceptions and try again (kill if keyboard interrupt)
+            except Exception as e:
+                if isinstance(e, KeyboardInterrupt):
+                    print("Keyboard interrupt detected, killing pool")
+                    p.terminate()
+                    p.join()
+                    break
+                print("Exception detected, trying again")
+
     # concatenate the dataframe
-    df = pd.concat(dflist)
+    df = pd.concat(dflist_list)
 
     if save_df:
         # save the dataframe as a parquet
@@ -73,6 +99,6 @@ if __name__ == "__main__":
         df = get_pseudo_cell_boundaries_for_movie(colony,
                                               resolution_level,
                                                 output_directory,
-                                                parallel=False,
-                                                save_df=False,
-                                                testing=True)
+                                                parallel=True,
+                                                save_df=True,
+                                                testing=False)

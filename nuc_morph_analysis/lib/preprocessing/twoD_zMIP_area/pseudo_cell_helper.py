@@ -4,7 +4,6 @@ from skimage.segmentation import watershed
 from scipy.ndimage import distance_transform_edt
 from skimage.measure import regionprops_table
 import pandas as pd
-from nuc_morph_analysis.lib.preprocessing.system_info import PIXEL_SIZE_YX_100x
 
 #%% define key functions
 def get_pseudo_cell_boundaries_from_labeled_nucleus_image(labeled_nucleus_image, return_nucleus=False, return_img_dict=False):
@@ -147,33 +146,6 @@ def add_metadata_to_df(df, colony, timepoint, resolution_level=0):
     df = df[df['label_img']!=0]
     return df
 
-def add_pixel_size_info(df, resolution_level, reader=None):
-    """
-    add pixel size to the dataframe after adjusting the size for the resolution level
-    Parameters
-    ----------
-    df : pd.DataFrame
-        the dataframe containing the features
-    resolution_level : int
-        the resolution level to load from the OME-ZARR (0 is full, 1 is 2.5x downsampled...equivalent to 20x image size)
-    reader : zarr reader from bioio
-        the reader for the OME-ZARR file image
-
-    """
-    # determine pixel size ratio since OME-ZARR does not store pixel size
-    # correctly for different resolution levels yet
-    
-    if resolution_level>0:
-        reader.set_resolution_level(0)
-        shape0 = reader.shape[-1]
-        reader.set_resolution_level(resolution_level)
-        shape1 = reader.shape[-1]
-        pixel_ratio = shape0/shape1
-    else:
-        pixel_ratio = 1
-    df['pixel_size'] = PIXEL_SIZE_YX_100x*pixel_ratio
-    return df
-
 def merge_2d_features(pseudo_cell_features_df, nucleus_features_df):
     """
     merge the 2D features from the pseudo cell and nucleus images
@@ -240,7 +212,7 @@ def choose_columns(df_2d):
     df_2d = df_2d[columns_to_keep]
     return df_2d
 
-def get_pseudo_cell_boundaries(labeled_nucleus_image, colony='test', timepoint=0, reader=None, resolution_level=0, return_img_dict=False):
+def get_pseudo_cell_boundaries(labeled_nucleus_image, colony='test', timepoint=0, resolution_level=0, return_img_dict=False):
     """
     determine pseudo cell boundaries for each nuclues in a labeled nucleus image and extract 2d_features
     the pseudo cell boundary is determined by a watershed segmentation of the max projection of the labeled nucleus image
@@ -255,8 +227,6 @@ def get_pseudo_cell_boundaries(labeled_nucleus_image, colony='test', timepoint=0
         the colony name, default is 'test'
     timepoint : int
         the timepoint frame, default is 0
-    reader : zarr reader from bioio
-        the reader for the OME-ZARR file image, default is None
     resolution_level : int
         the resolution level to load from the OME-ZARR (0 is full, 1 is 2.5x downsampled...equivalent to 20x image size)
     return_img_dict : bool
@@ -285,10 +255,6 @@ def get_pseudo_cell_boundaries(labeled_nucleus_image, colony='test', timepoint=0
     # add timepoint, colony, pixel_size, label_img to the dataframes
     pseudo_cell_features_df = add_metadata_to_df(pseudo_cell_features_df, colony, timepoint, resolution_level)
     nucleus_features_df = add_metadata_to_df(nucleus_features_df, colony, timepoint, resolution_level)
-    
-    # add pixel size info to the dataframes
-    pseudo_cell_features_df = add_pixel_size_info(pseudo_cell_features_df, resolution_level, reader)
-    nucleus_features_df = add_pixel_size_info(nucleus_features_df, resolution_level, reader)
 
     # now merge the two dataframes
     df_2d = merge_2d_features(pseudo_cell_features_df, nucleus_features_df)
