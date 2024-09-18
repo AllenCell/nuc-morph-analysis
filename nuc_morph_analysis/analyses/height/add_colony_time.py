@@ -40,10 +40,15 @@ def get_colony_time_shift(df):
 
 def add_colony_time(df, time_lag_small_medium, time_lag_medium_large):
     """
-    adds a column called: 'colony_time' to the dataset with the pre-calculated frame/time-shift depending on the colony name. The colony time column contains time in frames.
+    adds a column called: 'colony_time' to the dataset with the pre-calculated frame/time-shift depending on the colony name. 
+    The colony time column contains time in frames.
 
     v2023 medium=+156, large=+156+140
     morflowgenesis v0.2.1 medium=+148, large=+148+140
+    morflowgenesis v0.3.0 and bioRxiv medium=+123, large=+123+150
+    
+    Using height_percentile as height the shift is now:
+    morflowgenesis v0.3.0 medium=+120, large=+120+147
 
     Parameters
     ------------
@@ -52,10 +57,11 @@ def add_colony_time(df, time_lag_small_medium, time_lag_medium_large):
     data_name: string
         name of the manifest of interest
 
-        Returns
-        -----------
-        df : DataFrame
-        DataFrame with added column -'colony_time'"""
+    Returns
+    -----------
+    df : DataFrame
+        DataFrame with added column 'colony_time'
+    """
 
     if (df.colony == "small").all():
         df["colony_time"] = df["index_sequence"]
