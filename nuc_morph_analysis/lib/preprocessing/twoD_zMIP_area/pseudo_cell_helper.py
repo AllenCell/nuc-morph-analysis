@@ -112,6 +112,7 @@ def extract_2d_features(label_image):
                                             ),
                                     )
     df =  pd.DataFrame(prop_list)
+    df['img_shape'] = [str(label_image.shape)]*len(df) # add as a sanity check that the image size does not change when reading ZARRs
     return df
 
 def add_metadata_to_df(df, colony, timepoint, resolution_level=0):
@@ -189,7 +190,10 @@ def merge_2d_features(pseudo_cell_features_df, nucleus_features_df):
     df_2d : pd.DataFrame
         the merged dataframe containing the 2D features from the pseudo cell and nucleus images
     """
-    df_2d = pd.merge(pseudo_cell_features_df, nucleus_features_df, on=['colony','label_img','index_sequence'], suffixes=('_pseudo_cell', '_nucleus'))
+    # perform a left merge because we only want to match pseudo cells to true nuclei
+    df_2d = pd.merge(nucleus_features_df, pseudo_cell_features_df, on=['colony','label_img','index_sequence'], suffixes=('_nucleus','_pseudo_cell'),how='left')
+    # now perform a check that df_2d has the same number of rows as nucleus_features_df
+    assert len(df_2d) == len(nucleus_features_df)
     return df_2d
 
 def define_density_features(df_2d):
