@@ -69,7 +69,7 @@ def get_pseudo_cell_boundaries_for_movie(colony, resolution_level=1, output_dire
             try:
                 arg_subset = arg_set[ai]
                 with get_context('spawn').Pool(nworkers) as p:
-                    dflist = list(tqdm(p.imap_unordered(process_timepoint, arg_subset), initial= ai*step, total=(ai*step)+len(arg_subset), desc="Processing timepoints"))
+                    dflist = list(tqdm(p.imap_unordered(process_timepoint, arg_subset), initial= ai*step, total=len(args), desc="Processing timepoints",leave=False))
                     dflist_list.extend(dflist)
                 ai += 1
             
@@ -80,6 +80,9 @@ def get_pseudo_cell_boundaries_for_movie(colony, resolution_level=1, output_dire
                     p.terminate()
                     p.join()
                     break
+                else:
+                    p.terminate()
+                    p.join()
                 print("Exception detected, trying again")
 
     # concatenate the dataframe

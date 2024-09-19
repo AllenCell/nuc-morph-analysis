@@ -21,7 +21,7 @@ for resolution_level in [0,1]:
 
 #%%
 # examine correlation between nucleus_area for all dataframes
-dfm = pd.merge(df_2d_list[0], df_2d_list[1],
+dfm0 = pd.merge(df_2d_list[0], df_2d_list[1],
                 on='label_img',
                   suffixes=('_0', '_1'))
 
@@ -41,12 +41,13 @@ for feature in feature_list:
     elif 'inv_cyto' in feature: # density features
         xunits = 1/((0.108)**2)
         yunits = 1/((0.108*2.5)**2)
-        unitstr = '1/um^2'
+        unitstr = '(1/um^2)'
     else: # area features
         xunits = (0.108)**2
         yunits = (0.108*2.5)**2
-        unitstr = 'um^2'
+        unitstr = '(um^2)'
 
+    dfm = dfm0.dropna(subset=[feature+'_0',feature+'_1'])
     x = dfm[feature+'_0'].values
     assert type(x) == np.ndarray # important for mypy
     x = x.reshape(-1,1) * xunits
@@ -59,18 +60,20 @@ for feature in feature_list:
     r2 = metrics.r2_score(x, y)
 
     ax.scatter(x, y)
-    ax.set_xlabel(f"{feature} ({unitstr})"+'\n at resolution level 0')
-    ax.set_ylabel(f"{feature} ({unitstr})"+'\n at resolution level 1\n(2.5x downsampled)')
+    ax.set_xlabel(f"{feature} {unitstr}"+'\n at resolution level 0')
+    ax.set_ylabel(f"{feature} {unitstr}"+'\n at resolution level 1\n(2.5x downsampled)')
     ax.set_title(feature)
 
     # add the unity line
-    ax.axline((0,0),(1,1),color='black',linestyle='--')
+    ax.axline((0,0),(1,1),color='black',linestyle='--', label='unity')
     ax.set_xlim([np.min([x.min(),y.min()]),np.max([x.max(),y.max()])])
     ax.set_ylim([np.min([x.min(),y.min()]),np.max([x.max(),y.max()])])
 
     ax.text(0.05,0.95,f'R^2 = {r2:.2f}',transform=ax.transAxes,
             ha='left',va='top')
     ax.set_aspect('equal')
+    plt.legend(loc='lower right')
+
 
     save_path = fig_dir / f'{feature}_scatterplot.png'
     save_and_show_plot(str(save_path),'.png',

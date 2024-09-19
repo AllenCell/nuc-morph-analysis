@@ -8,7 +8,6 @@ from nuc_morph_analysis.lib.preprocessing import global_dataset_filtering
 from nuc_morph_analysis.lib.preprocessing import filter_data
 from pathlib import Path
 from sklearn.linear_model import LinearRegression
-from nuc_morph_analysis.lib.preprocessing.filter_data import apply_density_related_filters
 
 #%%
 # set figure directory

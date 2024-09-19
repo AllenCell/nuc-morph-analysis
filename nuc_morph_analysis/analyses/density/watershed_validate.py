@@ -1,5 +1,4 @@
 #%%
-from nuc_morph_analysis.lib.preprocessing import load_data
 from nuc_morph_analysis.lib.preprocessing.twoD_zMIP_area import watershed_workflow
 from pathlib import Path
 import pandas as pd
@@ -10,7 +9,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from nuc_morph_analysis.analyses.dataset_images_for_figures.figure_helper import return_glasbey_on_dark
-from nuc_morph_analysis.lib.preprocessing import labeling_neighbors_helper
 from skimage.measure import find_contours
 from nuc_morph_analysis.lib.visualization.plotting_tools import colorize_image
 
@@ -68,7 +66,6 @@ def plot_colorized_image_with_contours(img_dict,dft,feature,cmapstr,colony,TIMEP
     
         # create the figure
         fig, axlist = plt.subplots(1, 1, figsize=(6, 4))
-# 
 
         vmin,vmax = (0,cmap.N) if categorical else (None,None)
         mappable = axlist.imshow(cimg, interpolation='nearest',cmap=cmap,
@@ -106,14 +103,12 @@ def make_validation_plot(TIMEPOINT=48,colony='medium',RESOLUTION_LEVEL=1,plot_ev
     # now load the tracking dataset and merge with the pseudo cell dataframe
     # first load the dataset and merge
     df = global_dataset_filtering.load_dataset_with_features(dataset='all_baseline',load_local=True)
-    df = labeling_neighbors_helper.label_nuclei_that_neighbor_current_mitotic_event(df)
-    df = labeling_neighbors_helper.label_nuclei_that_neighbor_current_death_event(df)
     df = filter_data.all_timepoints_minimal_filtering(df)
-    dfm = pd.merge(df, df_2d, on=['label_img','index_sequence'], suffixes=('', '_pc'),how='left')
+    dfm = pd.merge(df, df_2d, on=['colony','index_sequence','label_img'], suffixes=('', '_pc'),how='left')
 
     # now get the subset of the dataframe for the colony and timepoint
     dfsub = dfm[dfm['colony']==colony]
-    dft = dfsub[dfsub['index_sequence']==TIMEPOINT]
+    dft0 = dfsub[dfsub['index_sequence']==TIMEPOINT]
 
     # now display all of the intermediates of the
     # watershed based pseudo cell segmentation
@@ -153,8 +148,7 @@ def make_validation_plot(TIMEPOINT=48,colony='medium',RESOLUTION_LEVEL=1,plot_ev
     # now create a plot drawing the boundaries of the nuclei and cells
     # overlayed on the image colored with the 2d_area_nuc_cell_ratio
     
-    dft['2d_area_cyto'] = dft['2d_area_pseudo_cell'] - dft['2d_area_nucleus']
-    dft = filter_data.apply_density_related_filters(dft)
+    dft = filter_data.apply_density_related_filters(dft0)
 
     if plot_everything:
         plot_colorized_image_with_contours(img_dict,dft,'colony_depth','tab10',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=True,draw_contours=False)
@@ -168,7 +162,7 @@ def make_validation_plot(TIMEPOINT=48,colony='medium',RESOLUTION_LEVEL=1,plot_ev
         plot_colorized_image_with_contours(img_dict,dft,'density','viridis',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=False,draw_contours=False)
         plot_colorized_image_with_contours(img_dict,dft,'density','viridis',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=False,draw_contours=True)
         plot_colorized_image_with_contours(img_dict,dft,'zeros','viridis',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=False,draw_contours=True)
-
+    return dft0
 if __name__ == '__main__':
     # set the details
-    make_validation_plot(plot_everything=False)
+    dft0 = make_validation_plot(plot_everything=False)
