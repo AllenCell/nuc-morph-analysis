@@ -248,6 +248,10 @@ FEATURE_COLUMNS = {
         NucMorphFeatureSpec('2d_area_nuc_cell_ratio'),
         NucMorphFeatureSpec('2d_area_cyto'),
         NucMorphFeatureSpec('inv_cyto_density'),
+        NucMorphFeatureSpec('2d_intensity_min_edge'),
+        NucMorphFeatureSpec('2d_intensity_max_edge'),
+        NucMorphFeatureSpec('2d_intensity_mean_edge'),
+        NucMorphFeatureSpec('2d_eccentricity_nucleus'),
 
     ],
 }

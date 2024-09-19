@@ -258,7 +258,7 @@ def define_density_features(df_2d):
         the 2D dataframe with the density features added (2d_area_nuc_cell_ratio, inv_cyto_density)
     """
     df_2d['2d_area_nuc_cell_ratio'] = df_2d['2d_area_nucleus'] / df_2d['2d_area_pseudo_cell'] # unitless
-    df_2d['2d_area_cyto'] = df_2d['2d_area_pseudo_cell'] - df_2d['2d_area_nucleus'] # units of pixels
+    df_2d['2d_area_cyto'] = df_2d['2d_area_pseudo_cell'] - df_2d['2d_area_nucleus'] # units of pixel_area
     df_2d['inv_cyto_density'] = 1/df_2d['2d_area_cyto'] # units of 1/pixel_area
     return df_2d
 
