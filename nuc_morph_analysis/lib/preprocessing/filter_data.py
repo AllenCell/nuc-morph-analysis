@@ -1009,12 +1009,12 @@ def apply_density_related_filters(dfm, apply_to_nucleus_too=False, verbose=False
     compiled_log = log1 | log2 | log3 | log4 | log5
 
     # define the columns to apply the filter to
-    extra_cols = ['inv_cyto_density','density','2d_area_cyto']
+    extra_cols = ['inv_cyto_density','density']
     # cols = [x for x in cols if '2d_' in dfm.columns]
     if apply_to_nucleus_too:
-        cols = [x for x in dfm.columns if ('2d_' in x)] + extra_cols
+        cols = [x for x in dfm.columns if ('2d_' in x) & ('label' not in x)] + extra_cols
     else:
-        cols = [x for x in dfm.columns if ('2d_' in x) & ('cell' in x)] + extra_cols
+        cols = [x for x in dfm.columns if ('2d_' in x) & ('nucleus' not in x) & ('label' not in x)] + extra_cols
 
     # apply the filter
     dfm.loc[compiled_log, cols] = np.nan

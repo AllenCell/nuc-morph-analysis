@@ -7,6 +7,56 @@ import pandas as pd
 from pathlib import Path
 from skimage.morphology import binary_erosion
 
+"""
+columns added are:
+# for the nucleus and pseudocell segmentation images the following properties are calculated
+
+# most features come from skimage.measure.regionprops_table
+properties = [
+'label',
+'area',
+'bbox', # becomes bbox-1, bbox-2, bbox-3
+'centroid', # becomes centroid-1, centroid-2
+'convex_area',
+'eccentricity',
+'equivalent_diameter',
+'extent',
+'filled_area',
+'major_axis_length',
+'minor_axis_length',
+'orientation',
+'perimeter',
+'solidity',
+]
+
+# for the nucleus all features will take the form of 2d_{feature}_nucleus, such as 2d_area_nucleus
+# for the pseudo cell all features will take the form of 2d_{feature}_pseudo_cell, such as 2d_area_pseudo_cell
+
+# some specific new features are computed from these
+[
+'2d_area_nuc_cell_ratio', # ratio of nucleus area to pseudo cell area
+'2d_area_cyto', # cytoplasmic area (pseudo cell area - nucleus area)
+'inv_cyto_density', # inverse of cytoplasmic area (1/cytoplasmic area)
+]
+
+# some features come from measuring the true area of each object without using skimage.measure.regionprops_table
+[
+'label_true', 
+'area_true', # becomes 2d_area_true_nucleus or 2d_area_true_pseudo_cell
+'total_area_true',
+]
+
+# to get at proximity of a nucleus to its neighbors
+# and some intensity features are computed
+# these use a label image of the nucleus periphery (called the nucleus edge image)
+# and as an intensity image they use the distance transform of the pseudo cell segmentation image (called the cyto_distance image)
+# the minimum intensity of the cyto_distance image in the nucleus edge image is the minimum distance of the nucleus to its neighbors
+[
+'2d_intensity_max_edge',
+'2d_intensity_mean_edge',
+'2d_intensity_min_edge', 
+]
+"""
 
 #%% define key functions
 def get_pseudo_cell_boundaries_from_labeled_nucleus_image(labeled_nucleus_image, return_nucleus=False, return_img_dict=False):
