@@ -31,4 +31,3 @@ To overwrite an existing segmented version of the dataset (for example to add/re
 ```
 pdm run nuc_morph_analysis/lib/visualization/write_data_for_colorizer.py --output_dir {existing_output_dir_name} --noframes
 ```
-python nuc_morph_analysis/lib/visualization/write_data_for_colorizer.py --output_dir /allen/aics/assay-dev/users/Chantelle/colorizer/baseline_col --noframes
