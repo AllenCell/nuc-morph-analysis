@@ -12,6 +12,7 @@ columns added are:
 # for the nucleus and pseudocell segmentation images the following properties are calculated
 
 # most features come from skimage.measure.regionprops_table
+# for details about these features see scikit-image documentation
 properties = [
 'label',
 'area',
