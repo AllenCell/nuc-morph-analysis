@@ -161,8 +161,8 @@ def add_mean_feature_over_trajectory(df, feature_list, multiplier_list):
     """
     for feature, multiplier in zip(feature_list, multiplier_list):
         for tid, dft in df.groupby("track_id"):
-            start = dft.frame_transition.unique()[0]
-            stop = dft.Fb.unique()[0]
+            start = dft.frame_transition.values[0]
+            stop = dft.Fb.values[0]
             df_mean = dft[(dft['index_sequence'] >= start) & (dft['index_sequence'] <= stop)]
             mean = df_mean[feature].mean() * multiplier
             df.loc[df.track_id == tid, f"mean_{feature}"] = mean
@@ -190,8 +190,8 @@ def add_std_feature_over_trajectory(df, feature_list, multiplier_list):
     """
     for feature, multiplier in zip(feature_list, multiplier_list):
         for tid, dft in df.groupby("track_id"):
-            start = dft.frame_transition.unique()[0]
-            stop = dft.Fb.unique()[0]
+            start = dft.frame_transition.values[0]
+            stop = dft.Fb.values[0]
             df_std = dft[(dft['index_sequence'] >= start) & (dft['index_sequence'] <= stop)]
             std = df_std[feature].std() * multiplier
             df.loc[df.track_id == tid, f"std_{feature}"] = std
