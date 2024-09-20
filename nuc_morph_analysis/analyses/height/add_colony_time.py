@@ -48,7 +48,7 @@ def add_colony_time(df, time_lag_small_medium, time_lag_medium_large):
     morflowgenesis v0.3.0 and bioRxiv medium=+123, large=+123+150
     
     Using height_percentile as height the shift is now:
-    morflowgenesis v0.3.0 medium=+120, large=+120+147
+    morflowgenesis v0.3.0 medium=+123, large=+123+148
 
     Parameters
     ------------
@@ -96,4 +96,5 @@ def add_colony_time_all_datasets(df):
         df_dataset = add_colony_time(df_dataset, time_lag_small_medium, time_lag_medium_large)
         df.loc[df.colony == colony, "colony_time"] = df_dataset["colony_time"]
 
+    print(time_lag_small_medium, time_lag_medium_large)
     return df
