@@ -1,5 +1,5 @@
 #%%
-from nuc_morph_analysis.lib.preprocessing.twoD_zMIP_area import watershed_workflow
+from nuc_morph_analysis.lib.preprocessing.twoD_zMIP_area import watershed_workflow, pseudo_cell_helper, pseudo_cell_testing_helper
 from pathlib import Path
 import pandas as pd
 from nuc_morph_analysis.lib.preprocessing import global_dataset_filtering
@@ -41,7 +41,7 @@ def draw_contours_on_image(axlist,contour_list):
             axlist.plot(contour[:, 1], contour[:, 0], linewidth=1, color=color/255)
     return axlist
 
-def plot_colorized_image_with_contours(img_dict,dft,feature,cmapstr,colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=False,draw_contours=True):
+def plot_colorized_image_with_contours(img_dict,dft,feature,cmapstr,colony='test',TIMEPOINT=None,RESOLUTION_LEVEL=None,categorical=False,draw_contours=True):
     # define the input images
     mip = img_dict['mip_of_labeled_image'][0]
     for full_crop, sizes in [('crop',(500,200,500,500)),('full',(0,0,mip.shape[1],mip.shape[0]))]:
@@ -95,20 +95,40 @@ def plot_colorized_image_with_contours(img_dict,dft,feature,cmapstr,colony,TIMEP
                     dpi=300,
                     bbox_inches='tight')
 
-def make_validation_plot(TIMEPOINT=48,colony='medium',RESOLUTION_LEVEL=1,plot_everything=True):
+def run_validation_and_plot(TIMEPOINT=48,colony='medium',RESOLUTION_LEVEL=1,plot_everything=False, testing=False):
+    """
+    run an image through the watershed based pseudo cell segmentation and examine the outputs
+    optionally, run a test image through the same pipeline
+
+    Parameters
+    ----------
+    TIMEPOINT : int, optional
+        The timepoint to analyze, by default 48
+    colony : str, optional
+        The colony to analyze, by default 'medium'
+    RESOLUTION_LEVEL : int, optional
+        The resolution level to analyze, by default 1
+    plot_everything : bool, optional
+        Whether to plot a large set of extra images colored by features and with contours, by default True
+    testing : bool, optional
+        Whether to run a test image through the pipeline, by default False
+
+    Returns
+    -------
+    pd.DataFrame
+        The dataframe containing the pseudo cell segmentation results
+        if plot_everything is False
+        if plot_everything is True, returns the full dataframe (after merging with the tracking dataset)
+
+    """
 
     # perform watershed based pseudo cell segmentation
-    df_2d, img_dict = watershed_workflow.get_image_and_run(colony, TIMEPOINT, RESOLUTION_LEVEL, return_img_dict=True)
+    if testing: # on test data
+        labeled_nucleus_image = pseudo_cell_testing_helper.make_nucleus_image_array()
+        df_2d, img_dict = pseudo_cell_helper.get_pseudo_cell_boundaries(labeled_nucleus_image, return_img_dict=True)
+    else: # or on real data
+        df_2d, img_dict = watershed_workflow.get_image_and_run(colony, TIMEPOINT, RESOLUTION_LEVEL, return_img_dict=True)
 
-    # now load the tracking dataset and merge with the pseudo cell dataframe
-    # first load the dataset and merge
-    df = global_dataset_filtering.load_dataset_with_features(dataset='all_baseline',load_local=True)
-    df = filter_data.all_timepoints_minimal_filtering(df)
-    dfm = pd.merge(df, df_2d, on=['colony','index_sequence','label_img'], suffixes=('', '_pc'),how='left')
-
-    # now get the subset of the dataframe for the colony and timepoint
-    dfsub = dfm[dfm['colony']==colony]
-    dft0 = dfsub[dfsub['index_sequence']==TIMEPOINT]
 
     # now display all of the intermediates of the
     # watershed based pseudo cell segmentation
@@ -148,9 +168,26 @@ def make_validation_plot(TIMEPOINT=48,colony='medium',RESOLUTION_LEVEL=1,plot_ev
     # now create a plot drawing the boundaries of the nuclei and cells
     # overlayed on the image colored with the 2d_area_nuc_cell_ratio
     
-    dft = filter_data.apply_density_related_filters(dft0)
+    if testing:
+        columns = ['2d_area_nucleus','2d_area_pseudo_cell','2d_area_nuc_cell_ratio','zeros']
+        for col in columns:
+            plot_colorized_image_with_contours(img_dict,df_2d,col,'viridis',categorical=False,draw_contours=True)
+
+
 
     if plot_everything:
+        # now load the tracking dataset and merge with the pseudo cell dataframe
+        # first load the dataset and merge
+        df = global_dataset_filtering.load_dataset_with_features(dataset='all_baseline',load_local=True)
+        df = filter_data.all_timepoints_minimal_filtering(df)
+        dfm = pd.merge(df, df_2d, on=['colony','index_sequence','label_img'], suffixes=('', '_pc'),how='left')
+
+        # now get the subset of the dataframe for the colony and timepoint
+        dfsub = dfm[dfm['colony']==colony]
+        dft0 = dfsub[dfsub['index_sequence']==TIMEPOINT]
+        dft = filter_data.apply_density_related_filters(dft0)
+
+
         plot_colorized_image_with_contours(img_dict,dft,'colony_depth','tab10',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=True,draw_contours=False)
         plot_colorized_image_with_contours(img_dict,dft,'colony_depth','tab10',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=True,draw_contours=True)
         plot_colorized_image_with_contours(img_dict,dft,'2d_area_nuc_cell_ratio','viridis',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=False,draw_contours=False)
@@ -162,7 +199,11 @@ def make_validation_plot(TIMEPOINT=48,colony='medium',RESOLUTION_LEVEL=1,plot_ev
         plot_colorized_image_with_contours(img_dict,dft,'density','viridis',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=False,draw_contours=False)
         plot_colorized_image_with_contours(img_dict,dft,'density','viridis',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=False,draw_contours=True)
         plot_colorized_image_with_contours(img_dict,dft,'zeros','viridis',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=False,draw_contours=True)
-    return dft0
+        return dft0
+    else:
+        return df_2d
+    
 if __name__ == '__main__':
     # set the details
-    dft0 = make_validation_plot(plot_everything=False)
+    dft_test = run_validation_and_plot(testing=True)
+    dft0 = run_validation_and_plot(plot_everything=False)

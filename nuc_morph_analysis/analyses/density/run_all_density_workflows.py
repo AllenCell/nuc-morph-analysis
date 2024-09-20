@@ -1,5 +1,5 @@
 from nuc_morph_analysis.analyses.density import watershed_validate
-watershed_validate.make_validation_plot(plot_everything=False)
+watershed_validate.run_validation_and_plot(plot_everything=False)
 from nuc_morph_analysis.analyses.density import effect_of_resolution_level
 from nuc_morph_analysis.analyses.density import pseudocell_based_density_analysis
 
