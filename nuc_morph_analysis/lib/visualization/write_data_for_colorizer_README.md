@@ -13,12 +13,12 @@ To prepare the colony datasets to be grouped in a dropdown menu, create the file
 ```
 {
   "datasets": [
-    { name: "Small", path: "small" },
-    { name: "Medium", path: "medium" },
-    { name: "Large", path: "large" }
+    { "name": "Small", "path": "small" },
+    { "name": "Medium", "path": "medium" },
+    { "name": "Large", "path": "large" }
   ],
   "metadata": {
-    "name": 'Baseline colonies dataset'
+    "name": "Baseline colonies dataset"
   }
 }
 
@@ -31,3 +31,4 @@ To overwrite an existing segmented version of the dataset (for example to add/re
 ```
 pdm run nuc_morph_analysis/lib/visualization/write_data_for_colorizer.py --output_dir {existing_output_dir_name} --noframes
 ```
+python nuc_morph_analysis/lib/visualization/write_data_for_colorizer.py --output_dir /allen/aics/assay-dev/users/Chantelle/colorizer/baseline_col --noframes
