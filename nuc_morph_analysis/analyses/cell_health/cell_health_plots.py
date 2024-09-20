@@ -5,7 +5,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from collections import Counter
 
-FONTSIZE=12
+# set up plot parameters and figure saving directory
+plt.rcParams["pdf.fonttype"] = 42
+plt.rcParams["font.family"] = "Arial"
+plt.rcParams["font.size"] = 18
         
 def plot_event_histogram(df, event_type, figdir):
     '''
@@ -59,66 +62,61 @@ def plot_event_histogram(df, event_type, figdir):
             
         percent_event = (np.array(event_count) / np.array(num_cells)) * 100
         
-        fig, ax = plt.subplots(1, 3, figsize=(17,5))
-        ax[0].bar(np.array(index_sequence_list), event_count, label=colony,
+        fig, ax = plt.subplots(1, 3, figsize=(15,5))
+        plt.subplots_adjust(wspace=0.3)
+        ax[0].bar(np.array(index_sequence_list), event_count, label=colony.capitalize(),
                 color=COLONY_COLORS[colony], alpha=.75)
-        ax[0].legend(fontsize=FONTSIZE, loc='upper left')
-        ax[0].set_ylabel(f'Count of cell {event_label} events (Total N={sum(event_count)})', fontsize=FONTSIZE)
-        ax[0].set_xlabel('Time (hr)', fontsize=FONTSIZE)
+        ax[0].legend(loc='upper left',  frameon=False)
+        ax[0].set_ylabel(f'Count of cell {event_label} events (N={sum(event_count)})')
+        ax[0].set_xlabel('Time (hr)')
         ax[0].set_ylim(lim1)
-        ax[0].tick_params(labelsize=FONTSIZE)
+        ax[0].tick_params()
         
         ax[1].bar(np.array(index_sequence_list), num_cells, label=colony,
         color=COLONY_COLORS[colony], alpha=.75)
-        ax[1].set_ylabel('Number of cells in FOV', fontsize=FONTSIZE)
-        ax[1].set_xlabel('Time (hr)', fontsize=FONTSIZE)
+        ax[1].set_ylabel('Count of cells in FOV')
+        ax[1].set_xlabel('Time (hr)')
         ax[1].set_ylim(0,1200)
-        ax[1].tick_params(labelsize=FONTSIZE)
+        ax[1].tick_params()
         
         ax[2].bar(np.array(index_sequence_list), percent_event, label=colony, 
                   color=COLONY_COLORS[colony], alpha=.75)
         ax[2].set_ylim(lim2)
-        ax[2].tick_params(labelsize=FONTSIZE)
+        ax[2].tick_params()
         
-        ax[2].set_ylabel(f'Occurence of {event_label}\nnormalized by number of cells in FOV (%)', fontsize=FONTSIZE)  
-        ax[2].set_xlabel('Time (hr)', fontsize=FONTSIZE) 
+        ax[2].set_ylabel(f'Occurence of {event_label} normalized\nby number of cells in FOV (%)')  
+        ax[2].set_xlabel('Time (hr)') 
+        plt.tight_layout()
         
         save_and_show_plot(f'{figdir}/{event_label}_histogram_{colony}')
-        
-def cell_death_colony_time(df, figdir):
-    plt.figure(figsize=(5,5))
-    for colony, df_colony in df.groupby('colony'):
-        index_sequence_list = []
-        apoptosis_count = []
-        num_cells = []
-        
-        df_last = df_colony.loc[df_colony.groupby('track_id')['colony_time'].idxmax()]
-        for hour_bin, dft in df_colony.groupby(df_colony['colony_time'] // 12):
-            df_sub_last = df_last.loc[df_last['colony_time'] // 12 == hour_bin]
-            index_sequence_list.append(hour_bin)
-            apoptosis_count.append((df_sub_last['termination'] == 2).sum())
-            num_cells.append(dft.track_id.nunique())
-            
-        percent_cell_death = (np.array(apoptosis_count) / np.array(num_cells)) * 100
-
-        plt.bar(np.array(index_sequence_list), percent_cell_death, label=colony, 
-                color=COLONY_COLORS[colony], alpha=.55)
-        
-    plt.legend(fontsize=FONTSIZE)
-    plt.xlabel('Aligned colony time (hr)', fontsize=FONTSIZE)
-    plt.ylabel('Percent of cell that die per hour', 
-                fontsize=FONTSIZE)  
-    plt.ylim(0,2.5)
-    save_and_show_plot(f'{figdir}/cell_death_aligned_colony_time')
     
-def cell_death_feeding_controls(df_list, dataset_list, interval):
-    for df, colony in zip(df_list, dataset_list):
-        plt.figure(figsize=(5,5))
-        plt.hist(df.Slice * interval/60, bins=range(0, 48 + 1, 1), alpha=.75, 
-                label=colony, color=COLONY_COLORS[colony])
-        plt.xlabel('Time (hrs)', fontsize=FONTSIZE)
-        plt.ylabel(f'Count of cell death events, (Total N={len(df)})', fontsize=FONTSIZE)
-        plt.legend(fontsize=FONTSIZE, loc='upper left')
-        plt.ylim(0,27)
-        plt.show()
-        
+
+def subset_main_dataset(df, df_full, index_sequence_threshold=480):
+    '''
+    Timepoints after 40 hours into the timelapse have the greatest occurrence of cell death. 
+    To test the effect of this data on our results, we used this function to omit the 
+    final timepoints of the movie and re-run analysis workflows. We saw no significant differences.
+    
+    Parameters
+    ----------
+    df: pandas.DataFrame
+        The main dataframe to be filtered.
+    df_full: pandas.DataFrame
+        The full dataframe used to identify tracks to drop.
+
+    Returns
+    ------
+    df_sub: pandas.DataFrame
+        Filtered dataframe with timepoints less than 40 hours.
+    '''
+    # remove full tracks from analysis dataset that go to the end of the movie
+    df_full_to_drop = df_full[df_full['index_sequence']>index_sequence_threshold]
+    tracks_to_drop = df_full_to_drop.track_id.unique()
+
+    df_copy = df.copy()
+    # set 'is_full_track' to False for tracks in the tracks_to_drop list
+    df_copy.loc[df['track_id'].isin(tracks_to_drop), 'is_full_track'] = False
+
+    # remove timepoints after 40 hours
+    df_sub = df_copy[df_copy['index_sequence']<=index_sequence_threshold]
+    return df_sub

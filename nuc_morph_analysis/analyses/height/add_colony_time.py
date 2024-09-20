@@ -96,5 +96,4 @@ def add_colony_time_all_datasets(df):
         df_dataset = add_colony_time(df_dataset, time_lag_small_medium, time_lag_medium_large)
         df.loc[df.colony == colony, "colony_time"] = df_dataset["colony_time"]
 
-    print(time_lag_small_medium, time_lag_medium_large)
     return df
