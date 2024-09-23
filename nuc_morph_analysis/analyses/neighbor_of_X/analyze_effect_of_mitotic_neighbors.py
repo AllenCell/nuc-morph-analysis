@@ -33,6 +33,7 @@ ycol_list = ['volume_fold_change_BC','duration_BC']
 for ycol in ycol_list:
     nrows = 1
     ncols = len(mitotic_event_features)
+    assert ncols > 1
     fig,ax = plt.subplots(nrows,ncols,figsize=(ncols*3,nrows*3), layout='constrained')
     for fi,feature in enumerate(mitotic_event_features):
         xcol = f"sum_{feature}"
