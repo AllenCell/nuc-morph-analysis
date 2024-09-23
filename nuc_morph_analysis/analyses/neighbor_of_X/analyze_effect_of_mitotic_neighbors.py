@@ -33,8 +33,8 @@ ycol_list = ['volume_fold_change_BC','duration_BC']
 for ycol in ycol_list:
     nrows = 1
     ncols = len(mitotic_event_features)
-    assert ncols > 1
     fig,ax = plt.subplots(nrows,ncols,figsize=(ncols*3,nrows*3), layout='constrained')
+    assert type(ax) == np.ndarray # for mypy
     for fi,feature in enumerate(mitotic_event_features):
         xcol = f"sum_{feature}"
         xscale,xlabel,xunit,_ = get_plot_labels_for_metric(xcol)
@@ -49,12 +49,14 @@ for ycol in ycol_list:
         y_pred = model.predict(x.values.reshape(-1,1))
         r2 = model.score(x.values.reshape(-1,1),y)
 
-        ax[fi].scatter(x,y)
-        ax[fi].set_xlabel(f'{xlabel} {xunit}')
-        ax[fi].set_ylabel(f'{ylabel} {yunit}')
-        ax[fi].set_title(f'{feature}\nvs\n{ycol}')
-        ax[fi].plot(x,y_pred,'--')
-        ax[fi].text(0.05,0.95,f'R^2 = {r2:.2f}',transform=ax[fi].transAxes,
+        curr_ax = ax[fi]
+        assert type(curr_ax) == plt.Axes # for mypy
+        curr_ax.scatter(x,y)
+        curr_ax.set_xlabel(f'{xlabel} {xunit}')
+        curr_ax.set_ylabel(f'{ylabel} {yunit}')
+        curr_ax.set_title(f'{feature}\nvs\n{ycol}')
+        curr_ax.plot(x,y_pred,'--')
+        curr_ax.text(0.05,0.95,f'R^2 = {r2:.2f}',transform=curr_ax.transAxes,
                              va='top',ha='left',fontsize=8)
     savename = figdir / f'{ycol}_vs_neighbor_event_features.png'
     save_and_show_plot(str(savename),file_extension='.png',figure=fig,transparent=False)

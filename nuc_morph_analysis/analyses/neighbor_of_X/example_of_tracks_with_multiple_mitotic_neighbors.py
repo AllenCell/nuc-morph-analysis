@@ -46,25 +46,30 @@ def run_example(df:pd.DataFrame, colony:str = 'medium', column:str = 'has_mitoti
     track_id3 = dfmin.track_id.values[0]
 
     fig,ax = plt.subplots(nrows=2, ncols=3, figsize=(12,8),constrained_layout=True)
+    assert type(ax) == np.ndarray # for mypy
     for ti,track_id in enumerate([track_id1,track_id2,track_id3]):
 
         dft = dff[dff['track_id']==track_id]
         xscale,xlabel,xunit,_ = get_plot_labels_for_metric('index_sequence')
         x = dft['index_sequence'].values
         y = dft[column].values
-        ax[0,ti].plot(x,y)
+        ax1 = ax[0,ti]
+        assert type(ax1) == plt.Axes # for mypy
+        ax1.plot(x,y)
         titlestr = f"track_id={track_id}\n{sum_column}={dft[sum_column].values[0]}"
-        ax[0,ti].set_title(titlestr)
-        ax[0,ti].set_xlabel(f"{xlabel} {xunit}")
-        ax[0,ti].set_ylabel(column)
+        ax1.set_title(titlestr)
+        ax1.set_xlabel(f"{xlabel} {xunit}")
+        ax1.set_ylabel(column)
 
         yscale,ylabel,yunit,_ = get_plot_labels_for_metric('volume')
         x2 = dft['index_sequence'].values * xscale
         y2 = dft['volume'].values *yscale
-        ax[1,ti].plot(x2,y2)
-        ax[1,ti].set_title(f"{track_id} volume")
-        ax[1,ti].set_xlabel(f"{xlabel} {xunit}")
-        ax[1,ti].set_ylabel(f"{ylabel} {yunit}")
+        ax2 = ax[1,ti]
+        assert type(ax2) == plt.Axes # for mypy
+        ax2.plot(x2,y2)
+        ax2.set_title(f"{track_id} volume")
+        ax2.set_xlabel(f"{xlabel} {xunit}")
+        ax2.set_ylabel(f"{ylabel} {yunit}")
     savename = f"{colony}-sum_of_{column}_example_tracks.png"
     savepath = str(figdir / savename)
     save_and_show_plot(savepath,file_extension='.png',figure=fig,
