@@ -223,7 +223,7 @@ LABEL_TABLE = {
     "density_at_B": "Density at start of growth",
     "xy_aspect_at_B": "XY aspect ratio at start of growth",
     "SA_vol_ratio_at_B": "SA/Volume ratio at start of growth",
-    "neighbor_avg_dxdt_48_volume_whole_colony_at_B": "Transient growth rate of whole colony at start of growth",
+    "early_transient_gr_whole_colony": "Transient growth rate of whole colony around start of growth",
     "mean_volume": "Mean volume during growth",
     "mean_height": "Mean height during growth",
     "mean_density": "Mean density during growth",
