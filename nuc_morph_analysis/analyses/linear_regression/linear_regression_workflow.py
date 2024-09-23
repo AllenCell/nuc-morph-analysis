@@ -18,7 +18,7 @@ from tqdm import tqdm
 from nuc_morph_analysis.lib.preprocessing import global_dataset_filtering, filter_data
 from sklearn.model_selection import permutation_test_score
 from nuc_morph_analysis.lib.visualization.plotting_tools import get_plot_labels_for_metric
-
+import imageio
 pd.options.mode.chained_assignment = None  # default='warn'
 
 warnings.simplefilter(action="ignore", category=FutureWarning)
@@ -56,6 +56,9 @@ def fit_linear_regression(
     all_test_sc = []
     all_coef_alpha = []
     all_perms = {'score': [], 'perm_score_mean': [], 'perm_score_std': [], 'p_value': [], 'alpha': []}
+
+    import ipdb
+    ipdb.set_trace()
 
     # find best alpha for Lasso model
     for alpha_ind, this_alpha in enumerate(alpha):
@@ -141,7 +144,9 @@ def fit_linear_regression(
     # Get test scores for all alpha
     all_test_sc = pd.concat(all_test_sc, axis=0).reset_index(drop=True)
     all_test_sc["Test MSE"] = -all_test_sc["Test MSE"]
-    all_test_sc.to_csv(save_path / "mse.csv")
+    save_path = save_path / Path(f"{target}_{alpha[alpha_ind - 1]}")
+    save_path.mkdir(parents=True, exist_ok=True)
+    all_test_sc.to_csv(save_path / f"mse.csv")
 
     # Get coeffs for all alpha
     all_coef_alpha = pd.concat(all_coef_alpha, axis=0).reset_index(drop=True)
@@ -150,11 +155,11 @@ def fit_linear_regression(
         var_name="Column",
         value_name="Coefficient Importance",
     ).reset_index(drop=True)
-    all_coef_alpha.to_csv(save_path / "coefficients.csv")
+    all_coef_alpha.to_csv(save_path / f"coefficients.csv")
 
     # Get permutation scores and p values for all alpha
     all_perms = pd.DataFrame(all_perms).reset_index(drop=True)
-    all_perms.to_csv(save_path / "perm_scores.csv")
+    all_perms.to_csv(save_path / f"perm_scores.csv")
 
     # Save coefficient plot for max alpha value
     save_plots(all_coef_alpha, all_test_sc, all_perms, target, save_path)
@@ -163,32 +168,40 @@ def fit_linear_regression(
 
 def save_plots(all_coef_alpha, all_test_sc, all_perms, target, save_path):
 
-    # subset to max alpha
-    max_alpha = all_coef_alpha['alpha'].max()
-    all_coef_alpha = all_coef_alpha.loc[all_coef_alpha['alpha'] == max_alpha].reset_index(drop=True)
-    all_test_sc = all_test_sc.loc[all_test_sc['alpha'] == max_alpha].reset_index(drop=True)
-    all_perms = all_perms.loc[all_perms['alpha'] == max_alpha].reset_index(drop=True)
+    files = []
+    for alpha in all_coef_alpha['alpha'].unique():
+        all_coef_alpha = all_coef_alpha.loc[all_coef_alpha['alpha'] == alpha].reset_index(drop=True)
+        all_test_sc = all_test_sc.loc[all_test_sc['alpha'] == alpha].reset_index(drop=True)
+        all_perms = all_perms.loc[all_perms['alpha'] == alpha].reset_index(drop=True)
 
-    p_value = round(all_perms['p_value'].item(), 3)
-    test_r2_mean = round(all_test_sc['Test r$^2$'].mean(), 2)
-    test_r2_std = round(all_test_sc['Test r$^2$'].std()/2, 2)
+        p_value = round(all_perms['p_value'].item(), 3)
+        test_r2_mean = round(all_test_sc['Test r$^2$'].mean(), 2)
+        test_r2_std = round(all_test_sc['Test r$^2$'].std()/2, 2)
 
 
-    g = sns.catplot(
-        data=all_coef_alpha,
-        x='Column',
-        y="Coefficient Importance",
-        kind="bar",
-        errorbar="sd",
-        aspect=1.5,
-        height=4,
-    )
-    g.fig.subplots_adjust(top=0.8) # adjust the Figure in rp
-    g.fig.suptitle(f'p-value {p_value}, test r^2 {test_r2_mean}+-{test_r2_std}')
-    label_list = [get_plot_labels_for_metric(col)[1] for col in all_coef_alpha['Column'].unique()]
-    g.set_xticklabels(label_list, rotation=90)
-    print(f'Saving coefficients_{target}_alpha_{max_alpha}.png')
-    g.savefig(save_path / f'coefficients_{target}_alpha_{max_alpha}.png')
+        g = sns.catplot(
+            data=all_coef_alpha,
+            y='Column',
+            x="Coefficient Importance",
+            kind="bar",
+            errorbar="sd",
+            aspect=1.5,
+            height=5,
+        )
+        g.fig.subplots_adjust(top=0.8) # adjust the Figure in rp
+        g.fig.suptitle(f'p-value {p_value}, test r^2 {test_r2_mean}+-{test_r2_std}')
+        label_list = [get_plot_labels_for_metric(col)[1] for col in all_coef_alpha['Column'].unique()]
+        g.set_yticklabels(label_list)
+        print(f'Saving coefficients_{target}_alpha_{max_alpha}.png')
+        this_path = str(save_path / Path(f'coefficients_{target}_alpha_{max_alpha}.png'))
+        files.append(this_path)
+        g.savefig(this_path)
+
+    # save movie of pngs
+    writer = imageio.get_writer('test.mp4', fps=20)
+    for im in files:
+        writer.append_data(imageio.imread(im))
+    writer.close()
 
 def list_of_strings(arg):
     return arg.split(",")

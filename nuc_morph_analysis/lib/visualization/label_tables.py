@@ -135,8 +135,8 @@ LABEL_TABLE = {
     "time_at_B": "Movie Time at Transition",
     "time_at_C": "Movie Time at Breakdown",
     "colony_time_at_A": "Aligned Colony Time at Formation",
-    "colony_time_at_B": "Aligned Colony Time at Transition",
-    "colony_time_at_C": "Aligned Colony Time at Breakdown",
+    "colony_time_at_B": "Starting Aligned Colony Time",
+    "colony_time_at_C": "Ending Aligned Colony Time",
     "duration_AB": "Rapid Expansion Duration",
     ("duration_BC", "duration_BC_hr"): "Growth Duration",
     # Volume
@@ -169,8 +169,8 @@ LABEL_TABLE = {
     # Surface Area
     "mesh_sa": "Surface Area",
     "SA_at_A": "Surface Area at A",
-    "SA_at_B": "Surface Area at B",
-    "SA_at_C": "Surface Area at C",
+    "SA_at_B": "Starting Surface Area",
+    "SA_at_C": "Ending Surface Area",
     "delta_SA_BC": "\u0394Surface Area B to C",
     "SA_fold_change_BC": "Surface Area Fold-Change B to C",
     "SA_fold_change_fromB": "Surface Area Fold-Change",
@@ -231,13 +231,13 @@ LABEL_TABLE = {
     "mean_xy_aspect": "Mean XY aspect ratio during growth",
     "mean_SA_vol_ratio": "Mean SA/Volume ratio during growth",
     "mean_neighbor_avg_dxdt_48_volume_whole_colony": "Mean transient growth rate of whole colony during growth",
-    "std_volume": "Standard deviation volume during growth",
-    "std_height": "Standard deviation height during growth",
-    "std_density": "Standard deviation density during growth",
-    "std_mesh_sa": "Standard deviation surface area during growth",
-    "std_xy_aspect": "Standard deviation XY aspect ratio during growth",
-    "std_SA_vol_ratio": "Standard deviation SA/Volume ratio during growth",
-    "std_neighbor_avg_dxdt_48_volume_whole_colony": "Standard deviation transient growth rate of whole colony during growth",
+    "std_volume": "Stdev. volume during growth",
+    "std_height": "Stdev. height during growth",
+    "std_density": "Stdev. density during growth",
+    "std_mesh_sa": "Stdev. surface area during growth",
+    "std_xy_aspect": "Stdev. XY aspect ratio during growth",
+    "std_SA_vol_ratio": "Stdev. SA/Volume ratio during growth",
+    "std_neighbor_avg_dxdt_48_volume_whole_colony": "Stdev. transient growth rate of whole colony during growth",
 }
 
 
