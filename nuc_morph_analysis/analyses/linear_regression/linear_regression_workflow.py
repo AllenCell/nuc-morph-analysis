@@ -57,9 +57,6 @@ def fit_linear_regression(
     all_coef_alpha = []
     all_perms = {'score': [], 'perm_score_mean': [], 'perm_score_std': [], 'p_value': [], 'alpha': []}
 
-    import ipdb
-    ipdb.set_trace()
-
     # find best alpha for Lasso model
     for alpha_ind, this_alpha in enumerate(alpha):
         print("fitting alpha", this_alpha)
@@ -168,19 +165,19 @@ def fit_linear_regression(
 
 def save_plots(all_coef_alpha, all_test_sc, all_perms, target, save_path):
 
+    xlim = None
+    ylim = None
     files = []
     for alpha in all_coef_alpha['alpha'].unique():
-        all_coef_alpha = all_coef_alpha.loc[all_coef_alpha['alpha'] == alpha].reset_index(drop=True)
-        all_test_sc = all_test_sc.loc[all_test_sc['alpha'] == alpha].reset_index(drop=True)
-        all_perms = all_perms.loc[all_perms['alpha'] == alpha].reset_index(drop=True)
-
-        p_value = round(all_perms['p_value'].item(), 3)
-        test_r2_mean = round(all_test_sc['Test r$^2$'].mean(), 2)
-        test_r2_std = round(all_test_sc['Test r$^2$'].std()/2, 2)
-
+        this_coef_alpha = all_coef_alpha.loc[all_coef_alpha['alpha'] == alpha].reset_index(drop=True)
+        this_test_sc = all_test_sc.loc[all_test_sc['alpha'] == alpha].reset_index(drop=True)
+        this_perms = all_perms.loc[all_perms['alpha'] == alpha].reset_index(drop=True)
+        p_value = round(this_perms['p_value'].item(), 3)
+        test_r2_mean = round(this_test_sc['Test r$^2$'].mean(), 2)
+        test_r2_std = round(this_test_sc['Test r$^2$'].std()/2, 2)
 
         g = sns.catplot(
-            data=all_coef_alpha,
+            data=this_coef_alpha,
             y='Column',
             x="Coefficient Importance",
             kind="bar",
@@ -189,16 +186,20 @@ def save_plots(all_coef_alpha, all_test_sc, all_perms, target, save_path):
             height=5,
         )
         g.fig.subplots_adjust(top=0.8) # adjust the Figure in rp
-        g.fig.suptitle(f'p-value {p_value}, test r^2 {test_r2_mean}+-{test_r2_std}')
+        g.fig.suptitle(f'alpha {alpha} test r^2 {test_r2_mean}+-{test_r2_std} p-value {p_value}')
         label_list = [get_plot_labels_for_metric(col)[1] for col in all_coef_alpha['Column'].unique()]
         g.set_yticklabels(label_list)
-        print(f'Saving coefficients_{target}_alpha_{max_alpha}.png')
-        this_path = str(save_path / Path(f'coefficients_{target}_alpha_{max_alpha}.png'))
+        print(f'Saving coefficients_{target}_alpha_{alpha}.png')
+        this_path = str(save_path / Path(f'coefficients_{target}_alpha_{alpha}.png'))
         files.append(this_path)
+
+        if not xlim:
+            xlim = g.fig.axes[0].get_xlim()
+        g.set(xlim=xlim)
         g.savefig(this_path)
 
     # save movie of pngs
-    writer = imageio.get_writer('test.mp4', fps=20)
+    writer = imageio.get_writer(save_path / 'test.mp4', fps=2)
     for im in files:
         writer.append_data(imageio.imread(im))
     writer.close()
