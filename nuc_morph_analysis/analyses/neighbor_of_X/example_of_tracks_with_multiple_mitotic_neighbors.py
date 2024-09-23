@@ -7,6 +7,7 @@ from pathlib import Path
 import os
 import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
 
 #%%
 def run_example(df:pd.DataFrame, colony:str = 'medium', column:str = 'has_mitotic_neighbor_breakdown'):
