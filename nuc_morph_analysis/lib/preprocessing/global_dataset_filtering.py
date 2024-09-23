@@ -17,7 +17,7 @@ from nuc_morph_analysis.analyses.colony_context.colony_context_analysis import (
     add_fov_touch_timepoint_for_colonies,
 )
 from nuc_morph_analysis.analyses.height.add_colony_time import add_colony_time_all_datasets
-from nuc_morph_analysis.lib.visualization.label_tables import get_plot_labels_for_metric
+from nuc_morph_analysis.lib.visualization.plotting_tools import get_plot_labels_for_metric
 
 
 def load_dataset_with_features(
@@ -252,7 +252,7 @@ def process_full_tracks(df_all, thresh, pix_size, interval):
     df_full = add_features.add_feature_at(df_full, "frame_transition", 'xy_aspect', 'xy_aspect')
     df_full = add_features.add_feature_at(df_full, "frame_transition", 'SA_vol_ratio', 'SA_vol_ratio')
     df_full = add_features.add_feature_at(df_full, "frame_transition", 'SA_vol_ratio', 'SA_vol_ratio')
-    df_full = add_features.add_feature_at(df_full, "frame_transition", 'neighbor_avg_dxdt_48_volume_whole_colony', 'neighbor_avg_dxdt_48_volume_whole_colony')
+    df_full = add_features.get_early_transient_gr_of_whole_colony(df_full)
     
     ft_list = ['height', 'density', 'volume', 'mesh_sa', 'xy_aspect', 'SA_vol_ratio', 'neighbor_avg_dxdt_48_volume_whole_colony']
     multiplier_list = [get_plot_labels_for_metric(x)[0] for x in ft_list]
