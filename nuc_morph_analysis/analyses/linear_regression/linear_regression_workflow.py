@@ -205,11 +205,11 @@ def save_plots(all_coef_alpha, all_test_sc, all_perms, target, save_path):
             kind="bar",
             errorbar="sd",
             aspect=2,
-            height=6,
+            height=10,
         )
-        g.fig.subplots_adjust(top=0.8)  # adjust the Figure in rp
+        g.fig.subplots_adjust(top=.9)  # adjust the Figure in rp
         g.fig.suptitle(
-            f"alpha {alpha} test r^2 {test_r2_mean}+-{test_r2_std} p-value {p_value}"
+            f"Prediction of {get_plot_labels_for_metric(target)[1]}\nalpha={alpha}, test r\u00B2={test_r2_mean}±{test_r2_std}, P={p_value}"
         )
         label_list = [
             get_plot_labels_for_metric(col)[1]
