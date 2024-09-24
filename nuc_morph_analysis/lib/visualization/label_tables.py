@@ -238,6 +238,10 @@ LABEL_TABLE = {
     "std_xy_aspect": "Stdev. XY aspect ratio during growth",
     "std_SA_vol_ratio": "Stdev. SA/Volume ratio during growth",
     "std_neighbor_avg_dxdt_48_volume_whole_colony": "Stdev. transient growth rate of whole colony during growth",
+    # mitotic and apoptotic neighbor columns
+    "number_of_frame_of_breakdown_neighbors": "# of neighboring cells undergoing breakdown",
+    "number_of_frame_of_formation_neighbors": "# of neighboring cells undergoing formation",
+    "number_of_frame_of_death_neighbors": "# of neighboring cells undergoing death",
 }
 
 
@@ -367,6 +371,11 @@ COLORIZER_LABEL_TABLE = {
     "baseline_colonies_dataset": "Baseline colonies dataset filter",
     "full_interphase_dataset": "Full-interphase dataset filter",
     "lineage_annotated_dataset": "Lineage-annotated dataset filter",
+    
+    # mitotic and apoptotic neighbor columns
+    "number_of_frame_of_breakdown_neighbors": "# of neighboring cells undergoing breakdown",
+    "number_of_frame_of_formation_neighbors": "# of neighboring cells undergoing formation",
+    "number_of_frame_of_death_neighbors": "# of neighboring cells undergoing death",
 }
 
 # units for quantities

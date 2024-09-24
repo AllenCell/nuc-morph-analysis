@@ -235,6 +235,11 @@ def load_dataset(dataset):
     else:
         df = get_dataframe_by_info(info).set_index("CellId")
         df["dataset"] = dataset
+    
+
+    # use height calculated from 1st to 99th percentile values
+    # rather than the most extreme values
+    df["height"] = df["height_percentile"]
 
     # set column types and drop Nan rows
     cols = [
@@ -318,6 +323,10 @@ def load_all_datasets(all_dataset="all_baseline"):
     # Add deprecated columns
     old_dataset_names = {colony: dataset for dataset, colony in BASELINE_COLONY_NAMES.items()}
     df["dataset"] = df.colony.map(old_dataset_names)
+
+    # use height calculated from 1st to 99th percentile values
+    # rather than the most extreme values
+    df["height"] = df["height_percentile"]
 
     return df.set_index("CellId")
 
