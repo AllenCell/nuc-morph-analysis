@@ -59,7 +59,7 @@ def get_change_over_time_array(dfd, time_cols, bin_interval):
 
 
 # %%
-def run_script(df=None, bin_interval=12, exclude_outliers=True):
+def run_script(df=None, dxdt_feature_list = DXDT_FEATURE_LIST, bin_interval_list=BIN_INTERVAL_LIST, exclude_outliers=True):
     """
     run the compute_change_over_time workflow for a given bin_interval
 
@@ -68,8 +68,10 @@ def run_script(df=None, bin_interval=12, exclude_outliers=True):
     df : pd.DataFrame
         dataframe on which to compute change_over_time
         with columns ['colony','track_id','index_sequence','label_img']+time_cols
-    bin_interval : int
-        integer that represents the number of frames to compute growth over
+    dxdt_feature_list : list
+        list of columns to compute growth on
+    bin_interval_list : list
+        list of integers, which represents the number of frames to compute growth over
     exclude_outliers : bool
         if True, exclude outlier time points from the growth rate calculation
 
@@ -79,6 +81,7 @@ def run_script(df=None, bin_interval=12, exclude_outliers=True):
         dataframe with change_over_time values for each track at each time point
     """
 
+    assert df.index.name == "CellId"
     dforig = df.copy()
     if exclude_outliers:
         # to ensure that outlier datapoints are used for the growth rate calculation, filter out time point outliers here
@@ -89,15 +92,17 @@ def run_script(df=None, bin_interval=12, exclude_outliers=True):
     # only keep the necessary columns; remove shcoeffs columns to dataframe is no so large
     # CellId becomes a column too after reset_index
     dfd = df[
-        ["colony", "track_id", "index_sequence", "label_img"] + DXDT_FEATURE_LIST
+        ["colony", "track_id", "index_sequence", "label_img"] + dxdt_feature_list
     ].reset_index()
 
     # convert all time_cols to float32
-    dfd[DXDT_FEATURE_LIST] = dfd[DXDT_FEATURE_LIST].astype(np.float32)
+    dfd[dxdt_feature_list] = dfd[dxdt_feature_list].astype(np.float32)
 
     # returns dfo with index=CellId
-    dfo = get_change_over_time_array(dfd, DXDT_FEATURE_LIST, bin_interval)
-    new_columns = [x for x in dfo.columns.tolist() if x not in dforig.columns.tolist()]
-    # add new columns to original dataframe
-    dforig.loc[dfo.index.values, new_columns] = dfo.loc[dfo.index.values, new_columns]
+    for bin_interval in bin_interval_list:
+        dfo = get_change_over_time_array(dfd, dxdt_feature_list, bin_interval)
+        new_columns = [x for x in dfo.columns.tolist() if x not in dforig.columns.tolist()]
+        # add new columns to original dataframe
+        dforig.loc[dfo.index.values, new_columns] = dfo.loc[dfo.index.values, new_columns]
+    assert dforig.index.name == "CellId"
     return dforig

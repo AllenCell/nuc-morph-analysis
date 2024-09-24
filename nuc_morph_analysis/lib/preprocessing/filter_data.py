@@ -846,7 +846,7 @@ def filter_out_non_interphase_size_shape_flag(df):
     return df
 
 
-def add_analyzed_dataset_columns(df, dataset):
+def add_analyzed_dataset_columns(df, dataset='all_baseline'):
     """
     Dataset with all the timpoints with three new columns to easily identify subsets
     of the data that were analyzed in the manuscript.
