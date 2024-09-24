@@ -241,6 +241,14 @@ FEATURE_COLUMNS = {
         NucMorphFeatureSpec(column_name="has_dying_neighbor", type=FeatureType.CATEGORICAL, categories=["False", "True"]),
         NucMorphFeatureSpec(column_name="has_dying_neighbor_forward_dilated", type=FeatureType.CATEGORICAL, categories=["False", "True"]),
         NucMorphFeatureSpec(column_name="number_of_frame_of_death_neighbors"),
+        NucMorphFeatureSpec(column_name="sum_has_mitotic_neighbor_breakdown"), # per track feature
+        NucMorphFeatureSpec(column_name="sum_has_mitotic_neighbor_formation"),# per track feature
+        NucMorphFeatureSpec(column_name="sum_has_mitotic_neighbor"),# per track feature
+        NucMorphFeatureSpec(column_name="sum_has_dying_neighbor"),# per track feature
+        NucMorphFeatureSpec(column_name="sum_number_of_frame_of_breakdown_neighbors"),# per track feature
+        NucMorphFeatureSpec(column_name="number_of_frame_of_death_neighbors"),# per track feature
+
+
         # new columns
         NucMorphFeatureSpec('label_pseudo_cell'),
         NucMorphFeatureSpec('2d_area_pseudo_cell'),

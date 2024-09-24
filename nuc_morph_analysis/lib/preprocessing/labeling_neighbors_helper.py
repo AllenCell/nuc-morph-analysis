@@ -90,6 +90,22 @@ def find_neighbors_of_cells(df,bool_col=None,new_col=None):
 
     Note: it is required that each entry of the `neighbors` column is a string representation of a list
     the function `correct_cellids_with_missing_neighbors` is be used to correct the `neighbors` column 
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        the dataframe with the neighbors column
+    bool_col : str
+        the name of the boolean column to subset the dataframe (e.g. 'frame_of_breakdown')
+        if None, then the entire dataframe is used
+    new_col : str
+        the name of the new boolean column to store the neighbors
+        if None, then the column is named `has_{bool_col}_neighbor`
+
+    Returns
+    -------
+    df : pd.DataFrame
+        the dataframe with the new column `has_{bool_col}_neighbor` (or `{new_col}`)
     """
     # initialize new columns to store the new boolean values
     if new_col is None:

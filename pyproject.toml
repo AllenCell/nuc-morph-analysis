@@ -104,6 +104,7 @@ module = [
     "skimage.measure",
     "sklearn",
     "sklearn.decomposition",
+    "sklearn.linear_model",
     "sklearn.exposure",
     "sklearn.linear_model",
     "sklearn.model_selection",
