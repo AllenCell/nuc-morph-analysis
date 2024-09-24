@@ -247,6 +247,8 @@ def process_full_tracks(df_all, thresh, pix_size, interval):
     df_full = add_growth_features.fit_tracks_to_time_powerlaw(df_full, "volume", interval)
     
     # For LRM
+    df_full = add_features.add_lineage_features(df_full, feature_list=['volume_at_B', 'duration_BC'])
+    
     df_full = add_features.add_feature_at(df_full, "frame_transition", 'height', 'height_percentile', pix_size) 
     df_full = add_features.add_feature_at(df_full, "frame_transition", 'density', 'density', pix_size)
     df_full = add_features.add_feature_at(df_full, "frame_transition", 'xy_aspect', 'xy_aspect')

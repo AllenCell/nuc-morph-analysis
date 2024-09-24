@@ -476,3 +476,60 @@ def add_non_interphase_size_shape_flag(df):
         [f"non_interphase_{filter_key}" for filter_key in NON_INTERPHASE_FILTER_THRESHOLDS.keys()]
     ].any(axis=1)
     return df
+
+def get_sister(df, pid, current_tid):
+    """
+    Gets the track_id of the sibling
+
+    Parameters
+    ----------
+    df: Dataframe
+        The dataset dataframe
+    track_id: int
+        The track_id of the cell
+
+    Returns
+    -------
+    sister_id: List
+        List containing the track_id of the sibling cell
+    """
+    df_sisters = df.loc[df.parent_id == pid]
+    tids = df_sisters.track_id.unique()
+    sister_id = [tid for tid in tids if tid != current_tid]
+    return sister_id
+
+def add_lineage_features(df, feature_list):
+    """
+    If the full track has a full track sister or mother, add the given relative's feature as a single track feature column in the dataframe. 
+    
+    Paramaters
+    ----------
+    df: DataFrame
+        The dataframe
+    feature_list: list
+        List of column names
+        
+    Returns
+    -------
+    df: DataFrame
+        The dataframe with new columns (ie mothers_vol_at_B, sisters_duration)
+    """
+    
+    for feature in feature_list:
+        df[f"mothers_{feature}"] = np.nan
+        df[f"sisters_{feature}"] = np.nan
+
+    df_lineage = df[df['colony'].isin(['small', 'medium'])]
+
+    for tid, dft in df_lineage.groupby("track_id"):
+        parent_id = dft.parent_id.values[0]
+        if parent_id != -1 and parent_id in df_lineage.track_id.unique():
+            for feature in feature_list:
+                df.loc[df.track_id == tid, f"mothers_{feature}"] = df_lineage.loc[df_lineage.track_id == parent_id, feature].values[0]
+        if parent_id != -1:        
+            sister_id = get_sister(df_lineage, parent_id, tid)
+            if len(sister_id) > 0:
+                for feature in feature_list:
+                    df.loc[df.track_id == tid, f"sisters_{feature}"] = df_lineage.loc[df_lineage.track_id == sister_id[0], feature].values[0]
+
+    return df
