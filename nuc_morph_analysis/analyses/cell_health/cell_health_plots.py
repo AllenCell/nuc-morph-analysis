@@ -38,11 +38,10 @@ def plot_event_histogram(df, event_type, figdir):
             lim1 = (0, 27)
             lim2 = (0, 2.5)
             
-            df_last = df_colony.loc[df_colony.groupby('track_id')['index_sequence'].idxmax()]
             for hour_bin, dft in df_colony.groupby(df_colony['index_sequence'] // 12):
-                df_sub_last = df_last.loc[df_last['index_sequence'] // 12 == hour_bin]
+                df_sub_event = df_event.loc[df_event['index_sequence'] // 12 == hour_bin]
                 index_sequence_list.append(hour_bin)
-                event_count.append((df_sub_last['termination'] == 2).sum())
+                event_count.append((df_sub_event['termination'] == 2).sum())
                 num_cells.append(dft.track_id.nunique())
             
         if event_type == 'cell_division':
