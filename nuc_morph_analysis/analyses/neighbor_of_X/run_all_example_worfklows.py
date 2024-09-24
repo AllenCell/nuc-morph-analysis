@@ -1,0 +1,17 @@
+#%%
+from nuc_morph_analysis.lib.preprocessing import global_dataset_filtering
+from nuc_morph_analysis.analyses.neighbor_of_X import example_dying_track_neighbors
+from nuc_morph_analysis.analyses.neighbor_of_X import example_mitotic_track_neighbors 
+from nuc_morph_analysis.analyses.neighbor_of_X import example_timepoint_neighbors_of_dying 
+from nuc_morph_analysis.analyses.neighbor_of_X import example_timepoint_of_neighbors_of_mitotic 
+from nuc_morph_analysis.analyses.neighbor_of_X import example_timepoint_numbers_of_mitotic
+from nuc_morph_analysis.analyses.neighbor_of_X import example_of_tracks_with_multiple_mitotic_neighbors
+#%%
+df = global_dataset_filtering.load_dataset_with_features(dataset='all_baseline',load_local=True)
+#%%
+example_dying_track_neighbors.run_example(df)
+example_mitotic_track_neighbors.run_example(df)
+example_timepoint_neighbors_of_dying.run_example(df)
+example_timepoint_of_neighbors_of_mitotic.run_example(df)
+example_timepoint_numbers_of_mitotic.run_example(df)
+example_of_tracks_with_multiple_mitotic_neighbors.run_example(df)
