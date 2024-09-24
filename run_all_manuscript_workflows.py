@@ -55,6 +55,9 @@ class Workflows:
 
         seg_model_validation_figure_workflow.save_out_specified_image_pairs_with_overlays()
         import nuc_morph_analysis.analyses.segmentation_model_validation.quantitative_validation_workflow
+        
+    def supplemental_figure_cell_health():
+        import nuc_morph_analysis.analyses.cell_health.cell_health_workflow
 
 
 ALL_WORKFLOWS = get_jobs(Workflows)
