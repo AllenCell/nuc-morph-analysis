@@ -148,8 +148,8 @@ def get_pseudo_cell_boundaries_from_labeled_nucleus_image(labeled_nucleus_image,
             'distance':(distance, "Distance Transform"),
             'watershed_img':(watershed_img, "Watershed of Distance Transform"),
             'pseudo_cells_img':(pseudo_cells_img, "Pseudo Cell Segmentation"),
-            'cell_shed_bin': (cell_shed>0, "Binary Watershed of Distance Transform with Watershed Line"),
-            'cyto_distance':(cyto_distance, "Distance Transform restricted to Cytoplasmic Segmentation"),
+            'cell_shed_bin': (cell_shed>0, "Binary Watershed of Distance\nTransform with Watershed Line"),
+            'cyto_distance':(cyto_distance, "Distance Transform restricted\nto Cytoplasmic Segmentation"),
             'nucleus_edge_img':(nucleus_edge_img, "Nucleus Edge"),
 
         }

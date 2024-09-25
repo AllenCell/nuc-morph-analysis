@@ -12,10 +12,14 @@ from nuc_morph_analysis.analyses.dataset_images_for_figures.figure_helper import
 from skimage.measure import find_contours
 from nuc_morph_analysis.lib.visualization.plotting_tools import colorize_image
 
-def get_contours_from_pair_of_2d_seg_image(nuc_mip,cell_mip):
+def get_contours_from_pair_of_2d_seg_image(nuc_mip,cell_mip,dft=None):
         contour_list = [] # (label, nucleus_contour, cell_contour, color)
         rgb_array0_255, _, _ = return_glasbey_on_dark()
         for label_img in range(0,nuc_mip.max()+1):
+            if dft is not None:
+                #ask if the label_img is in the dataframe
+                if label_img not in dft['label_img'].values:
+                    continue
             color = np.float64(rgb_array0_255[label_img % len(rgb_array0_255)])
 
             # get the nucleus boundary
@@ -32,9 +36,11 @@ def get_contours_from_pair_of_2d_seg_image(nuc_mip,cell_mip):
 
         return contour_list
 
-def draw_contours_on_image(axlist,contour_list):
+def draw_contours_on_image(axlist,contour_list,new_color=None):
     # draw contours
     for label, nuc_contours, cell_contours, color in contour_list:
+        if new_color is not None:
+            color = new_color
         for contour in nuc_contours:
             axlist.plot(contour[:, 1], contour[:, 0], linewidth=1, color=color/255)
         for contour in cell_contours:
@@ -55,6 +61,10 @@ def plot_colorized_image_with_contours(img_dict,dft,feature,cmapstr,colony='test
         if feature == 'zeros':
             cimg = np.zeros_like(nuc_mip)
         else:
+            if categorical:
+                if dft[feature].dtype == 'bool':
+                    dft = dft.copy()
+                    dft[feature] = dft[feature]+1
             cimg = colorize_image(nuc_mip, dft, feature=feature)
             
         # define the colormap for the image
@@ -77,8 +87,8 @@ def plot_colorized_image_with_contours(img_dict,dft,feature,cmapstr,colony='test
             
         if draw_contours:
             # create the contours
-            contour_list = get_contours_from_pair_of_2d_seg_image(nuc_mip,cell_mip)
-            draw_contours_on_image(axlist,contour_list)
+            contour_list = get_contours_from_pair_of_2d_seg_image(nuc_mip,cell_mip,dft)
+            draw_contours_on_image(axlist,contour_list,new_color=np.asarray((200,0,200)))
         # remove the axis
         plt.axis('off')
         plt.xlim([x1,x1+w])
@@ -126,9 +136,9 @@ def run_validation_and_plot(TIMEPOINT=48,colony='medium',RESOLUTION_LEVEL=1,plot
     if testing: # on test data
         labeled_nucleus_image = pseudo_cell_testing_helper.make_nucleus_image_array()
         df_2d, img_dict = pseudo_cell_helper.get_pseudo_cell_boundaries(labeled_nucleus_image, return_img_dict=True)
+        colony = 'test'
     else: # or on real data
         df_2d, img_dict = watershed_workflow.get_image_and_run(colony, TIMEPOINT, RESOLUTION_LEVEL, return_img_dict=True)
-
 
     # now display all of the intermediates of the
     # watershed based pseudo cell segmentation
@@ -136,9 +146,11 @@ def run_validation_and_plot(TIMEPOINT=48,colony='medium',RESOLUTION_LEVEL=1,plot
     for full_crop, sizes in [('crop',(500,200,500,500)),('full',(0,0,mip.shape[1],mip.shape[0]))]:
         x1,y1,w,h = sizes
         crop_exp = np.index_exp[y1:y1+h,x1:x1+w]
-        nrows = 1
-        ncols = len(img_dict)
+        nrows = 2
+        ncols = np.ceil(len(img_dict)//2).astype(int)
+        assert ncols>1
         fig,axr = plt.subplots(nrows,ncols,figsize=(ncols*4,nrows*4))
+        
         axx = np.asarray([axr]).flatten()
         for i,key in enumerate(img_dict.keys()):
             ax = axx[i]
@@ -190,12 +202,14 @@ def run_validation_and_plot(TIMEPOINT=48,colony='medium',RESOLUTION_LEVEL=1,plot
 
         plot_colorized_image_with_contours(img_dict,dft,'colony_depth','tab10',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=True,draw_contours=False)
         plot_colorized_image_with_contours(img_dict,dft,'colony_depth','tab10',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=True,draw_contours=True)
+        plot_colorized_image_with_contours(img_dict,dft,'has_mitotic_neighbor_dilated','tab10',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=True,draw_contours=False)
+        plot_colorized_image_with_contours(img_dict,dft,'has_mitotic_neighbor_dilated','tab10',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=True,draw_contours=True)        
         plot_colorized_image_with_contours(img_dict,dft,'2d_area_nuc_cell_ratio','viridis',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=False,draw_contours=False)
         plot_colorized_image_with_contours(img_dict,dft,'2d_area_nuc_cell_ratio','viridis',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=False,draw_contours=True)
         plot_colorized_image_with_contours(img_dict,dft,'2d_area_pseudo_cell','viridis',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=False,draw_contours=False)
         plot_colorized_image_with_contours(img_dict,dft,'2d_area_pseudo_cell','viridis',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=False,draw_contours=True)
-        plot_colorized_image_with_contours(img_dict,dft,'2d_area_cyto','viridis',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=False,draw_contours=False)
-        plot_colorized_image_with_contours(img_dict,dft,'2d_area_cyto','viridis',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=False,draw_contours=True)    
+        plot_colorized_image_with_contours(img_dict,dft,'2d_intensity_min_edge','viridis',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=False,draw_contours=False)
+        plot_colorized_image_with_contours(img_dict,dft,'2d_intensity_min_edge','viridis',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=False,draw_contours=True)    
         plot_colorized_image_with_contours(img_dict,dft,'density','viridis',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=False,draw_contours=False)
         plot_colorized_image_with_contours(img_dict,dft,'density','viridis',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=False,draw_contours=True)
         plot_colorized_image_with_contours(img_dict,dft,'zeros','viridis',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=False,draw_contours=True)
@@ -205,5 +219,6 @@ def run_validation_and_plot(TIMEPOINT=48,colony='medium',RESOLUTION_LEVEL=1,plot
     
 if __name__ == '__main__':
     # set the details
-    dft_test = run_validation_and_plot(testing=True)
-    dft0 = run_validation_and_plot(plot_everything=False)
+    # dft_test = run_validation_and_plot(testing=True)
+    # dft0 = run_validation_and_plot(plot_everything=True)
+    dft0 = run_validation_and_plot(247,colony='small',RESOLUTION_LEVEL=1,plot_everything=True)
