@@ -11,11 +11,17 @@ These can be run in parallel.
 To prepare the colony datasets to be grouped in a dropdown menu, create the file
 `{new_dataset_version_name}/collection.json` listing all colonies included in the dataset. For example, most of our subsets of data for the baseline colonies contain the following:
 ```
-[
+{
+  "datasets": [
+    { "name": "Small", "path": "small" },
     { "name": "Medium", "path": "medium" },
-    { "name": "Large", "path": "large" },
-    { "name": "Small", "path": "small" }
-  ]
+    { "name": "Large", "path": "large" }
+  ],
+  "metadata": {
+    "name": "Baseline colonies dataset"
+  }
+}
+
 ```
 while the "lineage-annotated" subset of the data only exists for the Small and Medium colonies, so the `collection.json` file for that dataset excludes the line pertaining to the Large colony.
 
