@@ -70,7 +70,7 @@ for feature in feature_list:
     ax.set_xlim(np.min([x.min(),y.min()]),np.max([x.max(),y.max()])) 
     ax.set_ylim(np.min([x.min(),y.min()]),np.max([x.max(),y.max()]))
 
-    ax.text(0.05,0.95,f'R^2 = {r2:.2`f}',transform=ax.transAxes,
+    ax.text(0.05,0.95,f'R^2 = {r2:.2f}',transform=ax.transAxes,
             ha='left',va='top')
     ax.set_aspect('equal')
     plt.legend(loc='lower right')
