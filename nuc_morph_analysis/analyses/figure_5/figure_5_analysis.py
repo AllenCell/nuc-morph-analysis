@@ -85,7 +85,7 @@ def plot_dfg(dfg,xcol1,ycol,labelstr,curr_ax,plot_type='mean',colorby=None):
 
     elif plot_type=='mean':
         curr_ax.plot(x,y,label=labelstr, color = color)
-        curr_ax.fill_between(x,ylo,yhi,alpha=0.2, color = color)
+        curr_ax.fill_between(x,ylo,yhi,alpha=0.2, color = color, edgecolor='none')
         curr_ax.set_ylabel(f"{ylabel} {yunit}\n(90% interpercentile range)")
 
     elif plot_type=='count':
@@ -109,6 +109,15 @@ def plot_dfg(dfg,xcol1,ycol,labelstr,curr_ax,plot_type='mean',colorby=None):
 #%%
 
 #%%
+# set global font sizes to be 8
+fs = 16
+plt.rcParams.update({'font.size': fs})
+plt.rcParams.update({'axes.titlesize': fs})
+plt.rcParams.update({'axes.labelsize': fs})
+plt.rcParams.update({'xtick.labelsize': fs})
+plt.rcParams.update({'ytick.labelsize': fs})
+plt.rcParams.update({'legend.fontsize': fs})
+#%%
 colony_list = ['small','medium','large']
 
 nrows = 1
@@ -119,7 +128,7 @@ for ycol in ['dxdt_48_volume','dxdt_24_volume','dxdt_12_volume','volume','height
     for xcol1 in ['index_sequence','dig_time','colony_depth']:
         for plot_type in ['mean','STD','CV','count']:
 
-            fig,ax = plt.subplots(nrows,ncols,figsize=(ncols*4,nrows*2.5),constrained_layout=True,
+            fig,ax = plt.subplots(nrows,ncols,figsize=(ncols*3,nrows*2),constrained_layout=True,
                             sharey=True)
             assert type(ax) == np.ndarray # for mypy
             for ci,colony in enumerate(colony_list):
@@ -129,9 +138,9 @@ for ycol in ['dxdt_48_volume','dxdt_24_volume','dxdt_12_volume','volume','height
                 dfg['colony'] = colony
                 curr_ax = plot_dfg(dfg,xcol1,ycol,"",curr_ax,plot_type=plot_type,colorby='colony')
             curr_ax.legend(loc='center left',bbox_to_anchor=(1.05,0.5))
-            savepath = figdir / f"ALL_{ycol}_{xcol1}_{plot_type}.png"
-
-            save_and_show_plot(str(savepath),'.png',fig=fig,transparent=False)
+            for ext in ['.png','.pdf']:
+                savepath = figdir / f"ALL_{ycol}_{xcol1}_{plot_type}{ext}"
+                save_and_show_plot(str(savepath),ext,fig,transparent=False,keep_open=True)
             plt.show()
 
 #%%
@@ -151,7 +160,7 @@ for xcol1 in ['index_sequence','dig_time','colony_depth']:
         for plot_type in ['mean','count']:
 
             sharey = False if plot_type == 'count' else True
-            fig,ax = plt.subplots(nrows,ncols,figsize=(ncols*4,nrows*2.5),constrained_layout=True,
+            fig,ax = plt.subplots(nrows,ncols,figsize=(ncols*3,nrows*2),constrained_layout=True,
                             sharey=sharey)
             assert type(ax) == np.ndarray # for mypy
 
@@ -170,6 +179,8 @@ for xcol1 in ['index_sequence','dig_time','colony_depth']:
 
             curr_ax.legend(loc='center left',bbox_to_anchor=(1.05,0.5),title='Cell cycle window')
 
-            savepath = figdir / f"cell_cycle_bins_{ycol}_{xcol1}_{plot_type}.png"
-            save_and_show_plot(str(savepath),'.png',fig,transparent=False)
+            # savepath = figdir / f"cell_cycle_bins_{ycol}_{xcol1}_{plot_type}.png"
+            for ext in ['.png','.pdf']:
+                savepath = figdir / f"cell_cycle_bins_{ycol}_{xcol1}_{plot_type}{ext}"
+                save_and_show_plot(str(savepath),ext,fig,transparent=False,keep_open=True)
             plt.show()
