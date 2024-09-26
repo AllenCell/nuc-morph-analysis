@@ -9,6 +9,7 @@ from nuc_morph_analysis.lib.preprocessing import (
     is_tp_outlier,
     add_features,
     add_neighborhood_avg_features,
+    add_neighborhood_avg_features_lrm,
     compute_change_over_time,
 )
 from nuc_morph_analysis.analyses.volume import add_growth_features
@@ -199,6 +200,9 @@ def process_all_tracks(df, dataset, remove_growth_outliers, num_workers):
     df = add_features.add_non_interphase_size_shape_flag(df)
     df = add_change_over_time(df)
     df = add_neighborhood_avg_features.run_script(df, num_workers=num_workers)
+    df = add_neighborhood_avg_features_lrm.run_script(df, num_workers=num_workers, 
+                                                feature_list=["volume", "height", "density", "xy_aspect", "mesh_sa"],
+                                                exclude_outliers=False)
 
     if dataset == "all_baseline":
         df = add_colony_time_all_datasets(df)
@@ -261,17 +265,23 @@ def process_full_tracks(df_all, thresh, pix_size, interval):
     
     df_full = add_features.add_feature_at(df_full, "frame_transition", 'height', 'height_percentile', pix_size) 
     df_full = add_features.add_feature_at(df_full, "frame_transition", 'density', 'density', pix_size)
-    df_full = add_features.add_feature_at(df_full, "frame_transition", 'xy_aspect', 'xy_aspect')
-    df_full = add_features.add_feature_at(df_full, "frame_transition", 'SA_vol_ratio', 'SA_vol_ratio')
-    df_full = add_features.add_feature_at(df_full, "frame_transition", 'SA_vol_ratio', 'SA_vol_ratio')
-    df_full = add_features.get_early_transient_gr_of_whole_colony(df_full, scale=get_plot_labels_for_metric('neighbor_avg_dxdt_48_volume_whole_colony')[0])
+    for feature in ['xy_aspect', 'SA_vol_ratio', 'neighbor_avg_lrm_volume_90um', 'neighbor_avg_lrm_height_90um',
+                'neighbor_avg_lrm_density_90um','neighbor_avg_lrm_xy_aspect_90um','neighbor_avg_lrm_mesh_sa_90um']:
+        df_full = add_features.add_feature_at(df_full, "frame_transition", feature, feature)
     
-    ft_list = ['height', 'density', 'volume', 'mesh_sa', 'xy_aspect', 'SA_vol_ratio', 'neighbor_avg_dxdt_48_volume_whole_colony']
+    df_full = add_features.get_early_transient_gr_of_whole_colony(df_full, scale=get_plot_labels_for_metric('neighbor_avg_dxdt_48_volume_whole_colony')[0])
+    df_full = add_features.sum_mitotic_events_along_full_track(df_full)
+    
+    ft_list = ['neighbor_avg_dxdt_48_volume_whole_colony',
+            'neighbor_avg_lrm_volume_90um', 
+            'neighbor_avg_lrm_height_90um',
+            'neighbor_avg_lrm_density_90um',
+            'neighbor_avg_lrm_xy_aspect_90um',
+            'neighbor_avg_lrm_mesh_sa_90um']
     multiplier_list = [get_plot_labels_for_metric(x)[0] for x in ft_list]
     df_full = add_features.add_mean_feature_over_trajectory(df_full, ft_list, multiplier_list)
-    df_full = add_features.add_std_feature_over_trajectory(df_full, ft_list, multiplier_list)
-
-    df_full = add_features.sum_mitotic_events_along_full_track(df_full)
+    for feat in ft_list:
+        df_full = add_features.add_feature_at(df_full, "frame_transition", feat, feat)
 
     # Add flag for use after merging back to main manifest
     df_full = add_features.add_full_track_flag(df_full)
