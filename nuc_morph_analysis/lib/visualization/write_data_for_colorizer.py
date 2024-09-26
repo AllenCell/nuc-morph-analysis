@@ -251,15 +251,43 @@ FEATURE_COLUMNS = {
 
         # new columns
         NucMorphFeatureSpec('label_pseudo_cell'),
-        NucMorphFeatureSpec('2d_area_pseudo_cell'),
-        NucMorphFeatureSpec('2d_area_nucleus'),
         NucMorphFeatureSpec('2d_area_nuc_cell_ratio'),
         NucMorphFeatureSpec('2d_area_cyto'),
         NucMorphFeatureSpec('inv_cyto_density'),
         NucMorphFeatureSpec('2d_intensity_min_edge'),
         NucMorphFeatureSpec('2d_intensity_max_edge'),
         NucMorphFeatureSpec('2d_intensity_mean_edge'),
+
+        NucMorphFeatureSpec('2d_area_nucleus'),
+        NucMorphFeatureSpec('2d_convex_area_nucleus'),
         NucMorphFeatureSpec('2d_eccentricity_nucleus'),
+        NucMorphFeatureSpec('2d_equivalent_diameter_nucleus'),
+        NucMorphFeatureSpec('2d_extent_nucleus'),
+        NucMorphFeatureSpec('2d_filled_area_nucleus'),
+        NucMorphFeatureSpec('2d_major_axis_length_nucleus'),
+        NucMorphFeatureSpec('2d_minor_axis_length_nucleus'),
+        NucMorphFeatureSpec('2d_orientation_nucleus'),
+        NucMorphFeatureSpec('2d_perimeter_nucleus'),
+        NucMorphFeatureSpec('2d_solidity_nucleus'),
+
+        NucMorphFeatureSpec('2d_area_pseudo_cell'),
+        NucMorphFeatureSpec('2d_convex_area_pseudo_cell'),
+        NucMorphFeatureSpec('2d_eccentricity_pseudo_cell'),
+        NucMorphFeatureSpec('2d_equivalent_diameter_pseudo_cell'),
+        NucMorphFeatureSpec('2d_extent_pseudo_cell'),
+        NucMorphFeatureSpec('2d_filled_area_pseudo_cell'),
+        NucMorphFeatureSpec('2d_major_axis_length_pseudo_cell'),
+        NucMorphFeatureSpec('2d_minor_axis_length_pseudo_cell'),
+        NucMorphFeatureSpec('2d_orientation_pseudo_cell'),
+        NucMorphFeatureSpec('2d_perimeter_pseudo_cell'),
+        NucMorphFeatureSpec('2d_solidity_pseudo_cell'),
+
+        NucMorphFeatureSpec('2d_perimeter_nuc_cell_ratio'),
+        NucMorphFeatureSpec('2d_eccentricity_nuc_cell_ratio'),
+
+
+        # extra old columns
+        NucMorphFeatureSpec('colony_depth', type=FeatureType.DISCRETE),
 
     ],
 }
