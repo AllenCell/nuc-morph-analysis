@@ -207,6 +207,9 @@ def save_plots(all_coef_alpha, all_test_sc, all_perms, target, save_path):
             aspect=2,
             height=10,
         )
+    
+        g.set(ylabel='')
+        
         g.fig.subplots_adjust(top=.9)  # adjust the Figure in rp
         g.fig.suptitle(
             f"Prediction of {get_plot_labels_for_metric(target)[1]}\nalpha={alpha}, test r\u00B2={test_r2_mean}±{test_r2_std}, P={p_value}"
@@ -223,7 +226,7 @@ def save_plots(all_coef_alpha, all_test_sc, all_perms, target, save_path):
         if not xlim:
             xlim = g.fig.axes[0].get_xlim()
         g.set(xlim=xlim)
-        g.savefig(this_path)
+        g.savefig(this_path, dpi=300)
 
     # save movie of pngs
     writer = imageio.get_writer(save_path / "coefficients_over_time.mp4", fps=2)
