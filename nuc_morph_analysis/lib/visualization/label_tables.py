@@ -240,12 +240,24 @@ LABEL_TABLE = {
     "std_xy_aspect": "Stdev. XY aspect ratio",
     "std_SA_vol_ratio": "Stdev. SA/Volume ratio",
     "std_neighbor_avg_dxdt_48_volume_whole_colony": "Stdev. transient growth rate of whole colony",
+    'neighbor_avg_lrm_volume_90um_at_B': "Starting avg. volume in 90um radius", 
+    'neighbor_avg_lrm_height_90um_at_B': "Starting avg. height in 90um radius",
+    'neighbor_avg_lrm_density_90um_at_B': "Starting avg. density in 90um radius",
+    'neighbor_avg_lrm_xy_aspect_90um_at_B': "Starting avg. XY aspect ratio in 90um radius",
+    'neighbor_avg_lrm_mesh_sa_90um_at_B': "Starting avg. surface area in 90um radius",
+    
+    'mean_neighbor_avg_lrm_volume_90um': " Avg. mean volume in 90um radius", 
+    'mean_neighbor_avg_lrm_height_90um': "Avg. mean height in 90um radius",
+    'mean_neighbor_avg_lrm_density_90um': "Avg. mean density in 90um radius",
+    'mean_neighbor_avg_lrm_xy_aspect_90um': "Avg. mean XY aspect ratio in 90um radius",
+    'mean_neighbor_avg_lrm_mesh_sa_90um': "Avg. mean surface area in 90um radius",
+    
     # mitotic and apoptotic neighbor columns
     "number_of_frame_of_breakdown_neighbors": "# of neighboring cells undergoing breakdown",
     "number_of_frame_of_formation_neighbors": "# of neighboring cells undergoing formation",
     "number_of_frame_of_death_neighbors": "# of neighboring cells undergoing death",
-    "sum_has_mitotic_neighbor": "# mitotic neighbors",
-    "sum_has_dying_neighbor": "# dying neighbors",  
+    "sum_has_mitotic_neighbor": "Sum of mitotic neighbors",
+    "sum_has_dying_neighbor": "Sum of dying neighbors",  
 }
 
 
