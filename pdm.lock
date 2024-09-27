@@ -5,7 +5,7 @@
 groups = ["default", "dev", "internal"]
 strategy = ["cross_platform"]
 lock_version = "4.4"
-content_hash = "sha256:d7f198ce7a17f74254209ca4ba4eaf3e2903219887d512d619d73bba2cb12e52"
+content_hash = "sha256:cd0afe7e33642ec6becfa8bca18a94426474c1326998ececa9a5b8820a8a4716"
 
 [[package]]
 name = "aicscytoparam"
@@ -659,17 +659,18 @@ files = [
 
 [[package]]
 name = "colorizer-data"
-version = "0.0.0"
+version = "1.4.2"
 requires_python = ">=3.8"
 git = "https://github.com/allen-cell-animated/colorizer-data.git"
 ref = "v1.4.2"
-revision = "8e4a505902ac5eb50bef35a6f82aaa186e6d8c3e"
+revision = "7f7926826a144de540f0c89d38c5388ca5952074"
 summary = "Utilities to convert data for viewing in Timelapse Colorizer"
 dependencies = [
     "dataclasses-json",
     "numpy",
     "pandas",
     "pillow",
+    "pyarrow",
     "requests",
     "scikit-image",
 ]
