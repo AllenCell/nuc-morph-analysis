@@ -194,7 +194,7 @@ def fit_tracks_to_model(
         The input dataframe with an additional columns with linearity fit parameters added
     """
 
-    # get parameters based on fitting volume or SA
+    # get parameters based on fitting volume
     atB_0 = 550
     t_scale0 = np.nan
     model_name = model
