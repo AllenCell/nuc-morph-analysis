@@ -197,7 +197,35 @@ def get_early_transient_gr_of_whole_colony(df, scale, time_shift=25):
         df.loc[df.track_id == tid, "early_transient_gr_whole_colony"] = transient_gr_whole_colony * scale
 
     return df
+
+def get_early_transient_gr_of_neighborhood(df, scale, time_shift=25):
+    """
+    Get the transient growth rate of the colony 2 hours into the growth trajectory. 
     
+    This time shift of two hours into the growth trajectory is necessary because the metric
+    is calculated as the average of a 4 hour rolling window. The middle of a four hour window
+    does not occur until two hours into the timelapse. To calculate this feature equivalently 
+    for each trajectory, two hours was used for all tracks to get a metric for the transient 
+    growth rate of the neighborhood early in the growth trajectory. 
+    
+    Parameters
+    ----------
+    df : DataFrame
+        The dataframe
+    time_shift : int
+        The time shift in frames to calculate the transient growth rate in frames
+        
+    Returns
+    -------
+    df : DataFrame
+        The dataframe with the added transient growth rate feature columns
+    """
+    for tid, dft in df.groupby("track_id"):
+        t_calculate = dft.index_sequence.min() + time_shift
+        transient_gr_whole_colony = df.loc[df.index_sequence == t_calculate, "neighbor_avg_dxdt_48_volume_90um"].values[0]
+        df.loc[df.track_id == tid, "early_transient_gr_90um"] = transient_gr_whole_colony * scale
+
+    return df    
 
 def add_std_feature_over_trajectory(df, feature_list, multiplier_list):
     """
