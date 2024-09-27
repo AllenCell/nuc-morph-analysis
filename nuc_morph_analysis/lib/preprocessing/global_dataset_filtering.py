@@ -270,14 +270,16 @@ def process_full_tracks(df_all, thresh, pix_size, interval):
         df_full = add_features.add_feature_at(df_full, "frame_transition", feature, feature)
     
     df_full = add_features.get_early_transient_gr_of_whole_colony(df_full, scale=get_plot_labels_for_metric('neighbor_avg_dxdt_48_volume_whole_colony')[0])
+    df_full = add_features.get_early_transient_gr_of_neighborhood(df_full, scale=get_plot_labels_for_metric('neighbor_avg_dxdt_48_volume_90um')[0])
     df_full = add_features.sum_mitotic_events_along_full_track(df_full)
     
     ft_list = ['neighbor_avg_dxdt_48_volume_whole_colony',
-            'neighbor_avg_lrm_volume_90um', 
-            'neighbor_avg_lrm_height_90um',
-            'neighbor_avg_lrm_density_90um',
-            'neighbor_avg_lrm_xy_aspect_90um',
-            'neighbor_avg_lrm_mesh_sa_90um']
+               'neighbor_avg_dxdt_48_volume_90um',
+               'neighbor_avg_lrm_volume_90um', 
+               'neighbor_avg_lrm_height_90um',
+               'neighbor_avg_lrm_density_90um',
+               'neighbor_avg_lrm_xy_aspect_90um',
+               'neighbor_avg_lrm_mesh_sa_90um']
     multiplier_list = [get_plot_labels_for_metric(x)[0] for x in ft_list]
     df_full = add_features.add_mean_feature_over_trajectory(df_full, ft_list, multiplier_list)
     for feat in ft_list:
