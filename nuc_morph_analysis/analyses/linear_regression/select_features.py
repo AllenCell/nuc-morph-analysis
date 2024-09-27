@@ -45,7 +45,8 @@ FEATURE_GROUPS = {
 
 TARGET_CONTAINTING_FEATS = {
     'duration_BC': [
-        'duration_BC', 
+        'duration_BC',
+        'late_growth_rate_by_endpoints', 
         ],
     'volume_at_C': [
         'volume_at_C',
@@ -72,6 +73,22 @@ TARGET_SETTINGS = {
 }
 
 def get_feature_list(feature_group_list, target):
+    """
+    Get feature list to include in linear model. 
+    Gets full features list and excludes ones that contain target information. 
+    
+    Parameters
+    ----------
+    feature_group_list: list
+        List of feature groups to include in the feature list
+    target: str
+        Target variable to predict
+        
+    Returns
+    -------
+    features: list
+        List of features to include in the linear model
+    """
     features = []
     for group in feature_group_list:
         features = features + FEATURE_GROUPS[group]
@@ -82,7 +99,23 @@ def get_feature_list(feature_group_list, target):
     return features
 
 def plot_feature_correlations(df_track_level_features, feature_list, figdir):
+    """
+    Plot heatmap of feature correlations.   
     
+    Parameters
+    ----------
+    df_track_level_features : pd.DataFrame
+        DataFrame containing track level features
+    feature_list : list
+        List of features to include in the heatmap
+        Output from get_feature_list
+    figdir : str
+        Directory to save the figure
+
+    Returns
+    -------
+    Figure
+    """
     data = df_track_level_features[feature_list]
 
     plt.rc('font', size=22)
@@ -93,4 +126,5 @@ def plot_feature_correlations(df_track_level_features, feature_list, figdir):
     plt.xticks([x + 0.5 for x in range(len(column_names))], column_names)
     plt.yticks([y + 0.5 for y in range(len(column_names))], column_names)
     plt.tight_layout()
+    
     save_and_show_plot(f'{figdir}/feature_correlation_heatmap')
