@@ -25,6 +25,10 @@ from nuc_morph_analysis.lib.preprocessing.global_dataset_filtering import (
 from nuc_morph_analysis.lib.visualization.plotting_tools import (
     get_plot_labels_for_metric,
 )
+from nuc_morph_analysis.lib.visualization.glossary import (
+    GLOSSARY,
+    )
+
 from colorizer_data.writer import ColorizerDatasetWriter
 from colorizer_data.writer import (
     ColorizerMetadata,
@@ -225,6 +229,30 @@ FEATURE_COLUMNS = {
         NucMorphFeatureSpec("SA_fold_change_fromB"),
         NucMorphFeatureSpec("delta_SA_BC"),
         NucMorphFeatureSpec("SA_vol_ratio"),
+
+        # mitotic and apoptotic neighbor columns
+        NucMorphFeatureSpec(column_name="frame_of_breakdown", type=FeatureType.CATEGORICAL, categories=["False", "True"]),
+        NucMorphFeatureSpec(column_name="frame_of_formation", type=FeatureType.CATEGORICAL, categories=["False", "True"]),
+        NucMorphFeatureSpec(column_name="number_of_frame_of_breakdown_neighbors"),
+        NucMorphFeatureSpec(column_name="number_of_frame_of_formation_neighbors"),
+        NucMorphFeatureSpec(column_name="has_mitotic_neighbor_breakdown", type=FeatureType.CATEGORICAL, categories=["False", "True"]),
+        NucMorphFeatureSpec(column_name="has_mitotic_neighbor_formation", type=FeatureType.CATEGORICAL, categories=["False", "True"]),
+        NucMorphFeatureSpec(column_name="has_mitotic_neighbor_breakdown_forward_dilated", type=FeatureType.CATEGORICAL, categories=["False", "True"]),
+        NucMorphFeatureSpec(column_name="has_mitotic_neighbor_formation_backward_dilated", type=FeatureType.CATEGORICAL, categories=["False", "True"]),
+        NucMorphFeatureSpec(column_name="has_mitotic_neighbor", type=FeatureType.CATEGORICAL, categories=["False", "True"]),
+        NucMorphFeatureSpec(column_name="has_mitotic_neighbor_dilated", type=FeatureType.CATEGORICAL, categories=["False", "True"]),
+        NucMorphFeatureSpec(column_name="frame_of_death", type=FeatureType.CATEGORICAL, categories=["False", "True"]),
+        NucMorphFeatureSpec(column_name="has_dying_neighbor", type=FeatureType.CATEGORICAL, categories=["False", "True"]),
+        NucMorphFeatureSpec(column_name="has_dying_neighbor_forward_dilated", type=FeatureType.CATEGORICAL, categories=["False", "True"]),
+        NucMorphFeatureSpec(column_name="number_of_frame_of_death_neighbors"),
+        NucMorphFeatureSpec(column_name="sum_has_mitotic_neighbor_breakdown"), # per track feature
+        NucMorphFeatureSpec(column_name="sum_has_mitotic_neighbor_formation"),# per track feature
+        NucMorphFeatureSpec(column_name="sum_has_mitotic_neighbor"),# per track feature
+        NucMorphFeatureSpec(column_name="sum_has_dying_neighbor"),# per track feature
+        NucMorphFeatureSpec(column_name="sum_number_of_frame_of_breakdown_neighbors"),# per track feature
+        NucMorphFeatureSpec(column_name="number_of_frame_of_death_neighbors"),# per track feature
+
+
     ],
 }
 
@@ -336,7 +364,7 @@ def make_features(
             dataset=dataset_name,
             colorizer=True,
         )
-
+        
         # Remove parentheses from unit names, if included.
         if len(unit) >= 2 and unit[0] == "(" and unit[-1] == ")":
             unit = unit[1:-1]
@@ -346,10 +374,12 @@ def make_features(
         # Get data and scale to use actual units
         if scale_factor is not None:
             data = data * scale_factor
+            
+        description = GLOSSARY[feature.column_name]
 
         writer.write_feature(
             data,
-            FeatureInfo(label=label, unit=unit, type=feature.type, categories=feature.categories),
+            FeatureInfo(label=label, unit=unit, type=feature.type, categories=feature.categories, description=description),
             outliers=outliers,
         )
 

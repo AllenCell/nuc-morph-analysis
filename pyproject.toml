@@ -102,6 +102,7 @@ module = [
     "skimage.registration",
     "sklearn",
     "sklearn.decomposition",
+    "sklearn.linear_model",
     "sklearn.exposure",
     "sklearn.model_selection",
     "sklearn.pipeline",
