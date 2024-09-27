@@ -630,18 +630,17 @@ files = [
 
 [[package]]
 name = "colorizer-data"
-version = "1.4.2"
+version = "0.0.0"
 requires_python = ">=3.8"
 git = "https://github.com/allen-cell-animated/colorizer-data.git"
 ref = "v1.4.2"
-revision = "7f7926826a144de540f0c89d38c5388ca5952074"
+revision = "8e4a505902ac5eb50bef35a6f82aaa186e6d8c3e"
 summary = "Utilities to convert data for viewing in Timelapse Colorizer"
 dependencies = [
     "dataclasses-json",
     "numpy",
     "pandas",
     "pillow",
-    "pyarrow",
     "requests",
     "scikit-image",
 ]
