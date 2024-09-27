@@ -47,11 +47,21 @@ def get_dataframe_by_info(info):
     else:
         path = str(info["s3_path"])
 
+    #
+
     # Load dataframe by file format
     if path.endswith("csv"):
-        return pd.read_csv(path)
+        df = pd.read_csv(path)
+        # use height calculated from 1st to 99th percentile values
+        # rather than the most extreme values
+        df["height"] = df["height_percentile"]
+        return df
     elif path.endswith("parquet"):
-        return pd.read_parquet(path)
+        df = pd.read_parquet(path)
+        # use height calculated from 1st to 99th percentile values
+        # rather than the most extreme values
+        df["height"] = df["height_percentile"]
+        return df
     else:
         raise ValueError(f"Unknown format {path.split('.')[-1]}")
 
