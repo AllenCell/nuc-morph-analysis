@@ -174,6 +174,8 @@ def fit_tracks_to_model(
     plot=False,
 ):
     """
+    This function fits the volume of each track to either a power law, exponential or
+    linear model and adds the fit parameters and RMSE of the fit to the input dataframe.
 
     Parameters
     ----------
