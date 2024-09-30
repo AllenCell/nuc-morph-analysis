@@ -272,6 +272,7 @@ def process_full_tracks(df_all, thresh, pix_size, interval):
     df_full = add_features.get_early_transient_gr_of_whole_colony(df_full, scale=get_plot_labels_for_metric('neighbor_avg_dxdt_48_volume_whole_colony')[0])
     df_full = add_features.get_early_transient_gr_of_neighborhood(df_full, scale=get_plot_labels_for_metric('neighbor_avg_dxdt_48_volume_90um')[0])
     df_full = add_features.sum_mitotic_events_along_full_track(df_full)
+    df_full = add_features.normalize_sum_events(df_full, ['sum_has_mitotic_neighbor', 'sum_has_dying_neighbor'])
     
     ft_list = ['neighbor_avg_dxdt_48_volume_whole_colony',
                'neighbor_avg_dxdt_48_volume_90um',

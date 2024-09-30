@@ -639,3 +639,23 @@ def sum_mitotic_events_along_full_track(df0, feature_list=[]):
 
     return sum_events_along_full_track(df0, feature_list)
 
+def normalize_sum_events(df_full, event_cols):
+    """
+    Normalize sum of mitotic and death events by growth duration 
+    
+    Parameters
+    ----------
+    df_full: DataFrame
+        The dataframe of full tracks
+    event_cols: list
+        ie. 'sum_has_mitotic_neighbor', 'sum_has_dying_neighbor'
+        
+    Returns
+    -------
+    df_full: DataFrame
+        The dataframe with the normalized sum of events columns
+    """
+    for col in event_cols:
+        df_full[f"normalized_{col}"] = df_full[col] / df_full['duration_BC']
+    return df_full
+

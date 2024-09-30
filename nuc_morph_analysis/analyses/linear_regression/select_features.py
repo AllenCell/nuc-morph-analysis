@@ -27,8 +27,8 @@ FEATURE_GROUPS = {
         'late_growth_rate_by_endpoints',
         'tscale_linearityfit_volume',
         
-        'sum_has_mitotic_neighbor', # extrinsic lifetime
-        'sum_has_dying_neighbor',
+        'normalized_sum_has_mitotic_neighbor', # extrinsic lifetime
+        'normalized_sum_has_dying_neighbor',
         'mean_neighbor_avg_lrm_volume_90um', 
         'mean_neighbor_avg_lrm_height_90um',
         'mean_neighbor_avg_lrm_density_90um',

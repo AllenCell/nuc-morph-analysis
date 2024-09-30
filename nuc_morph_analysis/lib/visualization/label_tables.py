@@ -258,8 +258,8 @@ LABEL_TABLE = {
     "number_of_frame_of_breakdown_neighbors": "# of neighboring cells undergoing breakdown",
     "number_of_frame_of_formation_neighbors": "# of neighboring cells undergoing formation",
     "number_of_frame_of_death_neighbors": "# of neighboring cells undergoing death",
-    "sum_has_mitotic_neighbor": "Sum of mitotic neighbors",
-    "sum_has_dying_neighbor": "Sum of dying neighbors",  
+    "normalized_sum_has_mitotic_neighbor": "Norm. sum of mitotic neighbors",
+    "normalized_sum_has_dying_neighbor": "Norm. sum of dying neighbors",  
 }
 
 
