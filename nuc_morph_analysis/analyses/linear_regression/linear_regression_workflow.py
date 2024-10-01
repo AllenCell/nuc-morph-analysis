@@ -1,9 +1,7 @@
 import argparse
-import ast
 import os
 import warnings
 from pathlib import Path
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -12,26 +10,44 @@ from sklearn.model_selection import (
     RepeatedKFold,
     cross_validate,
 )
+from tqdm import tqdm
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
-from tqdm import tqdm
 from nuc_morph_analysis.lib.preprocessing import global_dataset_filtering, filter_data
 from sklearn.model_selection import permutation_test_score
 from nuc_morph_analysis.lib.visualization.plotting_tools import (
     get_plot_labels_for_metric,
 )
 import imageio
+from nuc_morph_analysis.analyses.linear_regression.select_features import (
+    get_feature_list,
+)
+from nuc_morph_analysis.analyses.linear_regression.utils import (
+    list_of_strings,
+    list_of_floats,
+)
 
 pd.options.mode.chained_assignment = None  # default='warn'
 
 warnings.simplefilter(action="ignore", category=FutureWarning)
 
 
-def main(cols, target, alpha_range, tolerance, save_path, cached_dataframe=None):
+def main(
+    cols,
+    target,
+    alpha_range,
+    tolerance,
+    save_path,
+    cached_dataframe=None,
+    save_movie=False,
+):
 
     save_path = Path(save_path)
     save_path = save_path / Path("linear_regression")
     save_path.mkdir(parents=True, exist_ok=True)
+
+    if len(cols) < 1:
+        cols = get_feature_list(["features", "lineage_feats"], None)
 
     if not cached_dataframe:
         df_all = global_dataset_filtering.load_dataset_with_features()
@@ -41,11 +57,19 @@ def main(cols, target, alpha_range, tolerance, save_path, cached_dataframe=None)
         df_track_level_features = pd.read_csv(cached_dataframe)
 
     fit_linear_regression(
-        df_track_level_features, cols, target, alpha_range, tolerance, save_path
+        df_track_level_features,
+        cols,
+        target,
+        alpha_range,
+        tolerance,
+        save_path,
+        save_movie,
     )
 
 
-def fit_linear_regression(data, cols, target, alpha, tol, save_path):
+def fit_linear_regression(
+    data, cols, target, alpha, tol, save_path, save, permute_cols=[]
+):
     """
     data - track level features
     cols - input features
@@ -53,6 +77,8 @@ def fit_linear_regression(data, cols, target, alpha, tol, save_path):
     alpha - hyperparameter for lasso
     tol - tolerance to check drop in r^2 for finding best alpha (ex. 0.02)
     save_path - location to save files
+    save - whether to save movies and pngs
+    permute_col - list of features to permute and replace with noise
     """
     sns.set_context("talk")
     random_state = 2652124
@@ -73,12 +99,17 @@ def fit_linear_regression(data, cols, target, alpha, tol, save_path):
     alpha = [round(i, 1) for i in alpha]
 
     # find best alpha for Lasso model
-    for alpha_ind, this_alpha in enumerate(alpha):
-        print("fitting alpha", this_alpha)
-
+    for alpha_ind, this_alpha in tqdm(enumerate(alpha), total=len(alpha)):
         # drop any nan rows
         dropna_cols = cols + [target]
         data = data.dropna(subset=dropna_cols)
+
+        # permute columns if necessary
+        if len(permute_cols) > 0:
+            for col in permute_cols:
+                mu, sigma = 0, 1
+                noise = np.random.normal(mu, sigma, len(data))
+                data[col] = noise
 
         # make numpy array for inputs and target
         all_input = data[cols].reset_index(drop=True).values
@@ -161,7 +192,6 @@ def fit_linear_regression(data, cols, target, alpha, tol, save_path):
     all_test_sc["Test MSE"] = -all_test_sc["Test MSE"]
     save_path = save_path / Path(f"{target}")
     save_path.mkdir(parents=True, exist_ok=True)
-    all_test_sc.to_csv(save_path / "mse.csv")
 
     # Get coeffs for all alpha
     all_coef_alpha = pd.concat(all_coef_alpha, axis=0).reset_index(drop=True)
@@ -170,14 +200,16 @@ def fit_linear_regression(data, cols, target, alpha, tol, save_path):
         var_name="Column",
         value_name="Coefficient Importance",
     ).reset_index(drop=True)
-    all_coef_alpha.to_csv(save_path / "coefficients.csv")
 
     # Get permutation scores and p values for all alpha
     all_perms = pd.DataFrame(all_perms).reset_index(drop=True)
-    all_perms.to_csv(save_path / "perm_scores.csv")
 
-    # Save coefficient plot for max alpha value
-    save_plots(all_coef_alpha, all_test_sc, all_perms, target, save_path)
+    # Save coefficient plot movie
+    if save:
+        all_test_sc.to_csv(save_path / "mse.csv")
+        all_coef_alpha.to_csv(save_path / "coefficients.csv")
+        all_perms.to_csv(save_path / "perm_scores.csv")
+        save_plots(all_coef_alpha, all_test_sc, all_perms, target, save_path)
 
     return all_coef_alpha, all_test_sc, all_perms
 
@@ -207,10 +239,10 @@ def save_plots(all_coef_alpha, all_test_sc, all_perms, target, save_path):
             aspect=2,
             height=10,
         )
-    
-        g.set(ylabel='')
-        
-        g.fig.subplots_adjust(top=.9)  # adjust the Figure in rp
+
+        g.set(ylabel="")
+
+        g.fig.subplots_adjust(top=0.9)  # adjust the Figure in rp
         g.fig.suptitle(
             f"Prediction of {get_plot_labels_for_metric(target)[1]}\nalpha={alpha}, test r\u00B2={test_r2_mean}±{test_r2_std}, P={p_value}"
         )
@@ -232,24 +264,8 @@ def save_plots(all_coef_alpha, all_test_sc, all_perms, target, save_path):
     writer = imageio.get_writer(save_path / "coefficients_over_time.mp4", fps=2)
     for im in files:
         writer.append_data(imageio.imread(im))
+        os.remove(im)
     writer.close()
-
-
-def list_of_strings(arg):
-    return arg.split(",")
-
-
-def list_of_floats(arg):
-    return list(map(float, arg.split(",")))
-
-
-def str2bool(v):
-    if isinstance(v, bool):
-        return v
-    if v.lower() in ("yes", "true", "t", "y", "1"):
-        return True
-    elif v.lower() in ("no", "false", "False", "f", "n", "0"):
-        return False
 
 
 if __name__ == "__main__":
@@ -267,7 +283,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--cols",
         type=list_of_strings,
-        default=["volume_at_B", "time_at_B", "colony_time_at_B", "SA_at_B"],
+        default=[],
         help="Supply a list of column names to use as independent variables in the linear regression analysis.",
     )
     parser.add_argument(
@@ -294,6 +310,12 @@ if __name__ == "__main__":
         default=0.02,
         help="Tolerace for change in regression score to determine best alpha",
     )
+    parser.add_argument(
+        "--save",
+        type=bool,
+        default=False,
+        help="Save plots",
+    )
     args = parser.parse_args()
     main(
         cols=args.cols,
@@ -302,4 +324,5 @@ if __name__ == "__main__":
         tolerance=args.tolerance,
         save_path=args.save_path,
         cached_dataframe=args.cached_dataframe,
+        save=args.save,
     )
