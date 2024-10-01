@@ -261,7 +261,7 @@ def save_plots(all_coef_alpha, all_test_sc, all_perms, target, save_path):
         g.savefig(this_path, dpi=300)
 
     # save movie of pngs
-    writer = imageio.get_writer(save_path / "coefficients_over_time.mp4", fps=2)
+    writer = imageio.get_writer(save_path / f"{target}_coefficients_over_time.mp4", fps=2)
     for im in files:
         writer.append_data(imageio.imread(im))
         os.remove(im)
