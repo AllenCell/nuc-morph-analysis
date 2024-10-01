@@ -40,6 +40,7 @@ FEATURE_GROUPS = {
     'lineage_feats': [
         'sisters_volume_at_B',
         'sisters_duration_BC',
+        'sisters_delta_volume_BC'
     ],
 }
 
