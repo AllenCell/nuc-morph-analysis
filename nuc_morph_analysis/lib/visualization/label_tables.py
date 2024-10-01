@@ -208,6 +208,7 @@ LABEL_TABLE = {
     "family_id": "Family ID",
     "sisters_volume_at_B": "Sisters starting volume",
     "sisters_duration_BC": "Sisters growth duration",
+    "sisters_delta_volume_BC": "Sisters added volume",
     # Flags
     "is_outlier": "Outlier Flag",
     "is_tp_outlier": "Single Timepoint Outlier",
