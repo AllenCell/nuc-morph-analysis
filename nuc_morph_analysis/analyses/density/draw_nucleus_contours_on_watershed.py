@@ -61,10 +61,6 @@ def run_validation_and_plot(TIMEPOINT=48,colony='medium',RESOLUTION_LEVEL=1,plot
     cytp_dist = img_dict['cyto_distance'][0]
     for full_crop, sizes in [('crop',(500,200,500,500)),('full',(0,0,nuc_edge.shape[1],nuc_edge.shape[0]))]:
         x1,y1,w,h = sizes
-        crop_exp = np.index_exp[y1:y1+h,x1:x1+w]
-        
-
-  
         cimg = cytp_dist
             
         # define the colormap for the image
