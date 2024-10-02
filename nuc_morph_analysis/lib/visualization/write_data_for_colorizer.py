@@ -25,6 +25,10 @@ from nuc_morph_analysis.lib.preprocessing.global_dataset_filtering import (
 from nuc_morph_analysis.lib.visualization.plotting_tools import (
     get_plot_labels_for_metric,
 )
+from nuc_morph_analysis.lib.visualization.glossary import (
+    GLOSSARY,
+    )
+
 from colorizer_data.writer import ColorizerDatasetWriter
 from colorizer_data.writer import (
     ColorizerMetadata,
@@ -400,7 +404,7 @@ def make_features(
             dataset=dataset_name,
             colorizer=True,
         )
-
+        
         # Remove parentheses from unit names, if included.
         if len(unit) >= 2 and unit[0] == "(" and unit[-1] == ")":
             unit = unit[1:-1]
@@ -410,10 +414,12 @@ def make_features(
         # Get data and scale to use actual units
         if scale_factor is not None:
             data = data * scale_factor
+            
+        description = GLOSSARY[feature.column_name]
 
         writer.write_feature(
             data,
-            FeatureInfo(label=label, unit=unit, type=feature.type, categories=feature.categories),
+            FeatureInfo(label=label, unit=unit, type=feature.type, categories=feature.categories, description=description),
             outliers=outliers,
         )
 

@@ -31,6 +31,9 @@ transparent = True
 # %%
 csv_url = all_datasets.segmentation_model_validation_URLs["single_cell_features"]
 df0 = pd.read_csv(csv_url)
+# use height calculated from 1st to 99th percentile values
+# rather than the most extreme values
+df0["height"] = df0["height_percentile"]
 
 # %%
 # perform PCA on the spherical harmonic coefficients

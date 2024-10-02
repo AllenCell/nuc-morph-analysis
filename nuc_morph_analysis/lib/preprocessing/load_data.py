@@ -48,13 +48,21 @@ def get_dataframe_by_info(info):
         print("NOTE: NOT READING FROM FMS, using S3 instead!")
         path = str(info["s3_path"])
 
+    #
+
     # Load dataframe by file format
     if path.endswith("csv"):
         df = pd.read_csv(path)
+        # use height calculated from 1st to 99th percentile values
+        # rather than the most extreme values
+        df["height"] = df["height_percentile"]
         df['source_manifest'] = [path]*df.shape[0]
         return df
     elif path.endswith("parquet"):
         df = pd.read_parquet(path)
+        # use height calculated from 1st to 99th percentile values
+        # rather than the most extreme values
+        df["height"] = df["height_percentile"]
         df['source_manifest'] = [path]*df.shape[0]
         return df
     else:
