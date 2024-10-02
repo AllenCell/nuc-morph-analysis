@@ -983,6 +983,8 @@ def remove_expected_pseudo_cell_artifacts(dfm, apply_to_nucleus_too=False, verbo
 
     by default it does not apply these features to the 2d nuclear segmentation features
     because the nuclear segmentation is reliable.
+    This workflow also adds a column called `bad_pseudo_cells_segmentation` to the dataframe to mark these cells
+
 
     Parameters
     ----------
@@ -1019,6 +1021,10 @@ def remove_expected_pseudo_cell_artifacts(dfm, apply_to_nucleus_too=False, verbo
     # apply the filter
     dfm.loc[compiled_log, cols] = np.nan
 
+        # apply the filter
+    dfm.loc[compiled_log, 'bad_pseudo_cells_segmentation'] = True
+    dfm.loc[~compiled_log, 'bad_pseudo_cells_segmentation'] = False
+
     if verbose:
         percentage_of_cells_filtered = 100*np.sum(compiled_log)/len(compiled_log)
         print(f"filtered out {percentage_of_cells_filtered:.1f}% of cells due to density related filters")
@@ -1036,6 +1042,19 @@ def remove_uncaught_pseudo_cell_artifacts(df, apply_to_nucleus_too=False, verbos
     The perimeter of the pseudo cell is larger than 500 pixels OR
     The perimeter of the pseudo cell is much larger than the perimeter of the nucleus OR
     AND they tend to be close to the colony edge (colony depth <= 3)
+
+    This workflow marks the features that depend on pseudo cell segmentation as NaN for these cells
+    This workflow also adds a column called `uncaught_pseudo_cell_artifact` to the dataframe to mark these cells
+
+    Parameters
+    ----------
+    df: DataFrame
+        The dataset dataframe
+    apply_to_nucleus_too: bool
+        Flag to apply the filter to the nuclear segmentation features in
+        the same way as the cytoplasmic segmentation features are filtered
+    verbose: bool
+        Flag to print out the percentage of cells filtered
     """
 
     log1 = df['2d_perimeter_nuc_cell_ratio'] < 0.4
@@ -1055,6 +1074,9 @@ def remove_uncaught_pseudo_cell_artifacts(df, apply_to_nucleus_too=False, verbos
 
     # apply the filter
     df.loc[compiled_log, cols] = np.nan
+    df.loc[compiled_log, 'uncaught_pseudo_cell_artifact'] = True
+    df.loc[~compiled_log, 'uncaught_pseudo_cell_artifact'] = False
+
 
     if verbose:
         percentage_of_cells_filtered = 100*np.sum(compiled_log)/len(compiled_log)
