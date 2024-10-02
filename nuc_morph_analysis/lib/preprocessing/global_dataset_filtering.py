@@ -202,14 +202,7 @@ def process_all_tracks(df, dataset, remove_growth_outliers, num_workers):
     if dataset == "all_baseline":
         df = add_colony_time_all_datasets(df)
 
-
-    # compute the perimeter ratio
-    df['2d_perimeter_nuc_cell_ratio'] = df['2d_perimeter_nucleus'] / df['2d_perimeter_pseudo_cell']
-    df['2d_eccentricity_nuc_cell_ratio'] = df['2d_eccentricity_nucleus'] / df['2d_eccentricity_pseudo_cell']
-
-    # mark as NaN any pseudocell segmentation derived features
-    # that are questionable due to neighboring mitotic or apoptotic events
-    # or being at colony edge
+    df = add_features.add_perimeter_ratio(df)
     df = filter_data.apply_density_related_filters(df)
     assert df.index.name == "CellId"
     return df

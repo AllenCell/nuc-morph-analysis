@@ -44,11 +44,9 @@ def get_dataframe_by_info(info):
         fmsid = info["fmsid"]
         record = fms.get_file_by_id(fmsid)
         path = get_valid_path(record)
+        print("NOTE: Reading data from FMS instead of S3 (quilt)")
     else:
-        print("NOTE: NOT READING FROM FMS, using S3 instead!")
         path = str(info["s3_path"])
-
-    #
 
     # Load dataframe by file format
     if path.endswith("csv"):
@@ -56,14 +54,12 @@ def get_dataframe_by_info(info):
         # use height calculated from 1st to 99th percentile values
         # rather than the most extreme values
         df["height"] = df["height_percentile"]
-        df['source_manifest'] = [path]*df.shape[0]
         return df
     elif path.endswith("parquet"):
         df = pd.read_parquet(path)
         # use height calculated from 1st to 99th percentile values
         # rather than the most extreme values
         df["height"] = df["height_percentile"]
-        df['source_manifest'] = [path]*df.shape[0]
         return df
     else:
         raise ValueError(f"Unknown format {path.split('.')[-1]}")
@@ -132,7 +128,7 @@ def get_available_datasets(experiments=["baseline"]):
     """
     names = [
         name
-        for name, info in datasets.items
+        for name, info in datasets.items()
         if (
             (name not in ["all_baseline", "all_feeding_control", "all_drug_perturbation"])
             and (info["experiment"] in experiments)
