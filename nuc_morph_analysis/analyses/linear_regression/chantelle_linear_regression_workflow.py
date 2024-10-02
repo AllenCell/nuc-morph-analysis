@@ -28,7 +28,8 @@ for target in ['volume_at_C', 'delta_volume_BC', 'duration_BC']:
         target=target, 
         alpha=np.arange(0, 15, 0.1, dtype=float),
         tol=TARGET_SETTINGS[target]['tolerance'], 
-        save_path="./figures/feats/"
+        save_path="./figures/feats/", 
+        save=True
     )
     print(f"Finished {target}")
 #%%
@@ -39,6 +40,9 @@ for target in ['volume_at_C', 'delta_volume_BC', 'duration_BC']:
         target=target, 
         alpha=np.arange(0, 15, 0.1, dtype=float),
         tol=TARGET_SETTINGS[target]['tolerance'], 
-        save_path="./figures/feats_plus_lineage/"
+        save_path="./figures/feats_plus_lineage/", 
+        save=True
     )
     print(f"Finished {target} with lineage")
+
+# %%
