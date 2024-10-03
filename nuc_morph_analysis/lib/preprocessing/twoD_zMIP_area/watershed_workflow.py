@@ -10,7 +10,7 @@ def get_image_and_run(colony,timepoint,resolution_level,return_img_dict=False):
     if resolution_level>0:
         reader.set_resolution_level(resolution_level)
     img = reader.get_image_dask_data("ZYX", T=timepoint, C=0).compute()
-    del reader # close the reader so it doesn't have pickling issues in multiprocessing
+    del reader # close the reader to avoid potential pickling issues in multiprocessing
     return pseudo_cell_helper.get_pseudo_cell_boundaries(img,colony, timepoint, resolution_level, return_img_dict=return_img_dict)
 
 def process_timepoint(args):
@@ -35,7 +35,6 @@ def get_pseudo_cell_boundaries_for_movie(colony, resolution_level=1, output_dire
         the output directory to save the pseudo cell images
     parallel : bool
         whether to run the analysis in parallel or not
-        NOTE: currently does not work when reading S3 files
     save_df : bool
         whether to save the pseudo cell boundaries as a csv, default is False
     testing : bool
@@ -45,7 +44,8 @@ def get_pseudo_cell_boundaries_for_movie(colony, resolution_level=1, output_dire
     # load the segmentation iamge
     reader = load_data.get_dataset_segmentation_file_reader(colony)
     args = [(timepoint, colony, resolution_level) for timepoint in range(reader.dims.T)]
-    del reader # close the reader so it doesn't have pickling issues in multiprocessing
+    del reader # close the reader to avoid potential pickling issues in multiprocessing
+
 
     nworkers = cpu_count()
     if testing:
@@ -68,6 +68,11 @@ def get_pseudo_cell_boundaries_for_movie(colony, resolution_level=1, output_dire
             # code is set up this way to retry if encountrering aiohttp.client_exceptions.ServerDisconnectedError: Server disconnected
             try:
                 arg_subset = arg_set[ai]
+
+                # This multiprocessing code ran into an issue where the workers were hanging and failing to make progress (on Linux machines)
+                # This is a known issue with Python's default multiprocessing configuration on Linux. Using the "spawn" configuration fixes the problem as described in the following blog post. 
+                # Python 3.14 will update the default behavior to resolve the issue.  
+                # https://pythonspeed.com/articles/python-multiprocessing/  
                 with get_context('spawn').Pool(nworkers) as p:
                     dflist = list(tqdm(p.imap_unordered(process_timepoint, arg_subset), initial= ai*step, total=len(args), desc="Processing timepoints",leave=False))
                     dflist_list.extend(dflist)
@@ -104,5 +109,5 @@ if __name__ == "__main__":
                                               resolution_level,
                                                 output_directory,
                                                 parallel=True,
-                                                save_df=True,
+                                                save_df=False,
                                                 testing=False)

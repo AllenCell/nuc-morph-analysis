@@ -363,6 +363,21 @@ def get_raw_fov_at_timepoint(dataset, index_sequence, channel_name="bright"):
 
 
 def get_seg_fov_for_dataset_at_frame(dataset: str, timepoint: int, resolution_level=0) -> da.Array:
+    """
+    Get the segmentation image from a dataset at a given timepoint.
+
+    Parameters
+    ----------
+    dataset: string
+        Name of dataset
+    timepoint: int
+        Timepoint to be loaded
+    resolution_level: int
+        Resolution level to be loaded. Default is 0
+        The OME-ZARR files in this data have 5 resolution levels.
+        Resolution level 0 is the highest resolution.
+        Resolution level 1 is 2.5x downsampled.
+    """
     reader = get_dataset_segmentation_file_reader(dataset)
     if resolution_level > 0:
         reader.set_resolution_level(resolution_level)

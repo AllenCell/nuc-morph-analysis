@@ -24,7 +24,7 @@ dfm = filter_data.all_timepoints_minimal_filtering(df)
 x_col = "colony_time"
 column_val = 'label_img'
 feature_list = ['2d_area_nuc_cell_ratio','density','2d_area_nucleus','2d_area_pseudo_cell',
-                '2d_area_cyto','inv_cyto_density',
+                '2d_area_cyto','inv_cyto_density','2d_intensity_min_edge','2d_intensity_max_edge','2d_intensity_mean_edge'
                 ]
 for y_col in feature_list:
     fig,ax = plt.subplots(figsize=(4,3))
@@ -92,11 +92,9 @@ for yi,y_col in enumerate(['2d_area_nuc_cell_ratio','density','inv_cyto_density'
     reg = LinearRegression().fit(x.reshape(-1,1), y)
     y_pred = reg.predict(x.reshape(-1,1))
     ax.plot(x, y_pred, color='k', lw=2)
-    # label=f"R2={reg.score(x.reshape(-1,1),y):.2f}")
     ax.text(0.05,0.95,f"R2={reg.score(x.reshape(-1,1),y):.2f}",transform=ax.transAxes,ha='left',va='top')
 
     plt.title(f"{y_col}\nvs{x_col}\nfor {colony}")
-    # plt.tight_layout()
     for ext in ['.png','.pdf']:
         save_and_show_plot(
             f"{figdir}/{y_col}_vs_{x_col}_by_colony",
