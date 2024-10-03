@@ -15,11 +15,10 @@ figdir = Path(__file__).parent / "figures" / "psuedocell_based_density_analysis"
 figdir.mkdir(exist_ok=True)
 
 # TEMP: loading local for testing and speed
-df = global_dataset_filtering.load_dataset_with_features(dataset='all_baseline',load_local=True)
-dfm = df.copy()
+df = global_dataset_filtering.load_dataset_with_features(dataset='all_baseline')
 #%% now apply the filtering
 # apply minimal filtering to ensure only good segmentations are present
-dfm = filter_data.all_timepoints_minimal_filtering(dfm)
+dfm = filter_data.all_timepoints_minimal_filtering(df)
 
 #%% # plot density over time for each colony  along colony time 
 x_col = "colony_time"

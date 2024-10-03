@@ -9,7 +9,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
 #%%
-df = global_dataset_filtering.load_dataset_with_features(dataset='all_baseline',load_local=True)
+df = global_dataset_filtering.load_dataset_with_features(dataset='all_baseline')
 #%%
 dfc = df[df['colony'] == 'medium']
 dft = filter_data.track_level_features(dfc)

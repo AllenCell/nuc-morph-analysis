@@ -190,7 +190,7 @@ def run_validation_and_plot(TIMEPOINT=48,colony='medium',RESOLUTION_LEVEL=1,plot
     if plot_everything:
         # now load the tracking dataset and merge with the pseudo cell dataframe
         # first load the dataset and merge
-        df = global_dataset_filtering.load_dataset_with_features(dataset='all_baseline',load_local=True)
+        df = global_dataset_filtering.load_dataset_with_features(dataset='all_baseline')
         df = filter_data.all_timepoints_minimal_filtering(df)
         dfm = pd.merge(df, df_2d, on=['colony','index_sequence','label_img'], suffixes=('', '_pc'),how='left')
 

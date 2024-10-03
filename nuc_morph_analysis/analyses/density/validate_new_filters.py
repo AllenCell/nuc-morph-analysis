@@ -115,7 +115,7 @@ def examine_image_after_filtering(colony,TIMEPOINT,dft,savedir):
 
 def main():
     # combine the dataframes
-    df = global_dataset_filtering.load_dataset_with_features(dataset='all_baseline',load_local=True)
+    df = global_dataset_filtering.load_dataset_with_features(dataset='all_baseline')
     dfh = df[df['uncaught_pseudo_cell_artifact']==True]
     print(f"Number of cells that meet the criteria: {dfh.shape[0]}")
 
