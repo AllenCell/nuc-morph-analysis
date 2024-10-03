@@ -51,15 +51,19 @@ def get_dataframe_by_info(info):
     # Load dataframe by file format
     if path.endswith("csv"):
         df = pd.read_csv(path)
+        
         # use height calculated from 1st to 99th percentile values
         # rather than the most extreme values
-        df["height"] = df["height_percentile"]
+        if "height_percentile" in df.columns: # only some datasets have this column
+            df["height"] = df["height_percentile"]
         return df
     elif path.endswith("parquet"):
         df = pd.read_parquet(path)
+        
         # use height calculated from 1st to 99th percentile values
         # rather than the most extreme values
-        df["height"] = df["height_percentile"]
+        if "height_percentile" in df.columns: # only some datasets have this column
+            df["height"] = df["height_percentile"]
         return df
     else:
         raise ValueError(f"Unknown format {path.split('.')[-1]}")
