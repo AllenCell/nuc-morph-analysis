@@ -1,5 +1,6 @@
 from matplotlib.patches import Rectangle
 import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
 from matplotlib.lines import Line2D
 import numpy as np
 from scipy.ndimage import gaussian_filter1d
@@ -747,3 +748,58 @@ def plot_weighted_scatterplot_by_frame(
         return fig, axs, fig_a, ax_a
 
     return fig, axs
+
+def colorize_image(mip, dft, feature='2d_area_nuc_cell_ratio'):
+    """
+    Function create an image where the segmentation image objects (e.g. nuclei)
+    are colored by the a given feature from the dataframe of that timepoint 
+
+    Parameters
+    ----------
+    mip : np.array
+        the max intensity projection of the labeled image
+    dft : pd.DataFrame
+        the dataframe of the timepoint
+    feature : str
+        the feature to color the image by
+    """
+    
+    # now recolor the image by matching the pixel values in image to label_img in dft
+    recolored_img = np.zeros_like(mip).astype('float32')
+    recolored_img[mip>0]=np.nan
+    for _,row in dft.iterrows():
+        recolored_img[mip==row['label_img']] = row[feature]
+    return recolored_img
+
+def plot_colorized_img_with_labels(ax,img,dft,colormap_dict,show_legend=True):
+    # initialize the new colormap
+    new_colors = np.zeros((np.max([x[2] for x in colormap_dict.values()])+1,3))
+    for col in colormap_dict.keys():
+        new_colors[colormap_dict[col][2]] = colormap_dict[col][3]
+    # attach alpha values
+    new_colors = np.concatenate([new_colors,np.ones((new_colors.shape[0],1))],axis=1)
+    newcmap = ListedColormap(new_colors)
+
+    dft['color_col'] = np.nan
+    for col in colormap_dict.keys():
+        dft.loc[dft[colormap_dict[col][0]]==colormap_dict[col][1], 'color_col'] = colormap_dict[col][2]
+
+    colored_img = colorize_image(img.max(axis=0),dft,feature=f'color_col')
+
+    ax.imshow(colored_img,
+                cmap = newcmap,
+                vmin=0,
+                vmax=newcmap.N-1,
+                interpolation='nearest')
+    ax.axis('off')
+
+    # now create the legend
+    if show_legend:
+
+        labels = [colormap_dict[col][4] for col in colormap_dict.keys()]
+        colors = [colormap_dict[col][3] for col in colormap_dict.keys()]
+        patches = [plt.Line2D([0], [0], marker='o', color='w', label=labels[i],
+                                markerfacecolor=colors[i], markersize=10) for i in range(len(labels))]
+        ax.legend(handles=patches,ncol=1,
+                loc='center left', bbox_to_anchor=(1.05, 0.5))
+    return ax

@@ -92,7 +92,9 @@ def compute_and_normalize_by_initial_volumes(
 ):
 
     ################################################################################
-    dfin = df.copy()
+    assert df.index.name == "CellId"
+    df.reset_index(drop=False, inplace=True)
+    df.set_index(["track_id", "index_sequence"], inplace=True)
 
     # identify the a set of frames before drug addition to normalize to
     # these will be defined as the "initial volume" for each track,
@@ -100,8 +102,6 @@ def compute_and_normalize_by_initial_volumes(
 
     frame_before_drug = drug_added_frame - 1
     pdslice = pd.IndexSlice[:, range(int(frame_before_drug - frame_width), int(frame_before_drug))]
-
-    df.set_index(["track_id", "index_sequence"], inplace=True)
     grouper = df.loc[pdslice, column_list].groupby(["track_id"])
 
     # require all tracks to values at all frames in the window
@@ -121,14 +121,14 @@ def compute_and_normalize_by_initial_volumes(
         suffixes=("", "_init"),
         how="outer",
     )
+    assert 'track_id' in df.columns # make sure track_id is not made an index
 
     # now that all track_ids have a "initial volume-1" (volume at t=16) to compare to, we can compute normalized trajectories
     for col in column_list:
         df[f"{col}_norm"] = df[col] / df[f"{col}_init"]
         df[f"{col}_sub"] = df[col] - df[f"{col}_init"]
 
-    df.reset_index(inplace=True)
-    return df
+    return df.set_index("CellId")
 
 
 def acquire_dividing_cells_before_and_after_drug_addition(df, details, pairs, chosen_condition):

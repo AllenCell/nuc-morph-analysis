@@ -389,3 +389,101 @@ def add_non_interphase_size_shape_flag(df):
         [f"non_interphase_{filter_key}" for filter_key in NON_INTERPHASE_FILTER_THRESHOLDS.keys()]
     ].any(axis=1)
     return df
+
+
+def sum_events_along_full_track(df0, feature_list, index_columns=['track_id','index_sequence','Fb','frame_transition']):
+    """
+    this function sums the number of events along the full track of each nucleus. An example event is having a mitotic neighbor.
+    the events are defined by the feature_list
+
+    Parameters
+    ----------
+    df0 : pd.DataFrame
+        dataframe that minimally has the following columns:
+        [index_columns] + [feature_list]
+    feature_list : list
+        list of features to sum along the full track
+        can be boolean or numerical
+    index_columns : list, optional
+        list of columns to keep in the final dataframe for subsetting to full tracks
+        The default is ['track_id','index_sequence','Fb','frame_transition'].
+
+    Returns
+    -------
+    df2 : pd.DataFrame
+        dataframe with the sum of events along the full track
+    """
+
+    df = df0.dropna(subset=['frame_transition','Fb']) # extra NaN values in these columns can cause problems at log1 log2 steps
+    log1 = df['index_sequence'] >= df['frame_transition'] # restrict track to start from frame_transition
+    log2 = df['index_sequence'] <= df['Fb'] # restrict track to end at Fb (breakdown)
+    log = log1 & log2
+    df_mean = df.loc[log,index_columns+feature_list] # only keep relevant columns
+
+    # group by track_id and calculate mean
+    dfg = df_mean.groupby('track_id')[feature_list].sum()
+    dfg.rename(columns={col: f'sum_{col}' for col in feature_list}, inplace=True)
+    
+    # merge the results
+    df2 = df0.reset_index().merge(dfg, on='track_id', how='left', suffixes=('','_dup2'),).set_index('CellId')
+    return df2
+
+
+def sum_mitotic_events_along_full_track(df0, feature_list=[]):
+    """
+    this function calls sum_events_along_full_track with the default feature_list of mitotic events
+
+    Parameters
+    ----------
+    df0 : pd.DataFrame
+        dataframe that minimally has the following columns:
+        ['track_id','index_sequence','Fb','frame_transition'] + mitotic_event_features
+    mitotic_event_features : list, optional
+        list of features to sum along the full track
+        can be boolean or numerical
+        The default is selected if list = [].
+    
+    Returns
+    -------
+    df2 : pd.DataFrame
+        dataframe with the sum of events along the full track
+    """
+
+    mitotic_event_features = [
+        'number_of_frame_of_breakdown_neighbors',
+        'number_of_frame_of_formation_neighbors',
+        'has_mitotic_neighbor_breakdown',
+        'has_mitotic_neighbor_formation',
+        'has_mitotic_neighbor_breakdown_forward_dilated',
+        'has_mitotic_neighbor_formation_backward_dilated',
+        'has_mitotic_neighbor',
+        'has_mitotic_neighbor_dilated',
+        'has_dying_neighbor',
+        'has_dying_neighbor_forward_dilated',
+        'number_of_frame_of_death_neighbors'
+    ]
+
+    if len(feature_list) == 0:
+        feature_list = mitotic_event_features
+
+    return sum_events_along_full_track(df0, feature_list)
+
+def add_perimeter_ratio(df): 
+    """
+    compute ratio of the nucleus perimeter to the pseudo cell perimeter (2d)
+    this feature is important for `filter_data.apply_density_related_filters`
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        dataframe that minimally has the following columns:
+        ['2d_perimeter_nucleus','2d_perimeter_pseudo_cell']
+
+    Returns
+    -------
+    df : pd.DataFrame
+        dataframe with the added column '2d_perimeter_nuc_cell_ratio'
+    
+    """
+    df['2d_perimeter_nuc_cell_ratio'] = df['2d_perimeter_nucleus'] / df['2d_perimeter_pseudo_cell']
+    return df
