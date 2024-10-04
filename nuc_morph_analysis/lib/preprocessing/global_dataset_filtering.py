@@ -256,6 +256,8 @@ def process_full_tracks(df_all, thresh, pix_size, interval):
     df_full = add_growth_features.add_early_growth_rate(df_full, interval)
     df_full = add_growth_features.add_late_growth_rate_by_endpoints(df_full)
     df_full = add_growth_features.fit_tracks_to_time_powerlaw(df_full, "volume", interval)
+    df_full = add_growth_features.fit_tracks_to_model(df_full, interval, "exponential")
+    df_full = add_growth_features.fit_tracks_to_model(df_full, interval, "linear")
 
     df_full = add_features.sum_mitotic_events_along_full_track(df_full)
 

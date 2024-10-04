@@ -23,6 +23,28 @@ def line(x, a, b):
     return a * x + b
 
 
+def exponential(x, a, b):
+    """
+    This function gives the y values of an exponetial
+    of the form y = b * e ^ (x * a)
+
+    Parameters
+    ----------
+    x: Number or ndarray
+        The x values
+    a: Number
+        Scaling of exponent with time
+    b: Number
+        y-intercept of the line
+
+    Returns
+    -------
+    Number or ndarray
+        y = b * e ^ (x * a)
+    """
+    return b * np.exp(x * a)
+
+
 def powerfunc(x, a, b, c):
     """
     This function gives the y values of power law

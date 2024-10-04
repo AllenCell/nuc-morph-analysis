@@ -87,12 +87,17 @@ plt.close()
 # both pooled for all baseline colonies and separated by colony
 for feature in ["tscale_linearityfit_volume", "RMSE_linearityfit_volume"]:
     for by_colony_flag in [True, False]:
+        if "RMSE" in feature and not by_colony_flag:
+            allmodels_flag=True
+        else:
+            allmodels_flag=False
         plot_fit_parameter_distribution(
             df_track_level_features,
             figdir,
             feature,
             by_colony_flag=by_colony_flag,
             density_flag=True,
+            allmodels_flag=allmodels_flag,
         )
 
 # %% plot relationships of alpha to fold change and colony time for all data pooled
