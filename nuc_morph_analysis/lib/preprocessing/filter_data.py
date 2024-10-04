@@ -972,3 +972,146 @@ def track_level_features(df):
     # keep single value per track
     df = df_subset_columns.groupby("track_id").first().reset_index()
     return df
+
+
+def remove_expected_pseudo_cell_artifacts(dfm, apply_to_nucleus_too=False, verbose=False):
+    """
+    this filter marks all features from 2d pseudocell segmenation as NaN if they have
+    a mitotic neighbor, a dying neighbor, are exiting mitosis, are weirdly shaped,
+    or are at the edge of the colony. This is because the 2d pseudocell segmentation
+    is only reliable when these conditions are met. 
+
+    by default it does not apply these features to the 2d nuclear segmentation features
+    because the nuclear segmentation is reliable.
+    This workflow also adds a column called `bad_pseudo_cells_segmentation` to the dataframe to mark these cells
+
+
+    Parameters
+    ----------
+    dfm: DataFrame
+        The dataset dataframe
+    apply_to_nucleus_too: bool
+        Flag to apply the filter to the nuclear segmentation features in
+        the same way as the cytoplasmic segmentation features are filtered
+    verbose: bool
+        Flag to print out the percentage of cells filtered
+    
+    Returns
+    -------
+    dfm: DataFrame
+        Returns the input dataframe with the features filtered (marked as NaN)
+    """
+    # remove cells that have mitotic neighbors
+    log1 = dfm['has_mitotic_neighbor_dilated']==True
+    log2 = dfm['has_dying_neighbor_forward_dilated']==True
+    log3 = dfm['exiting_mitosis']==True # remove cells that are exiting mitosis
+    log4 = dfm["non_interphase_size_shape"] == True # remove weirdly shaped cells
+    log5 = dfm['colony_depth']==1 # remove cells that are at edge of colony
+
+    compiled_log = log1 | log2 | log3 | log4 | log5
+
+    # define the columns to apply the filter to
+    extra_cols = ['inv_cyto_density','density']
+    # cols = [x for x in cols if '2d_' in dfm.columns]
+    if apply_to_nucleus_too:
+        cols = [x for x in dfm.columns if ('2d_' in x) & ('label' not in x)] + extra_cols
+    else:
+        cols = [x for x in dfm.columns if ('2d_' in x) & ('nucleus' not in x) & ('label' not in x)] + extra_cols
+
+    # apply the filter
+    dfm.loc[compiled_log, cols] = np.nan
+
+        # apply the filter
+    dfm.loc[compiled_log, 'bad_pseudo_cells_segmentation'] = True
+    dfm.loc[~compiled_log, 'bad_pseudo_cells_segmentation'] = False
+
+    if verbose:
+        percentage_of_cells_filtered = 100*np.sum(compiled_log)/len(compiled_log)
+        print(f"filtered out {percentage_of_cells_filtered:.1f}% of cells due to density related filters")
+    
+    return dfm
+
+
+def remove_uncaught_pseudo_cell_artifacts(df, apply_to_nucleus_too=False, verbose=False):
+    """
+    this function aims to identify nuclei that have abnormally large pseudo cell segmentation that were not caught by the previous filters
+    these cells tend to be close to (or at) the edge of the colony but are not identified as an edge cell
+    and thus not removed in the above filter, `apply_density_related_filters`.
+
+    The signature of these cells is that the area of the pseudo cell is much larger than the area of the nucleus OR
+    The perimeter of the pseudo cell is larger than 500 pixels OR
+    The perimeter of the pseudo cell is much larger than the perimeter of the nucleus OR
+    AND they tend to be close to the colony edge (colony depth <= 3)
+
+    This workflow marks the features that depend on pseudo cell segmentation as NaN for these cells
+    This workflow also adds a column called `uncaught_pseudo_cell_artifact` to the dataframe to mark these cells
+
+    Parameters
+    ----------
+    df: DataFrame
+        The dataset dataframe
+    apply_to_nucleus_too: bool
+        Flag to apply the filter to the nuclear segmentation features in
+        the same way as the cytoplasmic segmentation features are filtered
+    verbose: bool
+        Flag to print out the percentage of cells filtered
+    """
+
+    log1 = df['2d_perimeter_nuc_cell_ratio'] < 0.4
+    log2 = df['2d_perimeter_pseudo_cell'] > 500
+    log3 = df['2d_area_nuc_cell_ratio'] < 0.2
+    log4 = df['colony_depth'] <= 3
+
+    compiled_log = (log1 | log2 | log3) & log4
+
+    # define the columns to apply the filter to
+    extra_cols = ['inv_cyto_density','density']
+    # cols = [x for x in cols if '2d_' in dfm.columns]
+    if apply_to_nucleus_too:
+        cols = [x for x in df.columns if ('2d_' in x) & ('label' not in x)] + extra_cols
+    else:
+        cols = [x for x in df.columns if ('2d_' in x) & ('nucleus' not in x) & ('label' not in x)] + extra_cols
+
+    # apply the filter
+    df.loc[compiled_log, cols] = np.nan
+    df.loc[compiled_log, 'uncaught_pseudo_cell_artifact'] = True
+    df.loc[~compiled_log, 'uncaught_pseudo_cell_artifact'] = False
+
+
+    if verbose:
+        percentage_of_cells_filtered = 100*np.sum(compiled_log)/len(compiled_log)
+        print(f"filtered out {percentage_of_cells_filtered:.1f}% of cells due to artifact pseudo cell filters")
+    
+    return df
+
+
+def apply_density_related_filters(df, apply_to_nucleus_too=False, verbose=False):
+    """
+    this code applies two filters to remove erroneous/artifactual pseudo cell segmentations
+    these are segmentations that are larger than they should. 
+    
+    The first filter removes segmentations that are close to mitosis events, dying events (events that cause missing segmentations)
+    or are at the edge of the colony
+
+    The second filter removes segmentations that are abnormally large compared to the nucleus they are associated with
+    These tend to be nuclei at the edge of the colony that are not caught by the first filter
+
+    Parameters
+    _________
+    df: DataFrame
+        The dataset dataframe
+    apply_to_nucleus_too: bool
+        Flag to apply the filter to the nuclear segmentation features in
+        the same way as the cytoplasmic segmentation features are filtered
+    verbose: bool
+        Flag to print out the percentage of cells filtered
+
+    Returns
+    _______
+    df: DataFrame
+        Returns the input dataframe with the features filtered (marked as NaN)
+    """
+
+    df = remove_expected_pseudo_cell_artifacts(df, apply_to_nucleus_too, verbose)
+    df = remove_uncaught_pseudo_cell_artifacts(df, apply_to_nucleus_too, verbose)
+    return df
