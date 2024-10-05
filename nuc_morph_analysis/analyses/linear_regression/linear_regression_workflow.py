@@ -68,7 +68,7 @@ def main(
 
 
 def fit_linear_regression(
-    data, cols, target, alpha, tol, save_path, save, permute_cols=[]
+    data, cols, target, alpha, tol, save_path, save, permute_cols=[], multiple_predictions=True
 ):
     """
     data - track level features
@@ -94,9 +94,10 @@ def fit_linear_regression(
         "alpha": [],
     }
 
-    # remove 0 alpha due to convergence errors
-    alpha = [i for i in alpha if i != 0]
-    alpha = [round(i, 1) for i in alpha]
+    if multiple_predictions:
+        # remove 0 alpha due to convergence errors
+        alpha = [i for i in alpha if i != 0]
+        alpha = [round(i, 1) for i in alpha] 
 
     # find best alpha for Lasso model
     for alpha_ind, this_alpha in tqdm(enumerate(alpha), total=len(alpha)):
