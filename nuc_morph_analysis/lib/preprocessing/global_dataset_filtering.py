@@ -22,7 +22,7 @@ from nuc_morph_analysis.lib.preprocessing import labeling_neighbors_helper
 def load_dataset_with_features(
     dataset="all_baseline",
     remove_growth_outliers=True,
-    load_local=False,
+    load_local=True,
     save_local=False,
     num_workers=32,
 ):
@@ -197,6 +197,7 @@ def process_all_tracks(df, dataset, remove_growth_outliers, num_workers):
     df = add_fov_touch_timepoint_for_colonies(df)
     df = add_features.add_non_interphase_size_shape_flag(df)
     df = add_change_over_time(df)
+    df = add_dvdt_over_V(df)
     df = add_neighborhood_avg_features.run_script(df, num_workers=num_workers)
 
     if dataset == "all_baseline":
@@ -359,6 +360,27 @@ def add_change_over_time(df):
             Please revise code to leave manifest rows unchanged."
         )
     return dfm
+
+def add_dvdt_over_V(df):
+    """
+    adds dvdt over V for all timepoints if dxdt_{time}_volume columns exist
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        dataframe with columns ['dxdt_{time}_volume', 'volume']
+
+    Returns
+    -------
+    df : pd.DataFrame
+        dataframe with columns ['dvdt_{time}_volume_per_V'] added
+    """
+
+    dxdt_volume_cols = [col for col in df.columns if "dxdt" in col and "volume" in col]
+    for col in dxdt_volume_cols:
+        time = col.split("_")[1]
+        df[f"{col}_per_V"] = df[col] / df["volume"]
+    return df
 
 
 # %%

@@ -41,19 +41,25 @@ def get_change_over_time_array(dfd, time_cols, bin_interval):
     # now normalize the changes by the bin_interval
     diff = diff / float(bin_interval)
 
-    #  now in addition to the volume level, add volume_per_V as a level to diff
-    diff = diff.join(diff[["volume"]].div(dfp["volume"]).rename(columns={"volume": "volume_per_V"}))
     # now transform diff back into the form of dfd
     dfm = diff.stack().reset_index()
     dfm = dfm.rename(columns={x: f"{prefix}{x}" for x in time_cols})
-    dfm = dfm.rename(columns={"volume_per_V": f"{prefix}volume_per_V"})
 
     # now drop rows with nan values
     dfm = dfm.dropna(axis=0)
-
+    
     # now recover the CellId values
     dfmi = dfm.set_index(["index_sequence", "track_id"])
     dfdi = dfd.set_index(["index_sequence", "track_id"])
+
+    # find all dfmi index values NOT in dfdi index values
+    # this is the set of index values that are not in the original dataframe
+    # they are added during the pivot operation
+    # we will drop these rows
+    not_in_dfdi = dfmi.index.difference(dfdi.index)
+    # print(f"dropping {len(not_in_dfdi)} rows")
+    dfmi.drop(not_in_dfdi, inplace=True)
+
     dfmi.loc[dfmi.index.values, "CellId"] = dfdi.loc[dfmi.index.values, "CellId"]
     return dfmi.reset_index().set_index("CellId")
 

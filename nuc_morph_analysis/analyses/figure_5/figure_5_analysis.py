@@ -22,8 +22,6 @@ CYCLE_COLOR_DICT = {0:cmap.colors[5],1:cmap.colors[90],2:cmap.colors[220]}
 
 # cmap = get_cmap('tab20b')
 # CYCLE_COLOR_DICT = {0:cmap.colors[8],1:cmap.colors[16],2:cmap.colors[17]}
-
-
 #%%
 # load the data
 df = load_dataset_with_features('all_baseline',load_local=True)
@@ -142,7 +140,31 @@ colony_list = ['small','medium','large']
 
 nrows = 1
 ncols = len(colony_list)
-figdir = Path(__file__).parent / 'figures' / 'figure_5'
+figdir = Path(__file__).parent / 'figures' / 'figure_5_all_nuclei'
+
+for ycol in ycol_list:
+    for xcol1 in ['index_sequence']:
+        for plot_type in plot_type_list:
+
+            fig,ax = plt.subplots(nrows,ncols,figsize=(ncols*fx,nrows*fy),constrained_layout=True,
+                            sharey=True)
+            assert type(ax) == np.ndarray # for mypy
+            for ci,colony in enumerate(colony_list):
+                dfc = df2[df2['colony']==colony]
+                curr_ax = ax[ci]
+                curr_ax = plot_dfg(dfc,xcol1,ycol,"",curr_ax,plot_type=plot_type,colorby='colony')
+            curr_ax.legend(loc='center left',bbox_to_anchor=(1.05,0.5))
+            for ext in ['.png','.pdf']:
+                savepath = figdir / f"ALL_{ycol}_{xcol1}_{plot_type}{ext}"
+                save_and_show_plot(str(savepath),ext,fig,transparent=False,keep_open=True)
+            plt.show()
+
+            colony_list = ['small','medium','large']
+
+#%%
+nrows = 1
+ncols = len(colony_list)
+figdir = Path(__file__).parent / 'figures' / 'figure_5_fulltracks'
 
 for ycol in ycol_list:
     for xcol1 in xcol_list:
@@ -162,13 +184,12 @@ for ycol in ycol_list:
             plt.show()
 
 #%%
-figdir = Path(__file__).parent / 'figures' / 'figure_5_cell_cycle_bins'
+figdir = Path(__file__).parent / 'figures' / 'figure_5_fulltracks_cell_cycle_bins'
 figdir.mkdir(exist_ok=True,parents=True)
 
 cell_cycle_width = 0.2
 cell_cycle_centers = [0.3,0.5,0.7]
 cell_cycle_bins = [(cc-cell_cycle_width/2,cc+cell_cycle_width/2) for cc in cell_cycle_centers]
-
 
 nrows = 1
 ncols = len(colony_list)
@@ -206,7 +227,7 @@ for xcol1 in xcol_list:
 
 #%%
 #%%
-figdir = Path(__file__).parent / 'figures' / 'figure_5_cell_cycle_bins_by_colony'
+figdir = Path(__file__).parent / 'figures' / 'figure_5_fulltracks_cell_cycle_bins_by_colony'
 figdir.mkdir(exist_ok=True,parents=True)
 
 cell_cycle_width = 0.2
@@ -250,3 +271,32 @@ for colony in colony_list:
                     savepath = figdir / f"cell_cycle_bins_for_only_{colony}_{ycol}_{xcol1}_{plot_type}{ext}"
                     save_and_show_plot(str(savepath),ext,fig,transparent=False,keep_open=True)
                 plt.show()
+#%%
+
+colony_list = ['small','medium','large']
+
+nrows = 1
+ncols = len(colony_list)
+figdir = Path(__file__).parent / 'figures' / 'figure_5_compare_all_nuclei_and_full'
+
+for ycol in ycol_list:
+    for xcol1 in  ['index_sequence']:
+        for plot_type in plot_type_list:
+
+            
+            fig,ax = plt.subplots(nrows,ncols,figsize=(ncols*fx,nrows*fy),constrained_layout=True,
+                            sharey=True)
+            assert type(ax) == np.ndarray # for mypy
+
+            color_list = ['k','r']
+            name_list = ['all','full']
+            for di,dfin in enumerate([df2,df_full]):
+                for ci,colony in enumerate(colony_list):
+                    dfc = dfin[dfin['colony']==colony]
+                    curr_ax = ax[ci]
+                    curr_ax = plot_dfg(dfc,xcol1,ycol,name_list,curr_ax,plot_type=plot_type,colorby=color_list[di])
+            curr_ax.legend(loc='center left',bbox_to_anchor=(1.05,0.5))
+            for ext in ['.png','.pdf']:
+                savepath = figdir / f"ALL_vs_FULL_{ycol}_{xcol1}_{plot_type}{ext}"
+                save_and_show_plot(str(savepath),ext,fig,transparent=False,keep_open=True)
+            plt.show()
