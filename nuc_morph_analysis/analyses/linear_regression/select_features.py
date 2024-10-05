@@ -4,30 +4,39 @@ from nuc_morph_analysis.lib.visualization.plotting_tools import get_plot_labels_
 from nuc_morph_analysis.lib.visualization.notebook_tools import save_and_show_plot
 
 FEATURE_GROUPS = {
-    'features': [
-        'volume_at_B', #intrinic at start of growth
+    'start_intrinsic': [ #intrinic at start of growth
+        'volume_at_B', 
         'height_at_B',
         'SA_vol_ratio_at_B',
         'SA_at_B',
         'xy_aspect_at_B',
-        'time_at_B', 
-        'colony_time_at_B',
         'density_at_B',
-
-        'neighbor_avg_lrm_volume_90um_at_B', # extrinsic at start of growth
-        'neighbor_avg_lrm_height_90um_at_B',
-        'neighbor_avg_lrm_density_90um_at_B',
-        'neighbor_avg_lrm_xy_aspect_90um_at_B',
-        'neighbor_avg_lrm_mesh_sa_90um_at_B',
-        'early_transient_gr_90um',
-        
-        'duration_BC', # intrinsic lifetime
+        'sisters_volume_at_B',
+    ],
+    
+    'lifetime_intrinsic': [ # intrinsic lifetime
+        'duration_BC', 
         'volume_at_C',
         'delta_volume_BC',
         'late_growth_rate_by_endpoints',
         'tscale_linearityfit_volume',
-        
-        'normalized_sum_has_mitotic_neighbor', # extrinsic lifetime
+        'sisters_duration_BC',
+        'sisters_delta_volume_BC',
+    ],
+    
+    'start_extrinsic': [ # extrinsic at start of growth
+        'time_at_B', 
+        'colony_time_at_B',
+        'neighbor_avg_lrm_volume_90um_at_B', 
+        'neighbor_avg_lrm_height_90um_at_B',
+        'neighbor_avg_lrm_density_90um_at_B',
+        'neighbor_avg_lrm_xy_aspect_90um_at_B',
+        'neighbor_avg_lrm_mesh_sa_90um_at_B',
+        'early_transient_gr_90um',   
+    ],
+    
+    'lifetime_extrinsic': [ # extrinsic lifetime
+        'normalized_sum_has_mitotic_neighbor',
         'normalized_sum_has_dying_neighbor',
         'mean_neighbor_avg_lrm_volume_90um', 
         'mean_neighbor_avg_lrm_height_90um',
@@ -36,37 +45,26 @@ FEATURE_GROUPS = {
         'mean_neighbor_avg_lrm_mesh_sa_90um',
         'mean_neighbor_avg_dxdt_48_volume_90um',
         ],
-    
-    'lineage_feats': [
-        'sisters_volume_at_B',
-        'sisters_duration_BC',
-        'sisters_delta_volume_BC'
-    ],
+        
 }
 
 TARGET_CONTAINTING_FEATS = {
     'duration_BC': [
         'duration_BC',
-        'late_growth_rate_by_endpoints', 
-        ],
-    'volume_at_C': [
-        'volume_at_C',
-        'delta_volume_BC',
         'late_growth_rate_by_endpoints',
+        'mean_neighbor_avg_dxdt_48_volume_90um', 
         ],
     'delta_volume_BC': [
         'volume_at_C',
         'delta_volume_BC',
         'late_growth_rate_by_endpoints',
+        'mean_neighbor_avg_dxdt_48_volume_90um', 
     ]
 }
 
 TARGET_SETTINGS = {
     'duration_BC': {
         'tolerance': 0.08,
-    },
-    'volume_at_C': {
-        'tolerance': 0.05,
     },
     'delta_volume_BC': {
         'tolerance': 0.08,
