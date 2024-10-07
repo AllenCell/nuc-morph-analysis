@@ -10,7 +10,6 @@ FEATURE_GROUPS = {
         'SA_vol_ratio_at_B',
         'SA_at_B',
         'xy_aspect_at_B',
-        'density_at_B',
         'sisters_volume_at_B',
     ],
     
@@ -27,6 +26,7 @@ FEATURE_GROUPS = {
     'start_extrinsic': [ # extrinsic at start of growth
         'time_at_B', 
         'colony_time_at_B',
+        # 'density_at_B',
         'neighbor_avg_lrm_volume_90um_at_B', 
         'neighbor_avg_lrm_height_90um_at_B',
         'neighbor_avg_lrm_density_90um_at_B',
@@ -52,22 +52,20 @@ TARGET_CONTAINTING_FEATS = {
     'duration_BC': [
         'duration_BC',
         'late_growth_rate_by_endpoints',
-        'mean_neighbor_avg_dxdt_48_volume_90um', 
         ],
     'delta_volume_BC': [
         'volume_at_C',
         'delta_volume_BC',
         'late_growth_rate_by_endpoints',
-        'mean_neighbor_avg_dxdt_48_volume_90um', 
     ]
 }
 
 TARGET_SETTINGS = {
     'duration_BC': {
-        'tolerance': 0.08,
+        'tolerance': 0.04,
     },
     'delta_volume_BC': {
-        'tolerance': 0.08,
+        'tolerance': 0.04,
     }
 }
 
