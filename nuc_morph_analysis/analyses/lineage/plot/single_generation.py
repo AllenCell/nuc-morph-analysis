@@ -131,9 +131,15 @@ def plot_corr(
 
         if unity_line:
             plt.plot(lim, lim, color="black", linestyle="--", alpha=0.2, zorder=0)
+            
+        if p_pvalue < 0.001:
+            pstring = "P<.001"
+        else:
+            pstring = str(np.round(p_pvalue, 3))
+            pstring = f"P={pstring[1:]}"
 
         plt.title(
-            f'r={"%.2f" % pearson} P={"%.4f" % p_pvalue}, N={len(df)} ({percent[0]}, {percent[1] })'
+            f'r={"%.2f" % pearson} {pstring}, N={len(df)} ({percent[0]}, {percent[1] })'
         )
         plt.xlabel(x_label)
         plt.ylabel(y_label)

@@ -25,6 +25,10 @@ from nuc_morph_analysis.lib.preprocessing.global_dataset_filtering import (
 from nuc_morph_analysis.lib.visualization.plotting_tools import (
     get_plot_labels_for_metric,
 )
+from nuc_morph_analysis.lib.visualization.glossary import (
+    GLOSSARY,
+    )
+
 from colorizer_data.writer import ColorizerDatasetWriter
 from colorizer_data.writer import (
     ColorizerMetadata,
@@ -249,6 +253,50 @@ FEATURE_COLUMNS = {
         NucMorphFeatureSpec(column_name="number_of_frame_of_death_neighbors"),# per track feature
 
 
+        # new columns
+        # useful and likely to make it to final dataset
+        NucMorphFeatureSpec('2d_area_nuc_cell_ratio'),
+        NucMorphFeatureSpec('2d_area_nucleus'),
+        NucMorphFeatureSpec('2d_area_pseudo_cell'),
+        NucMorphFeatureSpec('2d_area_cyto'),
+        NucMorphFeatureSpec('2d_intensity_min_edge'),
+        NucMorphFeatureSpec('2d_intensity_max_edge'),
+        NucMorphFeatureSpec('2d_intensity_mean_edge'),
+
+        # potentially useful, but likely not needed in final dataset
+        NucMorphFeatureSpec('2d_convex_area_nucleus'),
+        NucMorphFeatureSpec('2d_eccentricity_nucleus'),
+        NucMorphFeatureSpec('2d_equivalent_diameter_nucleus'),
+        NucMorphFeatureSpec('2d_extent_nucleus'),
+        NucMorphFeatureSpec('2d_filled_area_nucleus'),
+        NucMorphFeatureSpec('2d_major_axis_length_nucleus'),
+        NucMorphFeatureSpec('2d_minor_axis_length_nucleus'),
+        NucMorphFeatureSpec('2d_orientation_nucleus'),
+        NucMorphFeatureSpec('2d_perimeter_nucleus'),
+        NucMorphFeatureSpec('2d_solidity_nucleus'),
+
+        # potentially useful, but likely not needed in final dataset
+        NucMorphFeatureSpec('2d_convex_area_pseudo_cell'),
+        NucMorphFeatureSpec('2d_eccentricity_pseudo_cell'),
+        NucMorphFeatureSpec('2d_equivalent_diameter_pseudo_cell'),
+        NucMorphFeatureSpec('2d_extent_pseudo_cell'),
+        NucMorphFeatureSpec('2d_filled_area_pseudo_cell'),
+        NucMorphFeatureSpec('2d_major_axis_length_pseudo_cell'),
+        NucMorphFeatureSpec('2d_minor_axis_length_pseudo_cell'),
+        NucMorphFeatureSpec('2d_orientation_pseudo_cell'),
+        NucMorphFeatureSpec('2d_perimeter_pseudo_cell'),
+        NucMorphFeatureSpec('2d_solidity_pseudo_cell'),
+
+        # extra
+        NucMorphFeatureSpec('inv_cyto_density'),
+        NucMorphFeatureSpec('2d_perimeter_nuc_cell_ratio'),
+        NucMorphFeatureSpec('2d_eccentricity_nuc_cell_ratio'),
+        NucMorphFeatureSpec('label_pseudo_cell'),
+
+
+        # extra old columns
+        NucMorphFeatureSpec('colony_depth', type=FeatureType.DISCRETE),
+
     ],
 }
 
@@ -360,7 +408,7 @@ def make_features(
             dataset=dataset_name,
             colorizer=True,
         )
-
+        
         # Remove parentheses from unit names, if included.
         if len(unit) >= 2 and unit[0] == "(" and unit[-1] == ")":
             unit = unit[1:-1]
@@ -370,10 +418,12 @@ def make_features(
         # Get data and scale to use actual units
         if scale_factor is not None:
             data = data * scale_factor
+            
+        description = GLOSSARY[feature.column_name]
 
         writer.write_feature(
             data,
-            FeatureInfo(label=label, unit=unit, type=feature.type, categories=feature.categories),
+            FeatureInfo(label=label, unit=unit, type=feature.type, categories=feature.categories, description=description),
             outliers=outliers,
         )
 

@@ -207,6 +207,8 @@ def process_all_tracks(df, dataset, remove_growth_outliers, num_workers):
     if dataset == "all_baseline":
         df = add_colony_time_all_datasets(df)
 
+    df = add_features.add_perimeter_ratio(df)
+    df = filter_data.apply_density_related_filters(df)
     assert df.index.name == "CellId"
     return df
 
@@ -391,4 +393,4 @@ def add_change_over_time(df):
 # %%
 if __name__ == "__main__":
     for dataset in ["all_baseline", "all_feeding_control", "all_drug_perturbation"]:
-        df = load_dataset_with_features(dataset, save_local=True, num_workers=32)
+        df = load_dataset_with_features(dataset, load_local=False, save_local=True, num_workers=32)

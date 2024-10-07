@@ -659,3 +659,22 @@ def normalize_sum_events(df_full, event_cols):
         df_full[f"normalized_{col}"] = df_full[col] / df_full['duration_BC']
     return df_full
 
+def add_perimeter_ratio(df): 
+    """
+    compute ratio of the nucleus perimeter to the pseudo cell perimeter (2d)
+    this feature is important for `filter_data.apply_density_related_filters`
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        dataframe that minimally has the following columns:
+        ['2d_perimeter_nucleus','2d_perimeter_pseudo_cell']
+
+    Returns
+    -------
+    df : pd.DataFrame
+        dataframe with the added column '2d_perimeter_nuc_cell_ratio'
+    
+    """
+    df['2d_perimeter_nuc_cell_ratio'] = df['2d_perimeter_nucleus'] / df['2d_perimeter_pseudo_cell']
+    return df

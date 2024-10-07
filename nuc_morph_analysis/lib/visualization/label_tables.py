@@ -54,9 +54,11 @@ def get_scale_factor_table(dataset="all_baseline"):
             "distance_from_centroid",
             "max_distance_from_centroid",
         ): pix_size,
+       
         ("mesh_sa"): pix_size**2,
         ("volume", "volume_sub"): pix_size**3,
         ("density", "avg_density", "avg_early_density", "avg_late_density"): 1 / pix_size**2,
+        
         (
             "colony_time",
             "sync_time_Ff",
@@ -72,6 +74,19 @@ def get_scale_factor_table(dataset="all_baseline"):
         ("colony_area"): PIXEL_SIZE_YX_20x**2,
         ("nucleus_colony_area_ratio"): pix_size**2 / PIXEL_SIZE_YX_20x**2,
         ("seg_twoD_zMIP_area"): pix_size**2,
+        (
+            "2d_area_nucleus",
+            "2d_area_pseudo_cell",
+            "2d_area_cyto",
+            ): (pix_size/2.5)**2, # resolution_level 1 is 2.5x downsampled
+        ("2d_area_pseudo_cell"): (pix_size/2.5)**2, # resolution_level 1 is 2.5x downsampled
+        ("inv_cyto_density"): 1 / (pix_size/2.5)**2, # resolution level =1 is 2.5x downsampled
+         (
+            "2d_intensity_min_edge",
+            "2d_intensity_mean_edge",
+            "2d_intensity_max_edge",
+        ): pix_size/2.5, # resolution level =1 is 2.5x downsampled
+        ("2d_area_nuc_cell_ratio"): 1,
     }
 
     # add non dxdt columns and other non-traditional columns
@@ -261,6 +276,16 @@ LABEL_TABLE = {
     "number_of_frame_of_death_neighbors": "# of neighboring cells undergoing death",
     "normalized_sum_has_mitotic_neighbor": "Norm. sum of mitotic neighbors",
     "normalized_sum_has_dying_neighbor": "Norm. sum of dying neighbors",  
+    # 2D area features
+    "2d_area_nuc_cell_ratio": "Nucleus area/(Pseudo)cell area",
+    "2d_area_nucleus": "Nuclear area",
+    "2d_area_pseudo_cell": "(Pseudo)cell area",
+    "2d_area_cyto": "Cytoplasmic area",
+    "inv_cyto_density": "1 / Cytoplasmic area",
+    "2d_eccentricity_nucleus": "Nuclear eccentricity (2d)",
+    "2d_intensity_min_edge" : "Min distance to (pseudo)cell edge",
+    "2d_intensity_mean_edge" : "Average distance to (pseudo)cell edge",
+    "2d_intensity_max_edge" : "Max distance to (pseudo)cell edge",
 }
 
 
@@ -395,6 +420,15 @@ COLORIZER_LABEL_TABLE = {
     "number_of_frame_of_breakdown_neighbors": "# of neighboring cells undergoing breakdown",
     "number_of_frame_of_formation_neighbors": "# of neighboring cells undergoing formation",
     "number_of_frame_of_death_neighbors": "# of neighboring cells undergoing death",
+    "2d_area_nuc_cell_ratio": "Nuclear area to (pseudo)cell area ratio",
+    "2d_area_nucleus": "Nuclear area",
+    "2d_area_pseudo_cell": "(Pseudo)cell area",
+    "2d_area_cyto": "Cytoplasmic area",
+    "inv_cyto_density": "Cytoplasmic density",
+    "2d_eccentricity_nucleus": "Nuclear eccentricity (2d)",
+    "2d_intensity_min_edge" : "Min distance to (pseudo)cell edge",
+    "2d_intensity_mean_edge" : "Average distance to (pseudo)cell edge",
+    "2d_intensity_max_edge" : "Max distance to (pseudo)cell edge",
 }
 
 # units for quantities
@@ -410,6 +444,9 @@ UNIT_TABLE = {
         "height_at_C",
         "avg_height",
         "distance",
+        "2d_intensity_min_edge",
+        "2d_intensity_mean_edge",
+        "2d_intensity_max_edge",
     ): "(μm)",
     (
         "RMSE_linearityfit_SA",
@@ -420,6 +457,9 @@ UNIT_TABLE = {
         "difference_SA_at_B",
         "colony_area",
         "seg_twoD_zMIP_area",
+        "2d_area_nucleus",
+        "2d_area_pseudo_cell",
+        "2d_area_cyto",
     ): "(μm²)",
     (
         "volume",
@@ -439,6 +479,7 @@ UNIT_TABLE = {
         "avg_early_density",
         "avg_late_density",
         "avg_density",
+        "inv_cyto_density",
     ): "(μm⁻²)",
     # Temporal
     (
@@ -464,6 +505,7 @@ UNIT_TABLE = {
         "late_growth_rate_by_endpoints",
     ): "(μm\u00B3/hr)",
     "exp_growth_coeff_BC": "(hr⁻¹)",
+    "2d_area_nuc_cell_ratio": "", # no unit, since ratio
 }
 
 # now add the dxdt columns

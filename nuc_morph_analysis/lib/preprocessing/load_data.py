@@ -44,14 +44,27 @@ def get_dataframe_by_info(info):
         fmsid = info["fmsid"]
         record = fms.get_file_by_id(fmsid)
         path = get_valid_path(record)
+        print("NOTE: Reading data from FMS instead of S3 (quilt)")
     else:
         path = str(info["s3_path"])
 
     # Load dataframe by file format
     if path.endswith("csv"):
-        return pd.read_csv(path)
+        df = pd.read_csv(path)
+        
+        # use height calculated from 1st to 99th percentile values
+        # rather than the most extreme values
+        if "height_percentile" in df.columns: # only some datasets have this column
+            df["height"] = df["height_percentile"]
+        return df
     elif path.endswith("parquet"):
-        return pd.read_parquet(path)
+        df = pd.read_parquet(path)
+        
+        # use height calculated from 1st to 99th percentile values
+        # rather than the most extreme values
+        if "height_percentile" in df.columns: # only some datasets have this column
+            df["height"] = df["height_percentile"]
+        return df
     else:
         raise ValueError(f"Unknown format {path.split('.')[-1]}")
 
@@ -353,8 +366,25 @@ def get_raw_fov_at_timepoint(dataset, index_sequence, channel_name="bright"):
     return reader.get_image_dask_data("ZYX", T=index_sequence, C=channel)
 
 
-def get_seg_fov_for_dataset_at_frame(dataset: str, timepoint: int) -> da.Array:
+def get_seg_fov_for_dataset_at_frame(dataset: str, timepoint: int, resolution_level=0) -> da.Array:
+    """
+    Get the segmentation image from a dataset at a given timepoint.
+
+    Parameters
+    ----------
+    dataset: string
+        Name of dataset
+    timepoint: int
+        Timepoint to be loaded
+    resolution_level: int
+        Resolution level to be loaded. Default is 0
+        The OME-ZARR files in this data have 5 resolution levels.
+        Resolution level 0 is the highest resolution.
+        Resolution level 1 is 2.5x downsampled.
+    """
     reader = get_dataset_segmentation_file_reader(dataset)
+    if resolution_level > 0:
+        reader.set_resolution_level(resolution_level)
     # Channel is always 0 because only one channel in segmentation
     return reader.get_image_dask_data("ZYX", T=timepoint, C=0)
 
