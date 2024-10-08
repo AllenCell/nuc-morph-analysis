@@ -202,11 +202,12 @@ def get_data(cvol, save_path=Path("./"), num_workers=1, old_unfiltered_method=Fa
     df_full = filter_data.all_timepoints_full_tracks(df)
     df_ft = df_full[df_full["colony"].isin(["small", "medium", "large"])].reset_index()
 
+    scale, _, _, _ = get_plot_labels_for_metric("volume")
     # plot chosen volume
     fig, ax = plt.subplots(1, 1, figsize=(10, 4))
     for track, df_track in df_ft.groupby("track_id"):
-        ax.plot(df_track.index_sequence, df_track.volume, alpha=0.5, lw=0.3)
-    ax.axhline(y=cvol)
+        ax.plot(df_track.index_sequence, df_track.volume * scale, alpha=0.5, lw=0.3)
+    ax.axhline(y=cvol * scale)
     fig.savefig(save_path / "chosen_volume.pdf")
 
     # get similar volumes to chosen volume
