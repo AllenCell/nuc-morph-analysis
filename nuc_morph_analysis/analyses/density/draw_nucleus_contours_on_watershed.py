@@ -83,7 +83,7 @@ def run_validation_and_plot(TIMEPOINT=48,colony='medium',RESOLUTION_LEVEL=1,plot
             contour_item[2] = [] # empty list
             contour_list2.append(contour_item)
 
-        draw_contours_on_image(axlist,contour_list2,new_color=np.asarray((200,0,200)))
+        draw_contours_on_image(axlist,contour_list2,new_color=np.asarray((200,0,200))/255)
         # remove the axis
         plt.axis('off')
         plt.xlim([x1,x1+w])

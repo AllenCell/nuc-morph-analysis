@@ -14,13 +14,14 @@ from nuc_morph_analysis.lib.visualization.plotting_tools import colorize_image
 
 def get_contours_from_pair_of_2d_seg_image(nuc_mip,cell_mip,dft=None):
         contour_list = [] # (label, nucleus_contour, cell_contour, color)
-        rgb_array0_255, _, _ = return_glasbey_on_dark()
+        rgb_array0_255, cmapper, _ = return_glasbey_on_dark()
         for label_img in range(0,nuc_mip.max()+1):
             if dft is not None:
                 #ask if the label_img is in the dataframe
                 if label_img not in dft['label_img'].values:
                     continue
-            color = np.float64(rgb_array0_255[label_img % len(rgb_array0_255)])
+            # color = np.float64(rgb_array0_255[label_img % len(rgb_array0_255)])
+            color = np.float64(cmapper(label_img))
 
             # get the nucleus boundary
             nucleus_boundary = nuc_mip == label_img
@@ -36,15 +37,20 @@ def get_contours_from_pair_of_2d_seg_image(nuc_mip,cell_mip,dft=None):
 
         return contour_list
 
-def draw_contours_on_image(axlist,contour_list,new_color=None):
+def draw_contours_on_image(axlist,contour_list,new_color=None,filled=False):
     # draw contours
     for label, nuc_contours, cell_contours, color in contour_list:
         if new_color is not None:
             color = new_color
         for contour in nuc_contours:
-            axlist.plot(contour[:, 1], contour[:, 0], linewidth=1, color=color/255)
+            axlist.plot(contour[:, 1], contour[:, 0], linewidth=1, color=color)
+            if filled: # now draw as filled
+                axlist.fill(contour[:, 1], contour[:, 0], color=color, alpha=0.5)
         for contour in cell_contours:
-            axlist.plot(contour[:, 1], contour[:, 0], linewidth=1, color=color/255)
+            axlist.plot(contour[:, 1], contour[:, 0], linewidth=1, color=color)
+            if filled: # now draw as filled
+                axlist.fill(contour[:, 1], contour[:, 0], color=color, alpha=0.5)
+
     return axlist
 
 def plot_colorized_image_with_contours(img_dict,dft,feature,cmapstr,colony='test',TIMEPOINT=None,RESOLUTION_LEVEL=None,categorical=False,draw_contours=True):
@@ -88,7 +94,7 @@ def plot_colorized_image_with_contours(img_dict,dft,feature,cmapstr,colony='test
         if draw_contours:
             # create the contours
             contour_list = get_contours_from_pair_of_2d_seg_image(nuc_mip,cell_mip,dft)
-            draw_contours_on_image(axlist,contour_list,new_color=np.asarray((200,0,200)))
+            draw_contours_on_image(axlist,contour_list,new_color=np.asarray((200,0,200))/255)
         # remove the axis
         plt.axis('off')
         plt.xlim([x1,x1+w])
@@ -221,4 +227,5 @@ if __name__ == '__main__':
     # set the details
     # dft_test = run_validation_and_plot(testing=True)
     # dft0 = run_validation_and_plot(plot_everything=True)
-    dft0 = run_validation_and_plot(247,colony='small',RESOLUTION_LEVEL=1,plot_everything=True)
+    # dft0 = run_validation_and_plot(247,colony='small',RESOLUTION_LEVEL=1,plot_everything=True)
+    dft0 = run_validation_and_plot(110,colony='medium',RESOLUTION_LEVEL=1,plot_everything=True)
