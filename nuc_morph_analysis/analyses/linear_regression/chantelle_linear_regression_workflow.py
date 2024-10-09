@@ -31,6 +31,9 @@ CONFIG = {
     'extrinsic': ['start_extrinsic', 'lifetime_extrinsic'],
 }
 #%%
+plot_feature_correlations(df_track_level_features, get_feature_list(CONFIG['all_features'], None), FIGDIR)
+
+#%%
 df = run_regression_workflow(TARGETS, CONFIG, df_track_level_features, FIGDIR, alpha=0)
 plot_heatmap(df, FIGDIR)
 #%%
@@ -41,7 +44,7 @@ for target in TARGETS:
 for target in ['duration_BC', 'delta_volume_BC']:
     fit_linear_regression(
         df_track_level_features, 
-        cols=get_feature_list(['start_intrinsic', 'lifetime_intrinsic', 'start_extrinsic', 'lifetime_extrinsic'], target), 
+        cols=get_feature_list(CONFIG['all_features'], target), 
         target=target, 
         alpha=np.arange(0, 15, 0.1, dtype=float),
         tol=TARGET_SETTINGS[target]['tolerance'], 

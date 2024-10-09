@@ -49,6 +49,9 @@ TARGET_CONTAINTING_FEATS = {
         'volume_at_C',
         'delta_volume_BC',
         'late_growth_rate_by_endpoints',
+        ],
+    None: [
+        '',
     ]
 }
 
