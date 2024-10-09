@@ -57,11 +57,11 @@ TARGET_CONTAINTING_FEATS = {
 
 TARGET_SETTINGS = {
     'duration_BC': {
-        'tolerance': 0.04,
+        'tolerance': 0.05,
         'max_alpha': 0.7,
     },
     'delta_volume_BC': {
-        'tolerance': 0.04,
+        'tolerance': 0.05,
         'max_alpha': 12.3,
     }
 }

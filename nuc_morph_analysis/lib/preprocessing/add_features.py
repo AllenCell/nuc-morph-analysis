@@ -198,7 +198,7 @@ def get_early_transient_gr_of_whole_colony(df, scale, time_shift=25):
 
     return df
 
-def get_early_transient_gr_of_neighborhood(df, scale, time_shift=25):
+def get_early_transient_gr_of_neighborhood(df, scale, time_shift=24, window_length=6):
     """
     Get the transient growth rate of the colony 2 hours into the growth trajectory. 
     
@@ -214,6 +214,8 @@ def get_early_transient_gr_of_neighborhood(df, scale, time_shift=25):
         The dataframe
     time_shift : int
         The time shift in frames to calculate the transient growth rate in frames
+    window_length : int
+        The length of the time window in frames
         
     Returns
     -------
@@ -222,10 +224,11 @@ def get_early_transient_gr_of_neighborhood(df, scale, time_shift=25):
     """
     for tid, dft in df.groupby("track_id"):
         t_calculate = dft.index_sequence.min() + time_shift
-        transient_gr_whole_colony = df.loc[df.index_sequence == t_calculate, "neighbor_avg_dxdt_48_volume_90um"].values[0]
+        time_window_mask = df.index_sequence.between(t_calculate, t_calculate + window_length)
+        transient_gr_whole_colony = df.loc[time_window_mask, "neighbor_avg_dxdt_48_volume_90um"].mean()
         df.loc[df.track_id == tid, "early_transient_gr_90um"] = transient_gr_whole_colony * scale
-
-    return df    
+        
+    return df
 
 def add_std_feature_over_trajectory(df, feature_list, multiplier_list):
     """

@@ -35,6 +35,7 @@ def main(
     save_path,
     max_iterations,
     cached_dataframe=None,
+    preloaded_dataframe=None,
 ):
 
     save_path = Path(save_path)
@@ -42,20 +43,19 @@ def main(
     save_path.mkdir(parents=True, exist_ok=True)
 
     if len(cols) < 1:
-        cols = get_feature_list(["features"], target)
+        cols = get_feature_list(['start_intrinsic', 'lifetime_intrinsic', 'start_extrinsic', 'lifetime_extrinsic'], target)
 
     label_list = [get_plot_labels_for_metric(col)[1] for col in cols]
     map_dict = {i: j for i, j in zip(cols, label_list)}
-
-    if not cached_dataframe:
+    
+    if preloaded_dataframe is not None:
+        df_track_level_features = preloaded_dataframe
+    elif cached_dataframe is not None:
+        df_track_level_features = pd.read_csv(cached_dataframe)
+    else:
         df_all = global_dataset_filtering.load_dataset_with_features()
         df_full = filter_data.all_timepoints_full_tracks(df_all)
         df_track_level_features = filter_data.track_level_features(df_full)
-        df_track_level_features.to_csv(
-            "/allen/aics/modeling/ritvik/projects/trash/nucmorph/nuc-morph-analysis/track_level.csv"
-        )
-    else:
-        df_track_level_features = pd.read_csv(cached_dataframe)
 
     permute_cols = []
     count = 0
@@ -224,7 +224,7 @@ def save_plots(all_coef_alpha, all_test_sc, all_perms, target, save_path, map_di
         g.savefig(this_path, dpi=300)
 
     # save movie of pngs
-    writer = imageio.get_writer(save_path / "coefficients_over_time.mp4", fps=2)
+    writer = imageio.get_writer(save_path / f"{target}_greedy_coefficients_over_time.mp4", fps=2)
     for im in files:
         writer.append_data(imageio.imread(im))
         os.remove(im)
@@ -242,7 +242,12 @@ if __name__ == "__main__":
         "should match the result of linear_regression_analysis.get_data (see source code for "
         "details).",
     )
-
+    parser.add_argument(
+        "--preloaded_dataframe",
+        type=pd.DataFrame,
+        metavar="path",
+        help="Supply preloaded dataframe to skip data preprocessing.",
+    )
     parser.add_argument(
         "--cols",
         type=list_of_strings,
@@ -288,4 +293,5 @@ if __name__ == "__main__":
         save_path=args.save_path,
         max_iterations=args.max_iterations,
         cached_dataframe=args.cached_dataframe,
+        preloaded_dataframe=args.preloaded_dataframe,
     )

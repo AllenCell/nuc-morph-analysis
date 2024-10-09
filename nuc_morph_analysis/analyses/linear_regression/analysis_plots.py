@@ -40,14 +40,14 @@ def plot_feature_correlations(df_track_level_features, feature_list, figdir):
     save_and_show_plot(f'{figdir}/feature_correlation_heatmap')
 
     
-def run_regression(df_track_level_features, target, features, name, alpha):
+def run_regression(df_track_level_features, target, features, name, alpha, figdir):
         _, all_test_sc, _ = fit_linear_regression(
             df_track_level_features, 
             cols=get_feature_list(features, target), 
             target=target, 
             alpha=alpha,
             tol=0.04, 
-            save_path="./figures/test_density/",
+            save_path=figdir,
             save=False,
             multiple_predictions=False
         )
@@ -61,9 +61,9 @@ def run_regression_workflow(targets, feature_configs, df_track_level_features, f
 
     for target in targets:
         for name, features in feature_configs.items():
-            result = run_regression(df_track_level_features, target, features, name, [alpha])
+            result = run_regression(df_track_level_features, target, features, name, [alpha], figdir)
             df = df.append(result, ignore_index=True)
-            df.to_csv(f"{figdir}/r_squared_results.csv")
+            df.to_csv(f"{figdir}r_squared_results.csv")
 
     df['num_feats_used'] = df['feats_used'].apply(lambda x: len(x))
     
@@ -127,6 +127,6 @@ def plot_heatmap(df, figdir):
         ax.tick_params(axis='both', which='both', length=0)
         title = ax.set_title(f'Target: {get_plot_labels_for_metric(target)[1]}', loc='left')
         title.set_position([-0.1,1])
-        save_and_show_plot(f'{figdir}/{target}_prediction_r_squared_matrix_alpha_{df.alpha[0]}')
+        save_and_show_plot(f'{figdir}{target}_prediction_r_squared_matrix_alpha_{df.alpha[0]}')
 
 

@@ -104,6 +104,7 @@ def fit_linear_regression(
         # drop any nan rows
         dropna_cols = cols + [target]
         data = data.dropna(subset=dropna_cols)
+        print(f"number of tracks: {len(data)}")
 
         # permute columns if necessary
         if len(permute_cols) > 0:
