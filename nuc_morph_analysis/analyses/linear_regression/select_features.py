@@ -1,8 +1,3 @@
-import seaborn as sns
-import matplotlib.pyplot as plt
-from nuc_morph_analysis.lib.visualization.plotting_tools import get_plot_labels_for_metric
-from nuc_morph_analysis.lib.visualization.notebook_tools import save_and_show_plot
-
 FEATURE_GROUPS = {
     'start_intrinsic': [ #intrinic at start of growth
         'volume_at_B', 
@@ -26,10 +21,8 @@ FEATURE_GROUPS = {
     'start_extrinsic': [ # extrinsic at start of growth
         'time_at_B', 
         'colony_time_at_B',
-        # 'density_at_B',
         'neighbor_avg_lrm_volume_90um_at_B', 
         'neighbor_avg_lrm_height_90um_at_B',
-        'neighbor_avg_lrm_density_90um_at_B',
         'neighbor_avg_lrm_xy_aspect_90um_at_B',
         'neighbor_avg_lrm_mesh_sa_90um_at_B',
         'early_transient_gr_90um',   
@@ -40,12 +33,11 @@ FEATURE_GROUPS = {
         'normalized_sum_has_dying_neighbor',
         'mean_neighbor_avg_lrm_volume_90um', 
         'mean_neighbor_avg_lrm_height_90um',
-        'mean_neighbor_avg_lrm_density_90um',
         'mean_neighbor_avg_lrm_xy_aspect_90um',
         'mean_neighbor_avg_lrm_mesh_sa_90um',
         'mean_neighbor_avg_dxdt_48_volume_90um',
+        'mean_neighbor_avg_lrm_2d_area_nuc_cell_ratio_90um',
         ],
-        
 }
 
 TARGET_CONTAINTING_FEATS = {
@@ -63,9 +55,11 @@ TARGET_CONTAINTING_FEATS = {
 TARGET_SETTINGS = {
     'duration_BC': {
         'tolerance': 0.04,
+        'max_alpha': 0.7,
     },
     'delta_volume_BC': {
         'tolerance': 0.04,
+        'max_alpha': 12.3,
     }
 }
 
@@ -95,33 +89,3 @@ def get_feature_list(feature_group_list, target):
     
     return features
 
-def plot_feature_correlations(df_track_level_features, feature_list, figdir):
-    """
-    Plot heatmap of feature correlations.   
-    
-    Parameters
-    ----------
-    df_track_level_features : pd.DataFrame
-        DataFrame containing track level features
-    feature_list : list
-        List of features to include in the heatmap
-        Output from get_feature_list
-    figdir : str
-        Directory to save the figure
-
-    Returns
-    -------
-    Figure
-    """
-    data = df_track_level_features[feature_list]
-
-    plt.rc('font', size=22)
-    plt.figure(figsize=(27, 24))
-    sns.heatmap(data.corr(), annot=True, fmt=".1f", cmap='BrBG', vmin=-1, vmax=1, cbar_kws={"shrink": 0.5, "pad": 0.02})
-
-    column_names = [get_plot_labels_for_metric(col)[1] for col in data.columns]
-    plt.xticks([x + 0.5 for x in range(len(column_names))], column_names)
-    plt.yticks([y + 0.5 for y in range(len(column_names))], column_names)
-    plt.tight_layout()
-    
-    save_and_show_plot(f'{figdir}/feature_correlation_heatmap')
