@@ -263,12 +263,13 @@ LABEL_TABLE = {
     'neighbor_avg_lrm_xy_aspect_90um_at_B': "Starting avg. XY aspect ratio in 90 \u00B5m radius",
     'neighbor_avg_lrm_mesh_sa_90um_at_B': "Starting avg. surface area in 90 \u00B5m radius",
     
-    "mean_neighbor_avg_dxdt_48_volume_90um": "Mean avg. transient growth rate in 90 \u00B5m radius",
+    "mean_neighbor_avg_dxdt_48_volume_90um": "Avg. mean transient growth rate in 90 \u00B5m radius",
     'mean_neighbor_avg_lrm_volume_90um': " Avg. mean volume in 90 \u00B5m radius", 
     'mean_neighbor_avg_lrm_height_90um': "Avg. mean height in 90 \u00B5m radius",
     'mean_neighbor_avg_lrm_density_90um': "Avg. mean density in 90 \u00B5m radius",
     'mean_neighbor_avg_lrm_xy_aspect_90um': "Avg. mean XY aspect ratio in 90 \u00B5m radius",
     'mean_neighbor_avg_lrm_mesh_sa_90um': "Avg. mean surface area in 90 \u00B5m radius",
+    'mean_neighbor_avg_lrm_2d_area_nuc_cell_ratio_90um': "Avg. mean density in 90 \u00B5m radius",
     
     # mitotic and apoptotic neighbor columns
     "number_of_frame_of_breakdown_neighbors": "# of neighboring cells undergoing breakdown",
