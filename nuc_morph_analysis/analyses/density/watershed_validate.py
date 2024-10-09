@@ -15,7 +15,7 @@ from nuc_morph_analysis.lib.visualization.plotting_tools import colorize_image
 def get_contours_from_pair_of_2d_seg_image(nuc_mip,cell_mip,dft=None):
         contour_list = [] # (label, nucleus_contour, cell_contour, color)
         rgb_array0_255, cmapper, _ = return_glasbey_on_dark()
-        for label_img in range(0,nuc_mip.max()+1):
+        for label_img in range(1,nuc_mip.max()+1):
             if dft is not None:
                 #ask if the label_img is in the dataframe
                 if label_img not in dft['label_img'].values:
@@ -37,8 +37,11 @@ def get_contours_from_pair_of_2d_seg_image(nuc_mip,cell_mip,dft=None):
 
         return contour_list
 
-def draw_contours_on_image(axlist,contour_list,new_color=None,filled=False,colorize=False,dft=None):
+def draw_contours_on_image(axlist,contour_list,new_color=None,filled=False,colorize=False,dft=None,linewidth=1,colorfeat='2d_area_nuc_cell_ratio',cmapstr='PiYG'):
     # draw contours
+    if dft is not None:
+        minval = dft[colorfeat].min()
+        maxval = dft[colorfeat].max()
     for label, nuc_contours, cell_contours, color in contour_list:
         if new_color is not None:
             color = new_color
@@ -47,17 +50,17 @@ def draw_contours_on_image(axlist,contour_list,new_color=None,filled=False,color
         if colorize:
             if label not in dft['label_img'].values:
                 continue
-            value = dft[dft['label_img']==label]['2d_area_nuc_cell_ratio'].values[0]
+            value = dft[dft['label_img']==label][colorfeat].values[0]
             #rescale between 0 and 255
-            new_value = (value - dft['2d_area_nuc_cell_ratio'].min()) / (dft['2d_area_nuc_cell_ratio'].max() - dft['2d_area_nuc_cell_ratio'].min())
-            cmap = cm.get_cmap('viridis')
+            new_value = (value - minval) / (maxval - minval)
+            cmap = cm.get_cmap(cmapstr)
             color = np.float64(cmap(new_value))
         for contour in nuc_contours:
-            axlist.plot(contour[:, 1], contour[:, 0], linewidth=1, color=color)
+            axlist.plot(contour[:, 1], contour[:, 0], linewidth=linewidth, color=color)
             if filled: # now draw as filled
                 axlist.fill(contour[:, 1], contour[:, 0], color=color, alpha=0.5)
         for contour in cell_contours:
-            axlist.plot(contour[:, 1], contour[:, 0], linewidth=1, color=color)
+            axlist.plot(contour[:, 1], contour[:, 0], linewidth=linewidth, color=color)
             if filled: # now draw as filled
                 axlist.fill(contour[:, 1], contour[:, 0], color=color, alpha=0.5)
 
