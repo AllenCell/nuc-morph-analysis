@@ -68,7 +68,7 @@ neighbor_centroids = get_neighbor_centroids(df_nuc, df_timepoint)
 # plot density schematic
 pix_size = get_dataset_pixel_size("medium")
 plot_density_schematic(
-    df_timepoint, track_centroid, neighbor_centroids, frame_centroids, pix_size, figdir
+    df_timepoint, track_centroid, neighbor_centroids, frame_centroids, pix_size, figdir,
 )
 
 # plot colony-averaged density over aligned colony time

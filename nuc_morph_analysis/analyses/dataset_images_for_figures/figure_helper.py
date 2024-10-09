@@ -98,7 +98,7 @@ def get_save_dir_and_fig_panel_str(figure, panel):
     return savedir, fig_panel_str
 
 
-def return_glasbey_on_dark(N=255, cell_id=None, cell_color=None):
+def return_glasbey_on_dark(N=255, cell_id=None, cell_color=None, from_list=False):
     """
     Publication
     The Glasbey LUT is based on the publication:
@@ -110,7 +110,7 @@ def return_glasbey_on_dark(N=255, cell_id=None, cell_color=None):
     cell_id: int, the cell id to change the color of
     cell_color: array, the RGB color to change the cell to
     """
-    from matplotlib.colors import LinearSegmentedColormap
+    from matplotlib.colors import LinearSegmentedColormap, ListedColormap
     from nuc_morph_analysis.analyses.dataset_images_for_figures.glasbey_on_dark import (
         glasbey_on_dark_func,
     )
@@ -136,7 +136,8 @@ def return_glasbey_on_dark(N=255, cell_id=None, cell_color=None):
     cmap_name = "glasbey_on_dark"
     rgb_array0_1 = [tuple(np.asarray(x) / 255) for x in glasbey_on_dark]
     cmap = LinearSegmentedColormap.from_list(cmap_name, rgb_array0_1, N=N + 1)
-
+    if from_list:
+        cmap = ListedColormap(rgb_array0_1, cmap_name, N=N)
     return np.asarray(rgb_array0_255), cmap, rgb_array0_255
 
 

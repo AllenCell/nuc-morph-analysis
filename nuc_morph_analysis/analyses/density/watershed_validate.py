@@ -37,11 +37,21 @@ def get_contours_from_pair_of_2d_seg_image(nuc_mip,cell_mip,dft=None):
 
         return contour_list
 
-def draw_contours_on_image(axlist,contour_list,new_color=None,filled=False):
+def draw_contours_on_image(axlist,contour_list,new_color=None,filled=False,colorize=False,dft=None):
     # draw contours
     for label, nuc_contours, cell_contours, color in contour_list:
         if new_color is not None:
             color = new_color
+        
+        
+        if colorize:
+            if label not in dft['label_img'].values:
+                continue
+            value = dft[dft['label_img']==label]['2d_area_nuc_cell_ratio'].values[0]
+            #rescale between 0 and 255
+            new_value = (value - dft['2d_area_nuc_cell_ratio'].min()) / (dft['2d_area_nuc_cell_ratio'].max() - dft['2d_area_nuc_cell_ratio'].min())
+            cmap = cm.get_cmap('viridis')
+            color = np.float64(cmap(new_value))
         for contour in nuc_contours:
             axlist.plot(contour[:, 1], contour[:, 0], linewidth=1, color=color)
             if filled: # now draw as filled
