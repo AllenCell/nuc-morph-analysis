@@ -40,7 +40,7 @@ column_val = 'label_img'
 # feature_list = ['2d_area_nuc_cell_ratio','density','2d_area_nucleus','2d_area_pseudo_cell',
 #                 '2d_area_cyto','inv_cyto_density','2d_intensity_min_edge','2d_intensity_max_edge','2d_intensity_mean_edge'
 #                 ]
-feature_list = ['2d_area_nuc_cell_ratio']
+feature_list = ['2d_area_nuc_cell_ratio','density']
 
 figure_size_inches = np.asarray((6, 4))
 for y_col in feature_list:
