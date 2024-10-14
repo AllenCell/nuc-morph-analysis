@@ -88,7 +88,7 @@ def compute_neigh(tup):
             return return_dict
 
 
-def compute_density(df, global_df, num_workers=1):
+def compute_density(df, global_df, num_workers=1, old_unfiltered_method=False):
     """
     Main function to run
     Given a dataframe, compute density for each row
@@ -97,6 +97,8 @@ def compute_density(df, global_df, num_workers=1):
     df: dataframe of cell ids with location and height information
     global_df: dataframe of all neighboring cell ids with location and height information
     num_workers: number of workers for multiprocessing
+    old_unfiltered_method: whether to use the old (unfiltered) method that does not remove bad pseudo cells
+    (e.g. cells next to mitotic cells where there are missing segmentations)
     """
     feature_keys = [
         "centroid_x",
@@ -127,5 +129,16 @@ def compute_density(df, global_df, num_workers=1):
     neigh_stats = [i for i in neigh_stats if i is not None]
     neigh_stats = pd.concat(neigh_stats, axis=0)
     neigh_stats = neigh_stats.groupby(["CellId"]).mean()
+
+
+    print('old_unfiltered_method', old_unfiltered_method)
+    if not old_unfiltered_method:
+        # now remove CellIds that have bad pseudo cell segmentation (i.e. bad_pseudo_cells_segmentation)
+        # 'uncaught_pseudo_cell_artifact','bad_pseudo_cells_segmentation'
+        print("Removing bad pseudo cells")
+        print('Before removing bad pseudo cells: ', neigh_stats.shape[0])
+        cell_ids_to_remove = df[df['bad_pseudo_cells_segmentation'] == True]['CellId'].values
+        neigh_stats = neigh_stats[~neigh_stats.index.isin(cell_ids_to_remove)]
+        print('After removing bad pseudo cells: ', neigh_stats.shape[0])
 
     return neigh_stats

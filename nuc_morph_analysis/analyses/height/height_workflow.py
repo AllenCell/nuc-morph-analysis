@@ -68,11 +68,13 @@ neighbor_centroids = get_neighbor_centroids(df_nuc, df_timepoint)
 # plot density schematic
 pix_size = get_dataset_pixel_size("medium")
 plot_density_schematic(
-    df_timepoint, track_centroid, neighbor_centroids, frame_centroids, pix_size, figdir
+    df_timepoint, track_centroid, neighbor_centroids, frame_centroids, pix_size, figdir,
 )
 
 # plot colony-averaged density over aligned colony time
-plot.density_colony_time_alignment(df_all, pixel_size, interval, time_axis="colony_time")
+for use_old_density in [True, False]:
+    plot.density_colony_time_alignment(df_all, pixel_size, interval, time_axis="colony_time",
+                                   use_old_density=use_old_density)
 
 # %%
 # Run and plot toy model
