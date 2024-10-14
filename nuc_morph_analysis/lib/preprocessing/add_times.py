@@ -519,7 +519,9 @@ def validate_dig_time_with_plot(time_array = np.linspace(0,1,1000), number_of_bi
     """
     bin_centers = determine_bin_centers(0,1,number_of_bins=number_of_bins)
     dig_time = digitize_time_array(time_array,bin_centers)
+    fig, ax = plt.subplots(figsize=(3,3))
     plt.plot(time_array,dig_time)
     plt.xlabel('time')
     plt.ylabel('dig_time')
     plt.title(f'Validation of digitized time\n{number_of_bins} bins')
+    return fig, ax
