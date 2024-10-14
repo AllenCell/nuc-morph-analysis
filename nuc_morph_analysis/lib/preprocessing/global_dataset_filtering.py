@@ -201,8 +201,7 @@ def process_all_tracks(df, dataset, remove_growth_outliers, num_workers):
     df = add_change_over_time(df)
     df = add_neighborhood_avg_features.run_script(df, num_workers=num_workers)
     df = add_neighborhood_avg_features_lrm.run_script(df, num_workers=num_workers, 
-                                                feature_list=["volume", "height", "density", "xy_aspect", "mesh_sa", "2d_area_nuc_cell_ratio",
-                                                              '2d_intensity_max_edge', '2d_intensity_mean_edge','2d_intensity_min_edge'],
+                                                feature_list=["volume", "height", "xy_aspect", "mesh_sa", "2d_area_nuc_cell_ratio"],
                                                 exclude_outliers=False)
 
     if dataset == "all_baseline":
@@ -269,25 +268,19 @@ def process_full_tracks(df_all, thresh, pix_size, interval):
     df_full = add_features.add_feature_at(df_full, "frame_transition", 'height', 'height_percentile', pix_size) 
     # df_full = add_features.add_feature_at(df_full, "frame_transition", 'density', 'density', pix_size)
     for feature in ['xy_aspect', 'SA_vol_ratio', 'neighbor_avg_lrm_volume_90um', 'neighbor_avg_lrm_height_90um',
-                'neighbor_avg_lrm_density_90um','neighbor_avg_lrm_xy_aspect_90um','neighbor_avg_lrm_mesh_sa_90um']:
+                    'neighbor_avg_lrm_xy_aspect_90um','neighbor_avg_lrm_mesh_sa_90um']:
         df_full = add_features.add_feature_at(df_full, "frame_transition", feature, feature)
     
-    df_full = add_features.get_early_transient_gr_of_whole_colony(df_full, scale=get_plot_labels_for_metric('neighbor_avg_dxdt_48_volume_whole_colony')[0])
     df_full = add_features.get_early_transient_gr_of_neighborhood(df_full, scale=get_plot_labels_for_metric('neighbor_avg_dxdt_48_volume_90um')[0])
     df_full = add_features.sum_mitotic_events_along_full_track(df_full)
     df_full = add_features.normalize_sum_events(df_full, ['sum_has_mitotic_neighbor', 'sum_has_dying_neighbor'])
     
-    ft_list = ['neighbor_avg_dxdt_48_volume_whole_colony',
-               'neighbor_avg_dxdt_48_volume_90um',
+    ft_list = ['neighbor_avg_dxdt_48_volume_90um',
                'neighbor_avg_lrm_volume_90um', 
                'neighbor_avg_lrm_height_90um',
-               'neighbor_avg_lrm_density_90um',
                'neighbor_avg_lrm_xy_aspect_90um',
                'neighbor_avg_lrm_mesh_sa_90um',
-               'neighbor_avg_lrm_2d_area_nuc_cell_ratio_90um',
-               'neighbor_avg_lrm_2d_intensity_max_edge_90um', 
-               'neighbor_avg_lrm_2d_intensity_mean_edge_90um',
-               'neighbor_avg_lrm_2d_intensity_min_edge_90um']
+               'neighbor_avg_lrm_2d_area_nuc_cell_ratio_90um',]
     multiplier_list = [get_plot_labels_for_metric(x)[0] for x in ft_list]
     df_full = add_features.add_mean_feature_over_trajectory(df_full, ft_list, multiplier_list)
     for feat in ft_list:

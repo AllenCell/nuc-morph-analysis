@@ -142,8 +142,9 @@ def fit_linear_regression(
         rounded_permutation_score = round(score, 2)
         if alpha_ind == 0:
             max_val = rounded_permutation_score
-        if abs(rounded_permutation_score - max_val) > tol or (pvalue > 0.05):
-            break
+        if multiple_predictions:
+            if abs(rounded_permutation_score - max_val) > tol or (pvalue > 0.05):
+                break
 
         # if relatively equal to linear regression value, then continue
         # save permutation score and p_value to dictionary

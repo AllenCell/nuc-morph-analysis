@@ -54,32 +54,12 @@ for target in ['duration_BC', 'delta_volume_BC']:
         save=True
     )
     
-#%%
+# %% Greedy removal
 for target in TARGETS:
-    df = run_regression_workflow([target], CONFIG, data, FIGDIR, alpha=TARGET_SETTINGS[target]['max_alpha'])
-    plot_heatmap(df, FIGDIR)
-# %%
-# for target in TARGETS:
-target = 'delta_volume_BC'
-main(cols=get_feature_list(CONFIG['all_features'], target),
-    target=target,
-    alpha_range=np.arange(0.5, 15, 0.2, dtype=float),
-    tolerance=TARGET_SETTINGS[target]['tolerance'],
-    save_path=FIGDIR,
-    max_iterations=100,
-    preloaded_dataframe=data)
-
-
-# %%
-cols = get_feature_list(CONFIG['all_features'], None)
-df_na = df_track_level_features[df_track_level_features[cols].isna().any(axis=1)]
-df_test = df_track_level_features.dropna(subset=cols)
-# %%
-nan_cols = df_na.columns[df_na.isna().any()].tolist()
-# %%
-overlap = set(nan_cols).intersection(set(cols))
-# %%
-for feature in overlap:
-    nan_count = df_track_level_features[feature].isna().sum()
-    print(f"{feature}: {nan_count}")
-# %%
+    main(cols=get_feature_list(CONFIG['all_features'], target),
+        target=target,
+        alpha_range=np.arange(0.5, 15, 0.2, dtype=float),
+        tolerance=TARGET_SETTINGS[target]['tolerance'],
+        save_path=FIGDIR,
+        max_iterations=100,
+        preloaded_dataframe=data)
