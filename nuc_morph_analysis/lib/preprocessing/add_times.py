@@ -512,16 +512,28 @@ def digitize_time_column(df, minval, maxval, number_of_bins=None, step_size=None
     df[new_col] = dig_time_array
     return df
 
-def validate_dig_time_with_plot(time_array = np.linspace(0,1,1000), number_of_bins=6):
+def validate_dig_time_with_plot(time_array = np.linspace(0,1,1000), number_of_bins=6, old_method=False):
     """
     this visualizes how the input array is binned by plotting
     the input array (x-axis) vs the digitized array (y-axis)
     """
-    bin_centers = determine_bin_centers(0,1,number_of_bins=number_of_bins)
-    dig_time = digitize_time_array(time_array,bin_centers)
+
+    if old_method:
+        time_array = np.linspace(0,1,1000)
+        TIME_BIN = 1/number_of_bins
+        df_agg = pd.DataFrame({'normalized_time':time_array})
+        timedig_bins = np.arange(0, 1 + TIME_BIN, TIME_BIN)
+        inds = np.digitize(df_agg["normalized_time"], timedig_bins)
+        df_agg["dig_time"] = timedig_bins[inds - 1]
+        dig_time = df_agg['dig_time'].values
+        extrastr = '\n(old method)'
+    else:
+        bin_centers = determine_bin_centers(0,1,number_of_bins=number_of_bins)
+        dig_time = digitize_time_array(time_array,bin_centers)
+        extrastr = ''
     fig, ax = plt.subplots(figsize=(3,3))
     plt.plot(time_array,dig_time)
     plt.xlabel('time')
     plt.ylabel('dig_time')
-    plt.title(f'Validation of digitized time\n{number_of_bins} bins')
+    plt.title(f'Validation of digitized time\n{number_of_bins} bins{extrastr}')
     return fig, ax
