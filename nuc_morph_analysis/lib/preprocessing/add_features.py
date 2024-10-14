@@ -140,6 +140,124 @@ def add_feature_at(df, frame_column, feature, feature_column, multiplier=1):
         )
     return df
 
+def add_mean_feature_over_trajectory(df, feature_list, multiplier_list):
+    """
+    Add the mean of a given feature over the growth trajectory 
+    from transition to frame breakdown. 
+    
+    Parameters
+    ----------
+    df : DataFrame
+        The dataframe
+    feature_list : list
+        List of column names
+    multiplier_list : list
+        List of scale to multiply the mean by
+        
+    Returns
+    -------
+    df : DataFrame
+        The dataframe with the added mean feature columns
+    """
+    for feature, multiplier in zip(feature_list, multiplier_list):
+        for tid, dft in df.groupby("track_id"):
+            start = dft.frame_transition.values[0]
+            stop = dft.Fb.values[0]
+            df_mean = dft[(dft['index_sequence'] >= start) & (dft['index_sequence'] <= stop)]
+            mean = df_mean[feature].mean() * multiplier
+            df.loc[df.track_id == tid, f"mean_{feature}"] = mean
+    return df
+
+
+def get_early_transient_gr_of_whole_colony(df, scale, time_shift=25):
+    """
+    Get the transient growth rate of the colony 2 hours into the growth trajectory. 
+    
+    This time shift of two hours into the growth trajectory is necessary because the metric
+    is calculated as the average of a 4 hour rolling window. The middle of a four hour window
+    does not occur until two hours into the timelapse. To calculate this feature equivalently 
+    for each trajectory, two hours was used for all tracks to get a metric for the transient 
+    growth rate of the colony early in the growth trajectory. 
+    
+    Parameters
+    ----------
+    df : DataFrame
+        The dataframe
+    time_shift : int
+        The time shift in frames to calculate the transient growth rate in frames
+        
+    Returns
+    -------
+    df : DataFrame
+        The dataframe with the added transient growth rate feature columns
+    """
+    for tid, dft in df.groupby("track_id"):
+        t_calculate = dft.index_sequence.min() + time_shift
+        transient_gr_whole_colony = df.loc[df.index_sequence == t_calculate, "neighbor_avg_dxdt_48_volume_whole_colony"].values[0]
+        df.loc[df.track_id == tid, "early_transient_gr_whole_colony"] = transient_gr_whole_colony * scale
+
+    return df
+
+def get_early_transient_gr_of_neighborhood(df, scale, time_shift=24, window_length=6):
+    """
+    Get the transient growth rate of the colony 2 hours into the growth trajectory. 
+    
+    This time shift of two hours into the growth trajectory is necessary because the metric
+    is calculated as the average of a 4 hour rolling window. The middle of a four hour window
+    does not occur until two hours into the timelapse. To calculate this feature equivalently 
+    for each trajectory, two hours was used for all tracks to get a metric for the transient 
+    growth rate of the neighborhood early in the growth trajectory. 
+    
+    Parameters
+    ----------
+    df : DataFrame
+        The dataframe
+    time_shift : int
+        The time shift in frames to calculate the transient growth rate in frames
+    window_length : int
+        The length of the time window in frames
+        
+    Returns
+    -------
+    df : DataFrame
+        The dataframe with the added transient growth rate feature columns
+    """
+    for tid, dft in df.groupby("track_id"):
+        t_calculate = dft.index_sequence.min() + time_shift
+        time_window_mask = df.index_sequence.between(t_calculate, t_calculate + window_length)
+        transient_gr_whole_colony = df.loc[time_window_mask, "neighbor_avg_dxdt_48_volume_90um"].mean()
+        df.loc[df.track_id == tid, "early_transient_gr_90um"] = transient_gr_whole_colony * scale
+        
+    return df
+
+def add_std_feature_over_trajectory(df, feature_list, multiplier_list):
+    """
+    Add the standard deviation of a given feature over the growth trajectory 
+    from transition to frame breakdown. 
+    
+    Parameters
+    ----------
+    df : DataFrame
+        The dataframe
+    feature_list : list
+        List of column names
+    multiplier_list : list
+        List of scale to multiply the std by
+        
+    Returns
+    -------
+    df : DataFrame
+        The dataframe with the added standard deviation feature columns
+    """
+    for feature, multiplier in zip(feature_list, multiplier_list):
+        for tid, dft in df.groupby("track_id"):
+            start = dft.frame_transition.values[0]
+            stop = dft.Fb.values[0]
+            df_std = dft[(dft['index_sequence'] >= start) & (dft['index_sequence'] <= stop)]
+            std = df_std[feature].std() * multiplier
+            df.loc[df.track_id == tid, f"std_{feature}"] = std
+    return df
+
 
 def add_volume_at(df, pixel_size, frame_column):
     """
@@ -390,6 +508,62 @@ def add_non_interphase_size_shape_flag(df):
     ].any(axis=1)
     return df
 
+def get_sister(df, pid, current_tid):
+    """
+    Gets the track_id of the sibling
+
+    Parameters
+    ----------
+    df: Dataframe
+        The dataset dataframe
+    track_id: int
+        The track_id of the cell
+
+    Returns
+    -------
+    sister_id: List
+        List containing the track_id of the sibling cell
+    """
+    df_sisters = df.loc[df.parent_id == pid]
+    tids = df_sisters.track_id.unique()
+    sister_id = [tid for tid in tids if tid != current_tid]
+    return sister_id
+
+def add_lineage_features(df, feature_list):
+    """
+    If the full track has a full track sister or mother, add the given relative's feature as a single track feature column in the dataframe. 
+    
+    Paramaters
+    ----------
+    df: DataFrame
+        The dataframe
+    feature_list: list
+        List of column names
+        
+    Returns
+    -------
+    df: DataFrame
+        The dataframe with new columns (ie mothers_vol_at_B, sisters_duration)
+    """
+    
+    for feature in feature_list:
+        df[f"mothers_{feature}"] = np.nan
+        df[f"sisters_{feature}"] = np.nan
+
+    df_lineage = df[df['colony'].isin(['small', 'medium'])]
+
+    for tid, dft in df_lineage.groupby("track_id"):
+        parent_id = dft.parent_id.values[0]
+        if parent_id != -1 and parent_id in df_lineage.track_id.unique():
+            for feature in feature_list:
+                df.loc[df.track_id == tid, f"mothers_{feature}"] = df_lineage.loc[df_lineage.track_id == parent_id, feature].values[0]
+        if parent_id != -1:        
+            sister_id = get_sister(df_lineage, parent_id, tid)
+            if len(sister_id) > 0:
+                for feature in feature_list:
+                    df.loc[df.track_id == tid, f"sisters_{feature}"] = df_lineage.loc[df_lineage.track_id == sister_id[0], feature].values[0]
+
+    return df
 
 def sum_events_along_full_track(df0, feature_list, index_columns=['track_id','index_sequence','Fb','frame_transition']):
     """
@@ -467,6 +641,26 @@ def sum_mitotic_events_along_full_track(df0, feature_list=[]):
         feature_list = mitotic_event_features
 
     return sum_events_along_full_track(df0, feature_list)
+
+def normalize_sum_events(df_full, event_cols):
+    """
+    Normalize sum of mitotic and death events by growth duration 
+    
+    Parameters
+    ----------
+    df_full: DataFrame
+        The dataframe of full tracks
+    event_cols: list
+        ie. 'sum_has_mitotic_neighbor', 'sum_has_dying_neighbor'
+        
+    Returns
+    -------
+    df_full: DataFrame
+        The dataframe with the normalized sum of events columns
+    """
+    for col in event_cols:
+        df_full[f"normalized_{col}"] = df_full[col] / df_full['duration_BC']
+    return df_full
 
 def add_perimeter_ratio(df): 
     """
