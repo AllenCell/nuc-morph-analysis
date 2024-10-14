@@ -41,31 +41,25 @@ def get_change_over_time_array(dfd, time_cols, bin_interval):
     # now normalize the changes by the bin_interval
     diff = diff / float(bin_interval)
 
+    #  now in addition to the volume level, add volume_per_V as a level to diff
+    diff = diff.join(diff[["volume"]].div(dfp["volume"]).rename(columns={"volume": "volume_per_V"}))
     # now transform diff back into the form of dfd
     dfm = diff.stack().reset_index()
     dfm = dfm.rename(columns={x: f"{prefix}{x}" for x in time_cols})
+    dfm = dfm.rename(columns={"volume_per_V": f"{prefix}volume_per_V"})
 
     # now drop rows with nan values
     dfm = dfm.dropna(axis=0)
-    
+
     # now recover the CellId values
     dfmi = dfm.set_index(["index_sequence", "track_id"])
     dfdi = dfd.set_index(["index_sequence", "track_id"])
-
-    # find all dfmi index values NOT in dfdi index values
-    # this is the set of index values that are not in the original dataframe
-    # they are added during the pivot operation
-    # we will drop these rows
-    not_in_dfdi = dfmi.index.difference(dfdi.index)
-    # print(f"dropping {len(not_in_dfdi)} rows")
-    dfmi.drop(not_in_dfdi, inplace=True)
-
     dfmi.loc[dfmi.index.values, "CellId"] = dfdi.loc[dfmi.index.values, "CellId"]
     return dfmi.reset_index().set_index("CellId")
 
 
 # %%
-def run_script(df=None, dxdt_feature_list = DXDT_FEATURE_LIST, bin_interval_list=BIN_INTERVAL_LIST, exclude_outliers=True):
+def run_script(df=None, bin_interval=12, exclude_outliers=True):
     """
     run the compute_change_over_time workflow for a given bin_interval
 
@@ -74,10 +68,8 @@ def run_script(df=None, dxdt_feature_list = DXDT_FEATURE_LIST, bin_interval_list
     df : pd.DataFrame
         dataframe on which to compute change_over_time
         with columns ['colony','track_id','index_sequence','label_img']+time_cols
-    dxdt_feature_list : list
-        list of columns to compute growth on
-    bin_interval_list : list
-        list of integers, which represents the number of frames to compute growth over
+    bin_interval : int
+        integer that represents the number of frames to compute growth over
     exclude_outliers : bool
         if True, exclude outlier time points from the growth rate calculation
 
@@ -87,7 +79,6 @@ def run_script(df=None, dxdt_feature_list = DXDT_FEATURE_LIST, bin_interval_list
         dataframe with change_over_time values for each track at each time point
     """
 
-    assert df.index.name == "CellId"
     dforig = df.copy()
     if exclude_outliers:
         # to ensure that outlier datapoints are used for the growth rate calculation, filter out time point outliers here
@@ -98,17 +89,15 @@ def run_script(df=None, dxdt_feature_list = DXDT_FEATURE_LIST, bin_interval_list
     # only keep the necessary columns; remove shcoeffs columns to dataframe is no so large
     # CellId becomes a column too after reset_index
     dfd = df[
-        ["colony", "track_id", "index_sequence", "label_img"] + dxdt_feature_list
+        ["colony", "track_id", "index_sequence", "label_img"] + DXDT_FEATURE_LIST
     ].reset_index()
 
     # convert all time_cols to float32
-    dfd[dxdt_feature_list] = dfd[dxdt_feature_list].astype(np.float32)
+    dfd[DXDT_FEATURE_LIST] = dfd[DXDT_FEATURE_LIST].astype(np.float32)
 
     # returns dfo with index=CellId
-    for bin_interval in bin_interval_list:
-        dfo = get_change_over_time_array(dfd, dxdt_feature_list, bin_interval)
-        new_columns = [x for x in dfo.columns.tolist() if x not in dforig.columns.tolist()]
-        # add new columns to original dataframe
-        dforig.loc[dfo.index.values, new_columns] = dfo.loc[dfo.index.values, new_columns]
-    assert dforig.index.name == "CellId"
+    dfo = get_change_over_time_array(dfd, DXDT_FEATURE_LIST, bin_interval)
+    new_columns = [x for x in dfo.columns.tolist() if x not in dforig.columns.tolist()]
+    # add new columns to original dataframe
+    dforig.loc[dfo.index.values, new_columns] = dfo.loc[dfo.index.values, new_columns]
     return dforig
