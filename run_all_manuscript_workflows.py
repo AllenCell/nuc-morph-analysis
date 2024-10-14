@@ -19,8 +19,9 @@ class Workflows:
         # excludes aphidicolin panel S5C
         import nuc_morph_analysis.analyses.volume.trajectories_workflow
 
-    def figure5_figureS6_local_growth():
+    def figure5_figureS8_local_growth():
         import nuc_morph_analysis.analyses.volume.local_growth_workflow
+        import nuc_morph_analysis.analyses.volume.avg_transient_growth_analysis_workflow
 
     def figure6_figureS7_compensation():
         import nuc_morph_analysis.analyses.volume_variation.compensation_workflow
