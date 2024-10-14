@@ -425,3 +425,115 @@ def add_transition_point(
     print(f"{ntracks} full tracks in dataset after transition point added")
 
     return df
+
+
+def determine_bin_centers(minval,maxval,number_of_bins=None,step_size=None):
+    """
+    determine the bin centers for digitizing time
+    Note: user must specify either number_of_bins or step_size
+
+    Parameters
+    ----------
+    minval : float
+        minimum value of time
+    maxval : float
+        maximum value of time
+    number_of_bins : int
+        number of bins to use
+    step_size : float
+        step size to use
+
+    Returns
+    -------
+    np.array
+        bin centers
+    """
+    if number_of_bins is not None:
+        bin_centers = np.linspace(minval,maxval,number_of_bins)
+    elif step_size is not None:
+        bin_centers = np.arange(minval,maxval+step_size,step_size)
+    else:
+        raise ValueError('Must specify either number_of_bins or step_size')
+    return bin_centers
+
+def digitize_time_array(time_array,bin_centers):
+    """
+    convert an array of time values to a digitized array of time values with a specified number of bins
+    (or step size)
+    Note: user must specify either number_of_bins or step_size
+
+    Parameters
+    ----------
+    time_array : np.array
+        array of time values
+    number_of_bins : int
+        number of bins to use
+    step_size : float
+        step size to use
+
+    Returns
+    -------
+    np.array
+        digitized time array
+    """
+    step_size = bin_centers[1] - bin_centers[0]
+    bin_edges = np.append(bin_centers-step_size/2,bin_centers[-1]+step_size/2)
+    dig_time_idxs = np.digitize(time_array,bin_edges,right=False)
+    dig_time = bin_centers[dig_time_idxs-1]
+    return dig_time
+
+def digitize_time_column(df, minval, maxval, number_of_bins=None, step_size=None, time_col = 'normalized_time', new_col='dig_time'):
+    """
+    create a new column in the dataframe that digitizes input time column
+    Note: user must specify either number_of_bins or step_size
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        dataframe to use
+    minval : float
+        minimum value of time
+    maxval : float
+        maximum value of time
+    number_of_bins : int
+        number of bins to use
+    step_size : float
+        step size to use
+
+    Returns
+    -------
+    pd.DataFrame
+        dataframe with new column
+    """
+
+    time_array = df[time_col].values
+    bin_centers = determine_bin_centers(minval,maxval,number_of_bins=number_of_bins,step_size=step_size)
+    dig_time_array = digitize_time_array(time_array,bin_centers)
+    df[new_col] = dig_time_array
+    return df
+
+def validate_dig_time_with_plot(time_array = np.linspace(0,1,1000), number_of_bins=6, old_method=False):
+    """
+    this visualizes how the input array is binned by plotting
+    the input array (x-axis) vs the digitized array (y-axis)
+    """
+
+    if old_method:
+        time_array = np.linspace(0,1,1000)
+        TIME_BIN = 1/number_of_bins
+        df_agg = pd.DataFrame({'normalized_time':time_array})
+        timedig_bins = np.arange(0, 1 + TIME_BIN, TIME_BIN)
+        inds = np.digitize(df_agg["normalized_time"], timedig_bins)
+        df_agg["dig_time"] = timedig_bins[inds - 1]
+        dig_time = df_agg['dig_time'].values
+        extrastr = '\n(old method)'
+    else:
+        bin_centers = determine_bin_centers(0,1,number_of_bins=number_of_bins)
+        dig_time = digitize_time_array(time_array,bin_centers)
+        extrastr = ''
+    fig, ax = plt.subplots(figsize=(3,3))
+    plt.plot(time_array,dig_time)
+    plt.xlabel('time')
+    plt.ylabel('dig_time')
+    plt.title(f'Validation of digitized time\n{number_of_bins} bins{extrastr}')
+    return fig, ax
