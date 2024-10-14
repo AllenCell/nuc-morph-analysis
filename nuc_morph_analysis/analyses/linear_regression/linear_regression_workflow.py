@@ -327,5 +327,5 @@ if __name__ == "__main__":
         tolerance=args.tolerance,
         save_path=args.save_path,
         cached_dataframe=args.cached_dataframe,
-        save=args.save,
+        save_movie=args.save,
     )
