@@ -33,7 +33,7 @@ interval = load_data.get_dataset_time_interval_in_min("all_baseline")
 # %% Plot volume trajectories for all tracks with examples of varying track shapes highlighted
 plot_features.plot_traj(
     df_full,
-    "volume",
+    "fit_volume",
     figdir,
     interval,
     colony="all_baseline",

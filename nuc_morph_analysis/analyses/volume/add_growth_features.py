@@ -116,7 +116,7 @@ def fit_tracks_to_time_powerlaw(
             df_track = df_track.sort_values("index_sequence")
             df_track_trim = df_track[
                 (df_track.index_sequence > transition) & (df_track.index_sequence <= fb)
-            ]
+            ].copy()
 
             # get trimmed track times and volumes
             x = df_track_trim["index_sequence"].values * interval / 60
@@ -157,6 +157,10 @@ def fit_tracks_to_time_powerlaw(
             df.loc[df_track.index, f"atB_linearityfit_{short}"] = atB
             df.loc[df_track.index, f"rate_linearityfit_{short}"] = rate
             df.loc[df_track.index, f"RMSE_linearityfit_{short}"] = rmse
+
+            # add fit volumes to manifest (using index_sequence and track_id to match and add Z)
+            df_track_trim['fit_volume'] = z
+            df.loc[df_track_trim.index, f"fit_volume"] = df_track_trim.loc[df_track_trim.index, 'fit_volume']
 
         except Exception:
             fail_count += 1

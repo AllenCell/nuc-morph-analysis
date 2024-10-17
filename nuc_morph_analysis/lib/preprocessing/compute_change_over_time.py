@@ -4,7 +4,7 @@ from nuc_morph_analysis.lib.preprocessing import filter_data
 from nuc_morph_analysis.lib.preprocessing.filter_data import all_timepoints_minimal_filtering
 
 BIN_INTERVAL_LIST = [48]
-DXDT_FEATURE_LIST = ["volume"]
+DXDT_FEATURE_LIST = ["volume",'fit_volume']
 DXDT_PREFIX = "dxdt_"
 
 
