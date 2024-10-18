@@ -57,6 +57,7 @@ def get_scale_factor_table(dataset="all_baseline"):
        
         ("mesh_sa"): pix_size**2,
         ("volume", "volume_sub"): pix_size**3,
+        ("fit_volume"): 1, #already scaled
         ("density", "avg_density", "avg_early_density", "avg_late_density"): 1 / pix_size**2,
         
         (
