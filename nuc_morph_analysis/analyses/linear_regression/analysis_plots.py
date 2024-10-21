@@ -70,7 +70,7 @@ def run_regression_workflow(targets, feature_configs, df_track_level_features, f
     return df
 
     
-def plot_heatmap(df, figdir):
+def plot_heatmap(df, figdir, cmap='coolwarm'):
     """
     Plot heatmap of r_squared values for different feature groups.
     
@@ -80,6 +80,8 @@ def plot_heatmap(df, figdir):
         DataFrame containing r_squared values for different feature groups
     figdir : str
         Directory to save the figure
+    cmap: str 
+        linear colormap
     
     Returns
     -------
@@ -107,16 +109,20 @@ def plot_heatmap(df, figdir):
 
         fig, ax = plt.subplots(figsize=(10, 8))
 
-        sns.heatmap(pivot_df, annot=False, cmap='coolwarm', ax=ax, vmin=0, vmax=0.5)
+        sns.heatmap(pivot_df, annot=False, cmap=cmap, ax=ax, vmin=0, vmax=0.5)
         
+        first_element = True
         for text_x in range(pivot_df.shape[0]):
             for text_y in range(pivot_df.shape[1]):
                 value = pivot_df.iloc[text_x, text_y]
                 std_dev = pivot_df_std.iloc[text_x, text_y]
                 if not np.isnan(value):
+                    color = 'white' if first_element else 'black'
                     ax.text(text_y+0.5, text_x+0.5, f'{value:.2f} ± {std_dev:.2f}', 
                             horizontalalignment='center', 
-                            verticalalignment='center')
+                            verticalalignment='center',
+                            color=color)
+                    first_element = False
         
         ax.set_xticklabels(['','Extrinsic','Intrinsic'])
         ax.xaxis.tick_top()
