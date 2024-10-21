@@ -5,7 +5,7 @@ import pandas as pd
 from nuc_morph_analysis.lib.preprocessing import global_dataset_filtering, filter_data
 from nuc_morph_analysis.analyses.linear_regression.linear_regression_workflow import fit_linear_regression
 from nuc_morph_analysis.analyses.linear_regression.analysis_plots import (run_regression_workflow, plot_feature_correlations,
-                                                                            plot_heatmap)
+                                                                          plot_feature_cluster_correlations, plot_heatmap)
 from nuc_morph_analysis.analyses.linear_regression.select_features import (get_feature_list, 
                                                                            TARGET_SETTINGS)
 from nuc_morph_analysis.analyses.linear_regression.linear_regression_workflow_greedy_removal import main
@@ -32,6 +32,8 @@ CONFIG = {
 
 #%%
 plot_feature_correlations(df_track_level_features, get_feature_list(CONFIG['all_features'], None), FIGDIR)
+#%%
+plot_feature_cluster_correlations(df_track_level_features, get_feature_list(CONFIG['all_features'], None), FIGDIR)
 
 #%% preprocess dataframe to ensure same N for all analysis
 dropna_cols = get_feature_list(CONFIG['all_features'], None)

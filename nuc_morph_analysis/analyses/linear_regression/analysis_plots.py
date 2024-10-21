@@ -39,6 +39,47 @@ def plot_feature_correlations(df_track_level_features, feature_list, figdir):
     
     save_and_show_plot(f'{figdir}/feature_correlation_heatmap')
 
+def plot_feature_cluster_correlations(df_track_level_features, feature_list, figdir):
+    """
+    Plot clustermap of feature correlations.   
+    
+    Parameters
+    ----------
+    df_track_level_features : pd.DataFrame
+        DataFrame containing track level features
+    feature_list : list
+        List of features to include in the clustermap
+        Output from get_feature_list
+    figdir : str
+        Directory to save the figure
+
+    Returns
+    -------
+    Figure
+    """
+    data = df_track_level_features[feature_list]
+    
+    cluster_grid = sns.clustermap(data.corr(), vmin=-1, vmax=1, cmap='vlag', 
+                                  cbar_pos=(0.45, 0.5, 0.18, 0.02), 
+                                  cbar_kws={"orientation": "horizontal"})
+    
+    # Get the reordered labels using the dendrogram information
+    reordered_column_index = cluster_grid.dendrogram_col.reordered_ind
+
+    reordered_labels = [get_plot_labels_for_metric(data.columns[i])[1] for i in reordered_column_index]
+
+    # Ensure the number of labels matches the number of ticks
+    cluster_grid.ax_heatmap.set_xticks(range(len(reordered_labels)))
+    cluster_grid.ax_heatmap.set_xticklabels(reordered_labels, rotation=90)
+    cluster_grid.ax_heatmap.set_yticks(range(len(reordered_labels)))
+    cluster_grid.ax_heatmap.set_yticklabels(reordered_labels, rotation=0)
+    
+    # Adjust the padding between the labels and the heatmap
+    cluster_grid.ax_heatmap.tick_params(axis='x', labelsize=8, width=0.7)
+    cluster_grid.ax_heatmap.tick_params(axis='y', labelsize=8, width=0.7)
+
+    save_and_show_plot(f'{figdir}/feature_correlation_clustermap', figure=cluster_grid.fig, dpi=300)
+
     
 def run_regression(df_track_level_features, target, features, name, alpha, figdir):
         _, all_test_sc, _ = fit_linear_regression(
