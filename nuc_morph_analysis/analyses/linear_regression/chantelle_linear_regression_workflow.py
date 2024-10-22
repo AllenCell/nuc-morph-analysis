@@ -43,7 +43,8 @@ print(f"Number of tracks: {len(data)}")
 #%% Create maxtrix of r squared values
 df = run_regression_workflow(TARGETS, CONFIG, data, FIGDIR, alpha=0)
 #%%
-for cmap in ['YlOrRd','OrRd', 'coolwarm']:
+#'YlOrRd','OrRd'
+for cmap in ['YlOrRd']: 
     print(cmap)
     plot_heatmap(df, FIGDIR, cmap)
 

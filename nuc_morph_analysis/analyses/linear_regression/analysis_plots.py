@@ -59,7 +59,7 @@ def plot_feature_cluster_correlations(df_track_level_features, feature_list, fig
     """
     data = df_track_level_features[feature_list]
     
-    cluster_grid = sns.clustermap(data.corr(), vmin=-1, vmax=1, cmap='vlag', 
+    cluster_grid = sns.clustermap(data.corr(), vmin=-1, vmax=1, cmap='BrBG', #'vlag' red to blue
                                   cbar_pos=(0.7, 0.13, 0.18, 0.02), 
                                   cbar_kws={"orientation": "horizontal"},
                                   annot=True, fmt=".1f", annot_kws={"size": 12},
@@ -164,7 +164,7 @@ def plot_heatmap(df, figdir, cmap='coolwarm'):
                     ax.text(text_y+0.5, text_x+0.5, f'{value:.2f} ± {std_dev:.2f}', 
                             horizontalalignment='center', 
                             verticalalignment='center',
-                            color=color)
+                            color=color, fontsize=16)
                     first_element = False
         
         ax.set_xticklabels(['','Extrinsic','Intrinsic'])
