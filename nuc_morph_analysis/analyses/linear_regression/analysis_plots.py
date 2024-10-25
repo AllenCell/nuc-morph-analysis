@@ -92,24 +92,57 @@ def plot_feature_cluster_correlations(df_track_level_features, feature_list, fig
 
     save_and_show_plot(f'{figdir}/feature_correlation_clustermap', figure=cluster_grid.fig, dpi=300)
 
-    
+
 def run_regression(df_track_level_features, target, features, name, alpha, figdir):
-        _, all_test_sc, _ = fit_linear_regression(
-            df_track_level_features, 
-            cols=get_feature_list(features, target), 
-            target=target, 
-            alpha=alpha,
-            tol=0.04, 
-            save_path=figdir,
-            save=False,
-            multiple_predictions=False
-        )
-        print(f"Target {target}, Alpha: {alpha}. Feature group: {name}")
-        r_squared = round(all_test_sc["Test r$^2$"].mean(), 3)
-        std = round(all_test_sc["Test r$^2$"].std(), 3)    
-        return {'target': target, 'feature_group': name, 'r_squared': r_squared, 'stdev': std, 'alpha': 0, 'feats_used': get_feature_list(features, target)}
+    """
+    Run linear regression on the given dataset and return the results.
+
+    Parameters:
+    ----------
+    df_track_level_features (pd.DataFrame): DataFrame containing the track level features.
+    target (str): The target variable for regression.
+    features (list): List of features to be used for regression.
+    name (str): Name of the feature group.
+    alpha (list): List of alpha values for regularization.
+    figdir (str): Directory path to save the figures.
+
+    Returns:
+    --------
+    dict: A dictionary containing the target, feature group name, mean R-squared value, 
+          standard deviation of R-squared values, alpha value, and the features used.
+    """
+    _, all_test_sc, _ = fit_linear_regression(
+        df_track_level_features, 
+        cols=get_feature_list(features, target), 
+        target=target, 
+        alpha=alpha,
+        tol=0.04, 
+        save_path=figdir,
+        save=False,
+        multiple_predictions=False
+    )
+    print(f"Target {target}, Alpha: {alpha}. Feature group: {name}")
+    r_squared = round(all_test_sc["Test r$^2$"].mean(), 3)
+    std = round(all_test_sc["Test r$^2$"].std(), 3)    
+    return {'target': target, 'feature_group': name, 'r_squared': r_squared, 'stdev': std, 'alpha': 0, 'feats_used': get_feature_list(features, target)}
     
 def run_regression_workflow(targets, feature_configs, df_track_level_features, figdir, alpha):
+    """
+    Run the regression workflow for multiple targets and feature configurations.
+
+    Parameters:
+    ----------
+    targets (list): List of target variables for regression.
+    feature_configs (dict): Dictionary where keys are feature group names and values are lists of features.
+    df_track_level_features (pd.DataFrame): DataFrame containing the track level features.
+    figdir (str): Directory path to save the figures and results.
+    alpha (float): Alpha value for regularization.
+
+    Returns:
+    --------
+    pd.DataFrame: DataFrame containing the results of the regression workflow, including target, 
+                  R-squared value, standard deviation, feature group, alpha value, and features used.
+    """
     df = pd.DataFrame(columns=['target', 'r_squared', 'stdev', 'feature_group', 'alpha', 'feats_used'])
 
     for target in targets:

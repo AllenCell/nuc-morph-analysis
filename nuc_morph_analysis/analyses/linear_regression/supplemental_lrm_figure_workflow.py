@@ -11,9 +11,6 @@ from nuc_morph_analysis.analyses.linear_regression.analysis_plots import (run_re
 from nuc_morph_analysis.analyses.linear_regression.select_features import (get_feature_list, 
                                                                            TARGET_SETTINGS)
 
-pd.options.mode.chained_assignment = None  # default='warn'
-warnings.simplefilter(action="ignore", category=FutureWarning)
-
 #%%
 df_all = global_dataset_filtering.load_dataset_with_features()
 df_full = filter_data.all_timepoints_full_tracks(df_all)
@@ -63,5 +60,6 @@ if EXTENDED_WORKFLOW:
             target=target, 
             alpha=np.arange(0, 15, 0.2, dtype=float),
             tol=TARGET_SETTINGS[target]['tolerance'], 
-            save_path=FIGDIR, 
+            save_path="figures/", 
             save=True)
+# %%
