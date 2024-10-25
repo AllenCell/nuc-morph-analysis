@@ -30,7 +30,7 @@ CONFIG = {
 EXTENDED_WORKFLOW = False
 
 
-#%% Preprocess dataframe to ensure same N for all analysis (lineage features are being used)
+#%% Preprocess dataframe to ensure same N for all analysis (full tracks with lineage features)
 dropna_cols = get_feature_list(CONFIG['all_features'], None)
 data = df_track_level_features.dropna(subset=dropna_cols)
 print(f"Number of tracks: {len(data)}")
@@ -39,7 +39,7 @@ print(f"Number of tracks: {len(data)}")
 df = run_regression_workflow(TARGETS, CONFIG, data, FIGDIR, alpha=0)
 plot_heatmap(df, FIGDIR, 'YlOrRd')
 
-#%% Plot feature importance
+#%% Plot feature importance 
 for target in ['duration_BC', 'delta_volume_BC']: 
     df_alpha, df_test, df_coeff = fit_linear_regression(data, 
                                                         cols=get_feature_list(CONFIG['all_features'], target), 
@@ -48,7 +48,7 @@ for target in ['duration_BC', 'delta_volume_BC']:
         
     plot_feature_contribution(df_alpha, df_test, df_coeff, target, TARGET_SETTINGS[target]['fig_height'], FIGDIR)
 
-#%% Plot feature correlations
+#%% Plot feature correlations using all full tracks
 plot_feature_cluster_correlations(df_track_level_features, get_feature_list(CONFIG['all_features'], None), FIGDIR)
 
 #%% Create movie of increasing alpha until tolerance of 0.05 is reached
