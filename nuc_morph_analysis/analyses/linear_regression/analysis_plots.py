@@ -7,38 +7,6 @@ from nuc_morph_analysis.lib.visualization.notebook_tools import save_and_show_pl
 from nuc_morph_analysis.analyses.linear_regression.linear_regression import fit_linear_regression
 from nuc_morph_analysis.analyses.linear_regression.select_features import (get_feature_list)
 
-
-def plot_feature_correlations(df_track_level_features, feature_list, figdir):
-    """
-    Plot heatmap of feature correlations.   
-    
-    Parameters
-    ----------
-    df_track_level_features : pd.DataFrame
-        DataFrame containing track level features
-    feature_list : list
-        List of features to include in the heatmap
-        Output from get_feature_list
-    figdir : str
-        Directory to save the figure
-
-    Returns
-    -------
-    Figure
-    """
-    data = df_track_level_features[feature_list]
-
-    plt.rc('font', size=22)
-    plt.figure(figsize=(28, 25))
-    sns.heatmap(data.corr(), annot=True, fmt=".1f", cmap='BrBG', vmin=-1, vmax=1, cbar_kws={"shrink": 0.5, "pad": 0.02})
-
-    column_names = [get_plot_labels_for_metric(col)[1] for col in data.columns]
-    plt.xticks([x + 0.5 for x in range(len(column_names))], column_names)
-    plt.yticks([y + 0.5 for y in range(len(column_names))], column_names)
-    plt.tight_layout()
-    
-    save_and_show_plot(f'{figdir}/feature_correlation_heatmap')
-
 def plot_feature_cluster_correlations(df_track_level_features, feature_list, figdir):
     """
     Plot clustermap of feature correlations.   

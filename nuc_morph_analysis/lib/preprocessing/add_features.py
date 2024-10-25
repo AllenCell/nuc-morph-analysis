@@ -230,34 +230,6 @@ def get_early_transient_gr_of_neighborhood(df, scale, time_shift=24, window_leng
         
     return df
 
-def add_std_feature_over_trajectory(df, feature_list, multiplier_list):
-    """
-    Add the standard deviation of a given feature over the growth trajectory 
-    from transition to frame breakdown. 
-    
-    Parameters
-    ----------
-    df : DataFrame
-        The dataframe
-    feature_list : list
-        List of column names
-    multiplier_list : list
-        List of scale to multiply the std by
-        
-    Returns
-    -------
-    df : DataFrame
-        The dataframe with the added standard deviation feature columns
-    """
-    for feature, multiplier in zip(feature_list, multiplier_list):
-        for tid, dft in df.groupby("track_id"):
-            start = dft.frame_transition.values[0]
-            stop = dft.Fb.values[0]
-            df_std = dft[(dft['index_sequence'] >= start) & (dft['index_sequence'] <= stop)]
-            std = df_std[feature].std() * multiplier
-            df.loc[df.track_id == tid, f"std_{feature}"] = std
-    return df
-
 
 def add_volume_at(df, pixel_size, frame_column):
     """
