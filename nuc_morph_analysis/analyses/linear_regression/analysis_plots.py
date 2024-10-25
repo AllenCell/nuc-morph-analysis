@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from nuc_morph_analysis.lib.visualization.plotting_tools import get_plot_labels_for_metric
 from nuc_morph_analysis.lib.visualization.notebook_tools import save_and_show_plot
-from nuc_morph_analysis.analyses.linear_regression.linear_regression_workflow import fit_linear_regression
+from nuc_morph_analysis.analyses.linear_regression.linear_regression import fit_linear_regression
 from nuc_morph_analysis.analyses.linear_regression.select_features import (get_feature_list)
 
 
