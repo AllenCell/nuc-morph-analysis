@@ -58,7 +58,7 @@ def plot_feature_cluster_correlations(df_track_level_features, feature_list, fig
     cluster_grid.ax_heatmap.tick_params(axis='x', labelsize=12, width=0.7)
     cluster_grid.ax_heatmap.tick_params(axis='y', labelsize=12, width=0.7,  labelright=False, labelleft=True, left=True, right=False)
 
-    save_and_show_plot(f'{figdir}/feature_correlation_clustermap', figure=cluster_grid.fig, dpi=300)
+    save_and_show_plot(f'{figdir}/feature_correlation_clustermap', figure=cluster_grid.fig, bbox_inches='tight', dpi=300)
 
 
 def run_regression(df_track_level_features, target, features, name, alpha, figdir):
@@ -187,7 +187,7 @@ def plot_heatmap(df, figdir, cmap='coolwarm'):
         ax.tick_params(axis='both', which='both', length=0)
         title = ax.set_title(f'Target: {get_plot_labels_for_metric(target)[1]}', loc='left')
         title.set_position([-0.1,1])
-        save_and_show_plot(f'{figdir}{target}_prediction_r_squared_matrix_alpha_{df.alpha[0]}')
+        save_and_show_plot(f'{figdir}{target}_prediction_r_squared_matrix_alpha_{df.alpha[0]}',  bbox_inches='tight')
 
 
 def plot_feature_contribution(coef_alpha, test_sc, perms, target, fig_height, figdir):
@@ -227,7 +227,7 @@ def plot_feature_contribution(coef_alpha, test_sc, perms, target, fig_height, fi
             coef_alpha = coef_alpha[coef_alpha["Column"] != col]
     
     coef_alpha['Magnitude coefficient importance'] = abs(coef_alpha['Coefficient Importance'])
-    coef_alpha['Sign'] = coef_alpha['Coefficient Importance'].apply(lambda x: 'Positive coefficient' if x > 0 else 'Negative coefficient')
+    coef_alpha['Sign'] = coef_alpha['Coefficient Importance'].apply(lambda x: 'Positive' if x > 0 else 'Negative')
     
     coef_alpha['Mean Magnitude'] = coef_alpha.groupby('Column')['Magnitude coefficient importance'].transform('mean')
     coef_alpha = coef_alpha.sort_values('Mean Magnitude', ascending=False).drop(columns=['Mean Magnitude'])
@@ -238,7 +238,7 @@ def plot_feature_contribution(coef_alpha, test_sc, perms, target, fig_height, fi
         y="Column",
         x="Magnitude coefficient importance",
         hue="Sign",
-        palette={'Positive coefficient': '#156082', 'Negative coefficient': 'grey'},
+        palette={'Positive': '#156082', 'Negative': 'grey'},
         errorbar="sd",
         width=0.7, 
         native_scale=True)
