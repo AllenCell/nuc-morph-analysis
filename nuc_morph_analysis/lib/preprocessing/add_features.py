@@ -653,7 +653,6 @@ def add_features_at_transition(df,
     df_full : DataFrame
         The dataframe with the added feature columns 
     """
-    
     for feature in feature_list:
         df = add_feature_at(df, "frame_transition", feature, feature)
     return df
@@ -683,3 +682,4 @@ def add_mean_features(df,
     """
     multiplier_list = [get_plot_labels_for_metric(x)[0] for x in feature_list]
     df = add_mean_feature_over_trajectory(df, feature_list, multiplier_list)
+    return df
