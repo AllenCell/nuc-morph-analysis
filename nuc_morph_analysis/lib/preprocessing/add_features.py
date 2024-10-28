@@ -169,44 +169,16 @@ def add_mean_feature_over_trajectory(df, feature_list, multiplier_list):
     return df
 
 
-def get_early_transient_gr_of_whole_colony(df, scale, time_shift=25):
-    """
-    Get the transient growth rate of the colony 2 hours into the growth trajectory. 
-    
-    This time shift of two hours into the growth trajectory is necessary because the metric
-    is calculated as the average of a 4 hour rolling window. The middle of a four hour window
-    does not occur until two hours into the timelapse. To calculate this feature equivalently 
-    for each trajectory, two hours was used for all tracks to get a metric for the transient 
-    growth rate of the colony early in the growth trajectory. 
-    
-    Parameters
-    ----------
-    df : DataFrame
-        The dataframe
-    time_shift : int
-        The time shift in frames to calculate the transient growth rate in frames
-        
-    Returns
-    -------
-    df : DataFrame
-        The dataframe with the added transient growth rate feature columns
-    """
-    for tid, dft in df.groupby("track_id"):
-        t_calculate = dft.index_sequence.min() + time_shift
-        transient_gr_whole_colony = df.loc[df.index_sequence == t_calculate, "neighbor_avg_dxdt_48_volume_whole_colony"].values[0]
-        df.loc[df.track_id == tid, "early_transient_gr_whole_colony"] = transient_gr_whole_colony * scale
-
-    return df
-
 def get_early_transient_gr_of_neighborhood(df, scale, time_shift=24, window_length=6):
     """
-    Get the transient growth rate of the colony 2 hours into the growth trajectory. 
+    Get the transient growth rate of the local neighborhood 2 hours into the growth trajectory. 
     
     This time shift of two hours into the growth trajectory is necessary because the metric
     is calculated as the average of a 4 hour rolling window. The middle of a four hour window
     does not occur until two hours into the timelapse. To calculate this feature equivalently 
     for each trajectory, two hours was used for all tracks to get a metric for the transient 
-    growth rate of the neighborhood early in the growth trajectory. 
+    growth rate of the neighborhood early in the growth trajectory. The early transient growth
+    rate is averaged over 30 minutes as defined by the window_length. 
     
     Parameters
     ----------
@@ -215,7 +187,7 @@ def get_early_transient_gr_of_neighborhood(df, scale, time_shift=24, window_leng
     time_shift : int
         The time shift in frames to calculate the transient growth rate in frames
     window_length : int
-        The length of the time window in frames
+        The length of the time window in frames to average over
         
     Returns
     -------
@@ -224,8 +196,8 @@ def get_early_transient_gr_of_neighborhood(df, scale, time_shift=24, window_leng
     """
     for tid, dft in df.groupby("track_id"):
         t_calculate = dft.index_sequence.min() + time_shift
-        time_window_mask = df.index_sequence.between(t_calculate, t_calculate + window_length)
-        transient_gr_whole_colony = df.loc[time_window_mask, "neighbor_avg_dxdt_48_volume_90um"].mean()
+        time_window_mask = dft.index_sequence.between(t_calculate, t_calculate + window_length)
+        transient_gr_whole_colony = dft.loc[time_window_mask, "neighbor_avg_dxdt_48_volume_90um"].mean()
         df.loc[df.track_id == tid, "early_transient_gr_90um"] = transient_gr_whole_colony * scale
         
     return df
@@ -614,7 +586,7 @@ def sum_mitotic_events_along_full_track(df0, feature_list=[]):
 
     return sum_events_along_full_track(df0, feature_list)
 
-def normalize_sum_events(df_full, event_cols):
+def normalize_sum_events(df_full, event_cols=['sum_has_mitotic_neighbor', 'sum_has_dying_neighbor']):
     """
     Normalize sum of mitotic and death events by growth duration 
     
