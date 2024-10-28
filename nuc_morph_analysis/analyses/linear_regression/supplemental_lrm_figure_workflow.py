@@ -1,7 +1,5 @@
 #%%
-import warnings
 import numpy as np
-import pandas as pd
 from nuc_morph_analysis.lib.preprocessing import global_dataset_filtering, filter_data
 from nuc_morph_analysis.analyses.linear_regression.linear_regression import fit_linear_regression
 from nuc_morph_analysis.analyses.linear_regression.analysis_plots import (run_regression_workflow,

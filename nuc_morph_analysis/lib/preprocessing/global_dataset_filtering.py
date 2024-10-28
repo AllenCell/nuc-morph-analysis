@@ -202,7 +202,7 @@ def process_all_tracks(df, dataset, remove_growth_outliers, num_workers):
     df = add_neighborhood_avg_features.run_script(df, num_workers=num_workers)
     df = add_neighborhood_avg_features_lrm.run_script(df, num_workers=num_workers, 
                                                 feature_list=["volume", "height", "xy_aspect", "mesh_sa", "2d_area_nuc_cell_ratio"],
-                                                exclude_outliers=False)
+                                                exclude_outliers=True)
 
     if dataset == "all_baseline":
         df = add_colony_time_all_datasets(df)
@@ -264,26 +264,12 @@ def process_full_tracks(df_all, thresh, pix_size, interval):
     
     # For LRM
     df_full = add_features.add_lineage_features(df_full, feature_list=['volume_at_B', 'duration_BC', 'volume_at_C', 'delta_volume_BC'])
-    
     df_full = add_features.add_feature_at(df_full, "frame_transition", 'height', 'height_percentile', pix_size) 
-    for feature in ['xy_aspect', 'SA_vol_ratio', 'neighbor_avg_lrm_volume_90um', 'neighbor_avg_lrm_height_90um',
-                    'neighbor_avg_lrm_xy_aspect_90um','neighbor_avg_lrm_mesh_sa_90um']:
-        df_full = add_features.add_feature_at(df_full, "frame_transition", feature, feature)
-    
+    df_full = add_features.add_features_at_transition(df_full)
     df_full = add_features.get_early_transient_gr_of_neighborhood(df_full, scale=get_plot_labels_for_metric('neighbor_avg_dxdt_48_volume_90um')[0])
     df_full = add_features.sum_mitotic_events_along_full_track(df_full)
     df_full = add_features.normalize_sum_events(df_full)
-    
-    ft_list = ['neighbor_avg_dxdt_48_volume_90um',
-               'neighbor_avg_lrm_volume_90um', 
-               'neighbor_avg_lrm_height_90um',
-               'neighbor_avg_lrm_xy_aspect_90um',
-               'neighbor_avg_lrm_mesh_sa_90um',
-               'neighbor_avg_lrm_2d_area_nuc_cell_ratio_90um',]
-    multiplier_list = [get_plot_labels_for_metric(x)[0] for x in ft_list]
-    df_full = add_features.add_mean_feature_over_trajectory(df_full, ft_list, multiplier_list)
-    for feat in ft_list:
-        df_full = add_features.add_feature_at(df_full, "frame_transition", feat, feat)
+    df_full = add_features.add_mean_features(df_full)
 
     # Add flag for use after merging back to main manifest
     df_full = add_features.add_full_track_flag(df_full)

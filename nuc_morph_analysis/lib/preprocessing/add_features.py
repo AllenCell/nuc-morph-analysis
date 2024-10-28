@@ -1,4 +1,5 @@
 from nuc_morph_analysis.analyses.lineage.get_features import lineage_trees
+from nuc_morph_analysis.lib.visualization.plotting_tools import get_plot_labels_for_metric
 import numpy as np
 
 FRAME_COL = {"Ff": "A", "frame_transition": "B", "Fb": "C"}
@@ -625,3 +626,60 @@ def add_perimeter_ratio(df):
     """
     df['2d_perimeter_nuc_cell_ratio'] = df['2d_perimeter_nucleus'] / df['2d_perimeter_pseudo_cell']
     return df
+
+def add_features_at_transition(df, 
+                               feature_list=['xy_aspect', 
+                                            'SA_vol_ratio', 
+                                            'neighbor_avg_lrm_volume_90um', 
+                                            'neighbor_avg_lrm_height_90um',
+                                            'neighbor_avg_lrm_xy_aspect_90um',
+                                            'neighbor_avg_lrm_mesh_sa_90um',
+                                            'neighbor_avg_dxdt_48_volume_90um',
+                                            'neighbor_avg_lrm_2d_area_nuc_cell_ratio_90um']
+                               ):
+    """
+    Add feature measurements at transition that are used in the linear regression analysis.
+    Features should be pre-calculated and not need to be scaled. 
+    
+    Parameters
+    ----------
+    df_full : DataFrame
+        The dataframe containing full trajectories
+    feature_list : list
+        List of column names
+    
+    Returns
+    -------
+    df_full : DataFrame
+        The dataframe with the added feature columns 
+    """
+    
+    for feature in feature_list:
+        df = add_feature_at(df, "frame_transition", feature, feature)
+    return df
+
+def add_mean_features(df, 
+                      feature_list=['neighbor_avg_dxdt_48_volume_90um',
+                                    'neighbor_avg_lrm_volume_90um', 
+                                    'neighbor_avg_lrm_height_90um',
+                                    'neighbor_avg_lrm_xy_aspect_90um',
+                                    'neighbor_avg_lrm_mesh_sa_90um',
+                                    'neighbor_avg_lrm_2d_area_nuc_cell_ratio_90um']
+                      ):
+    """
+    Add mean feature measurements over the growth trajectory that are used in the linear regression analysis.
+    
+    Parameters
+    ----------
+    df : DataFrame
+        The dataframe containing full trajectories
+    feature_list : list
+        List of column names
+    
+    Returns
+    -------
+    df : DataFrame
+        The dataframe with the added mean feature columns
+    """
+    multiplier_list = [get_plot_labels_for_metric(x)[0] for x in feature_list]
+    df = add_mean_feature_over_trajectory(df, feature_list, multiplier_list)
