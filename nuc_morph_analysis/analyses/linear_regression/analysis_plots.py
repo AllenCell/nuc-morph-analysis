@@ -61,7 +61,7 @@ def plot_feature_cluster_correlations(df_track_level_features, feature_list, fig
     save_and_show_plot(f'{figdir}/feature_correlation_clustermap', figure=cluster_grid.fig, bbox_inches='tight', dpi=300)
 
 
-def run_regression(df_track_level_features, target, features, name, alpha, figdir):
+def run_regression(df_track_level_features, target, features, name, alpha, figdir="figures/"):
     """
     Run linear regression on the given dataset and return the results.
 
@@ -94,7 +94,7 @@ def run_regression(df_track_level_features, target, features, name, alpha, figdi
     std = round(all_test_sc["Test r$^2$"].std(), 3)    
     return {'target': target, 'feature_group': name, 'r_squared': r_squared, 'stdev': std, 'alpha': 0, 'feats_used': get_feature_list(features, target)}
     
-def run_regression_workflow(targets, feature_configs, df_track_level_features, figdir, alpha):
+def run_regression_workflow(targets, feature_configs, df_track_level_features, alpha, figdir="figures/"):
     """
     Run the regression workflow for multiple targets and feature configurations.
 
@@ -190,7 +190,7 @@ def plot_heatmap(df, figdir, cmap='coolwarm'):
         save_and_show_plot(f'{figdir}{target}_prediction_r_squared_matrix_alpha_{df.alpha[0]}',  bbox_inches='tight')
 
 
-def plot_feature_contribution(coef_alpha, test_sc, perms, target, fig_height, figdir):
+def plot_feature_contribution(coef_alpha, test_sc, perms, target, alpha, fig_height, figdir):
     """
     For a given target, plot feature importance for each feature in the linear model at a specified alpha.
     Features that touch 0 are considered not important and are excluded from the plot. 
@@ -205,6 +205,8 @@ def plot_feature_contribution(coef_alpha, test_sc, perms, target, fig_height, fi
         DataFrame containing the permutation test results
     target: str
         Prediction feature
+    alpha: int
+        Regularization parameter
     fig_height: int
         Height of the figure based on number of important features
     save_path: str
@@ -214,8 +216,6 @@ def plot_feature_contribution(coef_alpha, test_sc, perms, target, fig_height, fi
     -------
     Figure
     """
-
-    alpha = coef_alpha["alpha"].unique()[0]
     p_value = round(perms["p_value"].item(), 3)
     test_r2_mean = round(test_sc["Test r$^2$"].mean(), 2)
     test_r2_std = round(test_sc["Test r$^2$"].std() / 2, 2)

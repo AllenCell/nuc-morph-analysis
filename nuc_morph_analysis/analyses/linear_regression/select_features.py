@@ -55,19 +55,6 @@ TARGET_CONTAINTING_FEATS = {
     ]
 }
 
-TARGET_SETTINGS = {
-    'duration_BC': {
-        'tolerance': 0.05,
-        'max_alpha': 1.4,
-        'fig_height': 6, 
-    },
-    'delta_volume_BC': {
-        'tolerance': 0.05,
-        'max_alpha': 10.2,
-        'fig_height': 2,
-    }
-}
-
 def get_feature_list(feature_group_list, target):
     """
     Get feature list to include in linear model. 
