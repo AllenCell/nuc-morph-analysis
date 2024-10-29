@@ -87,6 +87,8 @@ def plot_event_histogram(df, event_type, figdir):
         ax[2].set_xlabel('Time (hr)') 
         plt.tight_layout()
         
+        print(f"{colony}: max {percent_event.max():.2f}%")
+        
         save_and_show_plot(f'{figdir}/{event_label}_histogram_{colony}')
     
 
