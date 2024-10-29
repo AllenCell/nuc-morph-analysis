@@ -2,12 +2,11 @@
 import numpy as np
 from nuc_morph_analysis.lib.preprocessing import global_dataset_filtering, filter_data
 from nuc_morph_analysis.analyses.linear_regression.linear_regression import fit_linear_regression
+from nuc_morph_analysis.analyses.linear_regression.select_features import get_feature_list
 from nuc_morph_analysis.analyses.linear_regression.analysis_plots import (run_regression_workflow,
                                                                           plot_feature_cluster_correlations, 
                                                                           plot_heatmap, 
                                                                           plot_feature_contribution)
-from nuc_morph_analysis.analyses.linear_regression.select_features import (get_feature_list, 
-                                                                           TARGET_SETTINGS)
 
 #%%
 df_all = global_dataset_filtering.load_dataset_with_features()
