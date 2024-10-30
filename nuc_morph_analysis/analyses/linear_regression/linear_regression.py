@@ -47,7 +47,7 @@ def main(
     save_path.mkdir(parents=True, exist_ok=True)
 
     if len(cols) < 1:
-        cols = get_feature_list(["features", "lineage_feats"], None)
+        cols = get_feature_list(['start_intrinsic', 'lifetime_intrinsic', 'start_extrinsic', 'lifetime_extrinsic'], None)
 
     if not cached_dataframe:
         df_all = global_dataset_filtering.load_dataset_with_features()
