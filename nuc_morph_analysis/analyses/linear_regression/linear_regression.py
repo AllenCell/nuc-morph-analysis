@@ -41,7 +41,30 @@ def main(
     cached_dataframe=None,
     save_movie=False,
 ):
+    """
+    Main function to perform linear regression analysis.
 
+    Parameters
+    ----------
+    cols : list of str
+        List of column names to be used as features for the regression.
+    target : str
+        The target column name for the regression.
+    alpha_range : tuple of float
+        The range of alpha values (regularization strength) to be tested.
+    tolerance : float
+        The tolerance for the optimization.
+    save_path : str
+        The path where the results and plots will be saved.
+    cached_dataframe : pd.DataFrame, optional
+        A cached DataFrame to use for the analysis. If None, a new DataFrame will be created.
+    save_movie : bool, optional
+        If True, a movie of the regression process will be saved. Default is False.
+
+    Returns
+    -------
+    None
+    """
     save_path = Path(save_path)
     save_path = save_path / Path("linear_regression")
     save_path.mkdir(parents=True, exist_ok=True)
@@ -72,7 +95,7 @@ def fit_linear_regression(
 ):
     """
     data - track level features
-    cols - input features
+    cols - input features, must not contain rows with nans
     target - target to predict
     alpha - hyperparameter for lasso
     tol - tolerance to check drop in r^2 for finding best alpha (ex. 0.02)
@@ -102,11 +125,6 @@ def fit_linear_regression(
 
     # find best alpha for Lasso model
     for alpha_ind, this_alpha in tqdm(enumerate(alpha), total=len(alpha)):
-        # drop any nan rows
-        dropna_cols = cols + [target]
-        data = data.dropna(subset=dropna_cols)
-        print(f"number of tracks: {len(data)}")
-
         # permute columns if necessary
         if len(permute_cols) > 0:
             for col in permute_cols:
@@ -140,11 +158,10 @@ def fit_linear_regression(
         # break if permutation score is less than linear regression value (max possible)
         # with a tolerance
         # or if p_value > 0.05
-        rounded_permutation_score = round(score, 2)
         if alpha_ind == 0:
-            max_val = rounded_permutation_score
+            max_val = score
         if multiple_predictions:
-            if abs(rounded_permutation_score - max_val) > tol or (pvalue > 0.05):
+            if abs(score - max_val) > tol or (pvalue > 0.05):
                 break
 
         # if relatively equal to linear regression value, then continue
@@ -175,8 +192,8 @@ def fit_linear_regression(
         )
 
         # Save test r^2 and test MSE to dataframe
-        range_test_scores = [round(i, 2) for i in cv_model["test_r2"]]
-        range_errors = [round(i, 2) for i in cv_model["test_neg_mean_squared_error"]]
+        range_test_scores = [i for i in cv_model["test_r2"]]
+        range_errors = [i for i in cv_model["test_neg_mean_squared_error"]]
         test_sc = pd.DataFrame()
         test_sc[r"Test r$^2$"] = range_test_scores
         test_sc["Test MSE"] = range_errors
