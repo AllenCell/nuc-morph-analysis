@@ -241,7 +241,7 @@ LABEL_TABLE = {
     "density_at_B": "Starting density",
     "xy_aspect_at_B": "Starting XY aspect ratio",
     "SA_vol_ratio_at_B": "Starting surface area/volume ratio",
-    "early_transient_gr_90um": "Neighborhood avg. ~starting transient growth rate",
+    "early_neighbor_avg_dxdt_48_volume_90um": "Neighborhood avg. ~starting transient growth rate",
     'neighbor_avg_lrm_volume_90um_at_B': "Neighborhood avg. starting volume", 
     'neighbor_avg_lrm_height_90um_at_B': "Neighborhood avg. starting height",
     'neighbor_avg_lrm_density_90um_at_B': "Neighborhood avg. starting density",

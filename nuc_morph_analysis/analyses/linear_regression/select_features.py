@@ -25,7 +25,7 @@ FEATURE_GROUPS = {
         'neighbor_avg_lrm_height_90um_at_B',
         'neighbor_avg_lrm_xy_aspect_90um_at_B',
         'neighbor_avg_lrm_mesh_sa_90um_at_B',
-        'early_transient_gr_90um',   
+        'early_neighbor_avg_dxdt_48_volume_90um',   
     ],
     
     'lifetime_extrinsic': [ # extrinsic lifetime

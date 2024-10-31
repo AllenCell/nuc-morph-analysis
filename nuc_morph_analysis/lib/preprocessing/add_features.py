@@ -198,8 +198,8 @@ def get_early_transient_gr_of_neighborhood(df, scale, time_shift=24, window_leng
     for tid, dft in df.groupby("track_id"):
         t_calculate = dft.index_sequence.min() + time_shift
         time_window_mask = dft.index_sequence.between(t_calculate, t_calculate + window_length)
-        transient_gr_whole_colony = dft.loc[time_window_mask, "neighbor_avg_dxdt_48_volume_90um"].mean()
-        df.loc[df.track_id == tid, "early_transient_gr_90um"] = transient_gr_whole_colony * scale
+        transient_gr_90um = dft.loc[time_window_mask, "neighbor_avg_dxdt_48_volume_90um"].mean()
+        df.loc[df.track_id == tid, "early_neighbor_avg_dxdt_48_volume_90um"] = transient_gr_90um * scale
         
     return df
 
