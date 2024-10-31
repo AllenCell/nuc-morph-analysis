@@ -90,8 +90,8 @@ def run_regression(df_track_level_features, target, features, name, alpha, figdi
         multiple_predictions=False
     )
     print(f"Target {target}, Alpha: {alpha}. Feature group: {name}")
-    r_squared = round(all_test_sc["Test r$^2$"].mean(), 3)
-    std = round(all_test_sc["Test r$^2$"].std(), 3)    
+    r_squared = all_test_sc["Test r$^2$"].mean()
+    std = all_test_sc["Test r$^2$"].std()
     return {'target': target, 'feature_group': name, 'r_squared': r_squared, 'stdev': std, 'alpha': 0, 'feats_used': get_feature_list(features, target)}
     
 def run_regression_workflow(targets, feature_configs, df_track_level_features, alpha, figdir="figures/"):
@@ -224,7 +224,7 @@ def plot_feature_contribution(coef_alpha, test_sc, perms, target, alpha, fig_hei
         lower_bound = df_col["Coefficient Importance"].mean() - df_col["Coefficient Importance"].std()
         upper_bound = df_col["Coefficient Importance"].mean() + df_col["Coefficient Importance"].std()
         if lower_bound < 0 and upper_bound > 0 or df_col["Coefficient Importance"].mean() == 0:
-            coef_alpha = coef_alpha[coef_alpha["Column"] != col]
+            coef_alpha = coef_alpha[coef_alpha["Column"] != col] # if coeff importance is 0, dont plot feature
     
     coef_alpha['Magnitude coefficient importance'] = abs(coef_alpha['Coefficient Importance'])
     coef_alpha['Sign'] = coef_alpha['Coefficient Importance'].apply(lambda x: 'Positive' if x > 0 else 'Negative')

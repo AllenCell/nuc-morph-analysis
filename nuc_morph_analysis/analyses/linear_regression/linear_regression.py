@@ -79,6 +79,7 @@ def fit_linear_regression(
     save_path - location to save files
     save - whether to save movies and pngs
     permute_col - list of features to permute and replace with noise
+    multiple_predictions - Boolean, whether to stop when r^2 is reduced by tolerance
     """
     sns.set_context("talk")
     random_state = 2652124
