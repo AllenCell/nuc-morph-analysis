@@ -18,6 +18,10 @@ from nuc_morph_analysis.analyses.colony_context.colony_context_analysis import (
 )
 from nuc_morph_analysis.analyses.height.add_colony_time import add_colony_time_all_datasets
 from nuc_morph_analysis.lib.preprocessing import labeling_neighbors_helper
+from nuc_morph_analysis.lib.preprocessing.compute_change_over_time import add_dvdt_over_V
+from nuc_morph_analysis.analyses.volume import filter_out_dips
+
+
 
 def load_dataset_with_features(
     dataset="all_baseline",
@@ -101,12 +105,12 @@ def load_dataset_with_features(
         print("WARNING!: Loading and saving local dataset with features.")
         print("this is a redundant operation and may not be necessary")
     if save_local:
-        write_local(df_master, dataset, "with_features")
+        write_local(df_master, dataset, "with_features", remove_growth_outliers=remove_growth_outliers)
     return df_master
 
 
-def load_local_dataset(dataset, title):
-    filename = name_local_file(dataset, title)
+def load_local_dataset(dataset, title, remove_growth_outliers=False):
+    filename = name_local_file(dataset, title, remove_growth_outliers=remove_growth_outliers)
     if os.path.exists(filename):
         print("WARNING!: Loading local dataset with features.")
         print("!!!This saves time but may not be the most recent version!!!")
@@ -118,7 +122,7 @@ def load_local_dataset(dataset, title):
     return df_master
 
 
-def name_local_file(dataset, title, destdir=None, format="parquet"):
+def name_local_file(dataset, title, destdir=None, format="parquet", remove_growth_outliers=False):
     """
     Parameters
     ----------
@@ -132,11 +136,14 @@ def name_local_file(dataset, title, destdir=None, format="parquet"):
     if destdir is None:
         destdir = Path(__file__).parent.parent.parent.parent / "data"
     os.makedirs(destdir, exist_ok=True)
-    filename = f"{destdir}/{dataset}_{title}.{format}"
+    if not remove_growth_outliers:
+        filename = f"{destdir}/{dataset}_{title}_with_growth_outliers.{format}"
+    else:
+        filename = f"{destdir}/{dataset}_{title}.{format}"
     return filename
 
 
-def write_local(df, dataset, title, destdir=None, format="parquet"):
+def write_local(df, dataset, title, destdir=None, format="parquet", remove_growth_outliers=False):
     """
     Parameters
     ----------
@@ -146,7 +153,7 @@ def write_local(df, dataset, title, destdir=None, format="parquet"):
     format: str, optional
         "parquet" or "csv"
     """
-    filename = name_local_file(dataset, title, destdir, format)
+    filename = name_local_file(dataset, title, destdir, format, remove_growth_outliers)
     if format == "parquet":
         df.to_parquet(filename, index=True)
     elif format == "csv":
@@ -258,6 +265,16 @@ def process_full_tracks(df_all, thresh, pix_size, interval):
     df_full = add_growth_features.add_late_growth_rate_by_endpoints(df_full)
     df_full = add_growth_features.fit_tracks_to_time_powerlaw(df_full, "volume", interval)
 
+
+    df_full = filter_out_dips.run_script(df_full)
+    df_full = add_change_over_time(df_full, dxdt_feature_list=["fit_volume"], bin_interval_list=[48]) # compute growth rate for volumes from fits
+    df_full = compute_change_over_time.add_dvdt_over_V(df_full, columns=["dxdt_48_fit_volume"],volume_col='fit_volume') # compute growth rate normalized by volume
+    # df_full = add_neighborhood_avg_features.run_script(df_full, feature_list = ['dxdt_48_fit_volume','dxdt_48_fit_volume_per_V'])
+    df_full = compute_change_over_time.run_script(df_full, dxdt_feature_list=['smooth_volume_dips_removed_um','volume_dips_removed_um'], bin_interval_list=[48])
+    df_full = compute_change_over_time.add_dvdt_over_V(df_full,['dxdt_48_smooth_volume_dips_removed_um'],volume_col='smooth_volume_dips_removed_um')
+    df_full = compute_change_over_time.add_dvdt_over_V(df_full,['dxdt_48_volume_dips_removed_um'],volume_col='volume_dips_removed_um')
+
+
     df_full = add_features.sum_mitotic_events_along_full_track(df_full)
 
     # Add flag for use after merging back to main manifest
@@ -300,9 +317,6 @@ COLUMNS_TO_DROP = [
     "colony_non_circularity",
     "colony_non_circularity_scaled",
     "max_colony_depth",
-    "dxdt_48_volume_per_V",
-    "neighbor_avg_dxdt_48_volume_per_V_90um",
-    "neighbor_avg_dxdt_48_volume_per_V_whole_colony",
     "dataset",
     "height_percentile",
     "raw_full_zstack_path",
@@ -330,7 +344,7 @@ def remove_columns(df, column_list=COLUMNS_TO_DROP):
     return df
 
 
-def add_change_over_time(df):
+def add_change_over_time(df, dxdt_feature_list=None, bin_interval_list=None):
     """
     Adds new columns to the dataframe with the local rate of change for a given feature for a nucleus
 
@@ -345,7 +359,7 @@ def add_change_over_time(df):
         The dataframe with the new column added.
     """
     dfm = df.copy()
-    dfm = compute_change_over_time.run_script(dfm)
+    dfm = compute_change_over_time.run_script(dfm, dxdt_feature_list, bin_interval_list)
 
     # now check that all columns in df have the same dtype as columns in dfm
     for col in df.columns:
@@ -360,29 +374,16 @@ def add_change_over_time(df):
         )
     return dfm
 
-def add_dvdt_over_V(df):
-    """
-    adds dvdt over V for all timepoints if dxdt_{time}_volume columns exist
-
-    Parameters
-    ----------
-    df : pd.DataFrame
-        dataframe with columns ['dxdt_{time}_volume', 'volume']
-
-    Returns
-    -------
-    df : pd.DataFrame
-        dataframe with columns ['dvdt_{time}_volume_per_V'] added
-    """
-
-    dxdt_volume_cols = [col for col in df.columns if "dxdt" in col and "volume" in col]
-    for col in dxdt_volume_cols:
-        time = col.split("_")[1]
-        df[f"{col}_per_V"] = df[col] / df["volume"]
-    return df
-
-
 # %%
 if __name__ == "__main__":
     for dataset in ["all_baseline", "all_feeding_control", "all_drug_perturbation"]:
-        df = load_dataset_with_features(dataset, load_local=False, save_local=True, num_workers=32)
+        df = load_dataset_with_features(dataset,
+                                         load_local=False,
+                                           save_local=True,
+                                           remove_growth_outliers=False,
+                                             num_workers=32)
+        df = load_dataset_with_features(dataset,
+                                    load_local=False,
+                                    save_local=True,
+                                    remove_growth_outliers=True,
+                                        num_workers=32)
