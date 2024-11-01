@@ -7,5 +7,5 @@ runs:
 
     - name: Install dependencies
       shell: bash
-      # --only-keep flag in case the environment is restored from a stale cache.
-      run: pdm sync -d --only-keep
+      # --clean-unselected flag in case the environment is restored from a stale cache.
+      run: pdm sync -d --clean-unselected
