@@ -97,7 +97,7 @@ def fit_linear_regression(
     data - track level features
     cols - input features, must not contain rows with nans
     target - target to predict
-    alpha - hyperparameter for lasso
+    alpha - hyperparameter for lassogit 
     tol - tolerance to check drop in r^2 for finding best alpha (ex. 0.02)
     save_path - location to save files
     save - whether to save movies and pngs
@@ -121,7 +121,7 @@ def fit_linear_regression(
     if multiple_predictions:
         # remove 0 alpha due to convergence errors
         alpha = [i for i in alpha if i != 0]
-        alpha = [round(i, 1) for i in alpha] 
+
 
     # find best alpha for Lasso model
     for alpha_ind, this_alpha in tqdm(enumerate(alpha), total=len(alpha)):
@@ -247,6 +247,7 @@ def save_plots(all_coef_alpha, all_test_sc, all_perms, target, save_path):
             drop=True
         )
         this_perms = all_perms.loc[all_perms["alpha"] == alpha].reset_index(drop=True)
+        
         p_value = round(this_perms["p_value"].item(), 3)
         test_r2_mean = round(this_test_sc["Test r$^2$"].mean(), 2)
         test_r2_std = round(this_test_sc["Test r$^2$"].std() / 2, 2)
@@ -265,15 +266,15 @@ def save_plots(all_coef_alpha, all_test_sc, all_perms, target, save_path):
 
         g.fig.subplots_adjust(top=0.9)  # adjust the Figure in rp
         g.fig.suptitle(
-            f"Prediction of {get_plot_labels_for_metric(target)[1]}\nalpha={alpha}, test r\u00B2={test_r2_mean}±{test_r2_std}, P={p_value}"
+            f"Prediction of {get_plot_labels_for_metric(target)[1]}\nalpha={alpha:2f}, test r\u00B2={test_r2_mean}±{test_r2_std}, P={p_value}"
         )
         label_list = [
             get_plot_labels_for_metric(col)[1]
             for col in all_coef_alpha["Column"].unique()
         ]
         g.set_yticklabels(label_list)
-        print(f"Saving coefficients_{target}_alpha_{alpha}.png")
-        this_path = str(save_path / Path(f"coefficients_{target}_alpha_{alpha}.png"))
+        print(f"Saving coefficients_{target}_alpha_{alpha:2f}.png")
+        this_path = str(save_path / Path(f"coefficients_{target}_alpha_{alpha:2f}.png"))
         files.append(this_path)
 
         if not xlim:
