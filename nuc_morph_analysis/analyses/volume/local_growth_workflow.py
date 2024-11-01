@@ -161,7 +161,7 @@ column = "dxdt_48_volume"
 dfint.loc[df_t1.index.values, f"{column}_at_t1"] = df_t1.loc[df_t1.index.values, column]
 dfint.loc[df_t2.index.values, f"{column}_at_t2"] = df_t2.loc[df_t2.index.values, column]
 dfint["dxdt_t2-dxdt_t1"] = dfint[f"{column}_at_t2"] - dfint[f"{column}_at_t1"]
-
+yscale, ylabel, yunits, _ = get_plot_labels_for_metric("dxdt_t2-dxdt_t1")
 # %% scatter plot of alpha vs difference in late and early avg local growth rates for all individual trajectories
 plot_features.scatter_plot(
     dfint,

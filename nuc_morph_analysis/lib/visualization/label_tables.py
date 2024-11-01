@@ -57,7 +57,7 @@ def get_scale_factor_table(dataset="all_baseline"):
        
         ("mesh_sa"): pix_size**2,
         ("volume", "volume_sub"): pix_size**3,
-        ("fit_volume"): 1, #already scaled
+        ("fit_volume"): 1, #already scaled in code
         ("density", "avg_density", "avg_early_density", "avg_late_density"): 1 / pix_size**2,
         
         (
@@ -90,9 +90,16 @@ def get_scale_factor_table(dataset="all_baseline"):
         ("2d_area_nuc_cell_ratio"): 1,
     }
 
+    # add a couple of dxdt columns
+    dict1.update({'dxdt_48_fit_volume': 1/(time_interval_minutes/60)})
+    dict1.update({'dxdt_48_smooth_volume_dips_removed_um': 1/(time_interval_minutes/60)})
+    dict1.update({'dxdt_48_volume_dips_removed_um': 1/(time_interval_minutes/60)})
+
+    dict1.update({'dxdt_48_fit_volume_per_V': (1)/(time_interval_minutes/60)})
+    
     # add non dxdt columns and other non-traditional columns
-    temp_dict = get_one_to_one_dict(dict1)
     hours_per_frame = time_interval_minutes / 60
+    temp_dict = get_one_to_one_dict(dict1)
     for feature in DXDT_FEATURE_LIST:
         dict1.update(
             {
@@ -135,6 +142,8 @@ def get_scale_factor_table(dataset="all_baseline"):
             dict1.update({f"dvdt_t2-dvdt_t1_neighbors_{bin_interval}_{local_radius_str}": 1})
             dict1.update({f"dvdt_t2-dvdt_t1_self_{bin_interval}_{local_radius_str}": 1})
 
+    # important for figure 5 supp: do NOT REMOVE
+    dict1.update({"dxdt_t2-dxdt_t1": temp_dict['volume'] / (hours_per_frame)})
     return dict1
 
 
