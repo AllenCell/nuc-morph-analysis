@@ -56,10 +56,10 @@ def load_dataset_with_features(
             # Try to load the dataset from a local disk cache. This is risky: you have to make sure
             # you are deleting the cache manually when it is out of date, but it can save time.
             if dataset in ["all_baseline", "all_feeding_control", "all_drug_perturbation"]:
-                df_master = load_local_dataset(dataset, title="with_features")
+                df_master = load_local_dataset(dataset, title="with_features", remove_growth_outliers=remove_growth_outliers)
             else:
                 experiment_group = load_data.get_dataset_experiment_group_by_name(dataset)
-                df_master = load_local_dataset(f"all_{experiment_group}", title="with_features")
+                df_master = load_local_dataset(f"all_{experiment_group}", title="with_features",remove_growth_outliers=remove_growth_outliers)
                 df_master = df_master.loc[df_master.colony == dataset]
         except FileNotFoundError:
             load_local = False
@@ -110,7 +110,7 @@ def load_dataset_with_features(
 
 
 def load_local_dataset(dataset, title, remove_growth_outliers=False):
-    filename = name_local_file(dataset, title, remove_growth_outliers=remove_growth_outliers)
+    filename = name_local_file(dataset, title=title, remove_growth_outliers=remove_growth_outliers)
     if os.path.exists(filename):
         print("WARNING!: Loading local dataset with features.")
         print("!!!This saves time but may not be the most recent version!!!")
@@ -378,12 +378,13 @@ def add_change_over_time(df, dxdt_feature_list=None, bin_interval_list=None):
 if __name__ == "__main__":
     for dataset in ["all_baseline", "all_feeding_control", "all_drug_perturbation"]:
         df = load_dataset_with_features(dataset,
-                                         load_local=False,
-                                           save_local=True,
-                                           remove_growth_outliers=False,
-                                             num_workers=32)
-        df = load_dataset_with_features(dataset,
                                     load_local=False,
                                     save_local=True,
                                     remove_growth_outliers=True,
                                         num_workers=32)
+        df = load_dataset_with_features(dataset,
+                                         load_local=False,
+                                           save_local=True,
+                                           remove_growth_outliers=False,
+                                             num_workers=32)
+
