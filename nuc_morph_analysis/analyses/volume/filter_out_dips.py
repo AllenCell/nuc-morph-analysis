@@ -4,6 +4,7 @@ from nuc_morph_analysis.lib.visualization.plotting_tools import get_plot_labels_
 from scipy.signal import savgol_filter
 from scipy.signal import find_peaks, peak_widths
 import numpy as np
+import pandas as pd
 # find peaks on volume_sub_fit_volume
 # def find_drops_relative_to_fit(y,prominence=(40,None), width=(2,24),height=(20,None),threshold=(None,None),rel_height=0.5,wlen=25):
 def find_drops_relative_to_fit(y,
@@ -20,6 +21,23 @@ def find_drops_relative_to_fit(y,
     results_full = peak_widths(y, peaks, rel_height=rel_height)
     return peaks, props, results_full
 
+def dataframeify_peaks(y,track_id):
+    peaks, props, results_full = find_drops_relative_to_fit(y)
+    feats = {}
+    dflist = []
+    feats.update({'track_id':track_id})
+    if len(peaks)==0:
+        feats.update({'peak':np.nan})
+        for pi, peak in enumerate(peaks):
+            feats.update({f'peak':peak})
+            feats.update({f'peak_num':pi})
+            for k,v in props.items():
+                feats.update({k:v[pi]})
+            dflist.append(pd.DataFrame(data=feats.values(),index=feats.keys()).T)
+    return pd.concat(dflist)
+
+
+            
 def remove_peaks(y,props):
     boolmask = np.zeros(y.shape,dtype='bool')
     if props['left_bases'].size == 0:
@@ -37,28 +55,79 @@ def find_and_remove(y):
     y_filt,_ = remove_peaks(y,props)
     return y_filt
 
-def find_and_remove_from_pivot(y,select_return='mask',min_index=0):
+def find_and_remove_peaks_combined(vol_det_array, vol_array, index_sequence_vec, track_id_vec, peak_str='drops'):
+
+    # apply find_drops_relative_to_fit(y) to each column of vol_det_array
+    peaks_array, props_array, results_full_array = [], [], []
+    min_index = index_sequence_vec.min()
+    out = [find_and_remove_from_pivot_2d(vol_det_array[:,col],vol_array[:,col],min_index=min_index,peak_str=peak_str) for col in range(vol_det_array.shape[1])]
+    # flatten the output
+    keys = [f'volume_{peak_str}_mask',f'volume_{peak_str}_centers',f'volume_{peak_str}_has_peak',f'volume_{peak_str}_prom',f'volume_{peak_str}_left_bases',f'volume_{peak_str}_right_bases',f'volume_{peak_str}_magnitude', f'volume_{peak_str}_max_magnitude']
+
+    dfout_list = [pd.DataFrame(x,columns = index_sequence_vec, index=keys).T for x in out]
+    dfout_list = [x.reset_index().rename(columns={'index':'index_sequence'}).set_index('index_sequence') for x in dfout_list]
+    # keys = ['volume_drops_mask','volume_drops_centers','volume_drops_has_peak','volume_drops_prom','volume_drops_left_base','volume_drops_right_base','volume_drops_y2_magnitude']
+    dfout = pd.concat(dfout_list,axis=0,keys=track_id_vec, names=['track_id']).reset_index()
+    
+    return dfout
+    
+
+def find_and_remove_from_pivot_2d(y,y2,select_return='all',min_index=0,peak_str='drops'):
     peaks, props, results_full = find_drops_relative_to_fit(y)
     _,y_mask = remove_peaks(y,props)
 
     peak_centers_bool_array = np.zeros(y.shape,dtype='bool')
     peak_centers_bool_array[peaks] = True
 
+    has_peak_bool_array = np.zeros(y.shape,dtype='bool') if len(peaks)==0 else np.ones(y.shape,dtype='bool')
+    
     # initialize the peak_magnitude_array as nans
-    peak_magnitude_array = np.zeros(y.shape,dtype='float32') * np.nan
+    prom_array = np.zeros(y.shape,dtype='float32') * np.nan
     left_base_array = np.zeros(y.shape,dtype='float32') * np.nan
     right_base_array = np.zeros(y.shape,dtype='float32') * np.nan
-    center_val = np.zeros(y.shape,dtype='float32') * np.nan
+    y2_magnitude_array = np.zeros(y.shape,dtype='float32') * np.nan
     if len(peaks)>0:
-        for peak, prominence in zip(peaks,props['prominences']):
-            peak_magnitude_array[peak] = prominence
-        for peak, left_base in zip(peaks,props['left_bases']):
-            left_base_array[peak] = np.uint16(left_base + min_index)
-        for peak, right_base in zip(peaks,props['right_bases']):
-            right_base_array[peak] = np.uint16(right_base + min_index)
-        for peak, center in zip(peaks,props['peak_heights']):
-            center_val[peak] = np.uint16(peak + min_index)
+        for pi, peak in enumerate(peaks):
+            prom_array[peak] = props['prominences'][pi]
+            left_base_array[peak] = props['left_bases'][pi].copy() + min_index
+            right_base_array[peak] = props['right_bases'][pi] + min_index
 
+            left_base = int(props['left_bases'][pi].copy())
+            y2_magnitude_array[peak] = y2[left_base] - y2[peak]
+    
+    func = np.nanmin if peak_str=='drops' else np.nanmax
+    max_val = func(y2_magnitude_array) if len(peaks)>0 else np.nan
+    max_peak_val_array = np.ones(y.shape,dtype='float32') * max_val
+    if select_return=='all':
+        return y_mask, peak_centers_bool_array, has_peak_bool_array, prom_array, left_base_array, right_base_array, y2_magnitude_array, max_peak_val_array
+
+
+def find_and_remove_from_pivot(y,select_return='mask',min_index=0,y2=None):
+    peaks, props, results_full = find_drops_relative_to_fit(y)
+    _,y_mask = remove_peaks(y,props)
+
+    peak_centers_bool_array = np.zeros(y.shape,dtype='bool')
+    peak_centers_bool_array[peaks] = True
+
+    has_peak_bool_array = np.zeros(y.shape,dtype='bool') if len(peaks)==0 else np.ones(y.shape,dtype='bool')
+    
+    # initialize the peak_magnitude_array as nans
+    prom_array = np.zeros(y.shape,dtype='float32') * np.nan
+    left_base_array = np.zeros(y.shape,dtype='float32') * np.nan
+    right_base_array = np.zeros(y.shape,dtype='float32') * np.nan
+    y2_magnitude_array = np.zeros(y.shape,dtype='float32') * np.nan
+    peak_center_val_array = np.zeros(y.shape,dtype='float32') * np.nan
+    if len(peaks)>0:
+        for pi, peak in enumerate(peaks):
+            prom_array[peak] = props['prominences'][pi]
+            left_base_array[peak] = props['left_bases'][pi] + min_index
+            right_base_array[peak] = props['right_bases'][pi] + min_index
+            peak_center_val_array[peak] = peak + min_index
+
+        if y2 is not None:
+            for pi, peak in enumerate(peaks):
+                left_base = int(left_base_array[peak])
+                y2_magnitude_array[peak] = y2[left_base] - y2[peak]
 
 
     if select_return=='mask':
@@ -66,15 +135,15 @@ def find_and_remove_from_pivot(y,select_return='mask',min_index=0):
     elif select_return=='center':
         return peak_centers_bool_array
     elif select_return=='center_val':
-        return center_val
+        return peak_center_val_array
     elif select_return=='magnitude':
-        return peak_magnitude_array
+        return prom_array
     elif select_return=='left_base':
         return left_base_array
     elif select_return=='right_base':
         return right_base_array
     elif select_return=='all':
-        return y_mask, peak_centers_bool_array, peak_magnitude_array, left_base_array, right_base_array
+        return y_mask, peak_centers_bool_array, has_peak_bool_array, prom_array, left_base_array, right_base_array
 
 def get_fit_volume_minus_smoothed_y(volume,fit_volume, return_all=False):
     smooth_volume = savgol_filter(volume, window_length=12, polyorder=2, mode='constant', cval=np.nan)
@@ -198,29 +267,39 @@ def filter_out_volume_drops(dfd, volume_cols,find_drops=True,return_intermediate
         peak_str = "jumps"
     dfdict.update({f'volume_sg_sub_fit_{peak_str}':dfp_vol_sg_sub_fit})
 
+
     # step 4: perform peak finding and get peak features
-    # now find peaks and remove them in the volume_sub_fit_volume
-    # using find_and_remove_from_pivot
-    dfp_mask = dfp_vol_sg_sub_fit.apply(lambda x: find_and_remove_from_pivot(x,select_return='mask'),axis=0)
-    dfp_centers = dfp_vol_sg_sub_fit.apply(lambda x: find_and_remove_from_pivot(x,select_return='center'),axis=0)
-    dfp_magnitude = dfp_vol_sg_sub_fit.apply(lambda x: find_and_remove_from_pivot(x,select_return='magnitude'),axis=0)
     
-    min_index_value = dfp_vol_sg_sub_fit.index.min()
+    #ALT approach. the only step that is difficult is to apply the mask and interpolate the values
+    out = find_and_remove_peaks_combined(dfp_vol_sg_sub_fit.values, dfp['volume'].values, dfp_vol_sg_sub_fit.index.values, dfp_vol_sg_sub_fit.columns.values, peak_str=peak_str)
+    cols = [x for x in out.columns if x not in ['index_sequence','track_id']]
+    dfpeaks = out.pivot(index="index_sequence", columns="track_id", values=cols)
+    
+    # # now find peaks and remove them in the volume_sub_fit_volume
+    # # using find_and_remove_from_pivot
+    # dfp_mask = dfp_vol_sg_sub_fit.apply(lambda x: find_and_remove_from_pivot(x,select_return='mask'),axis=0)
+    # dfp_centers = dfp_vol_sg_sub_fit.apply(lambda x: find_and_remove_from_pivot(x,select_return='center'),axis=0)
+    # dfp_magnitude = dfp_vol_sg_sub_fit.apply(lambda x: find_and_remove_from_pivot(x,select_return='magnitude'),axis=0)
+    
+    # min_index_value = dfp_vol_sg_sub_fit.index.min()
 
-    dfp_left_base = dfp_vol_sg_sub_fit.apply(lambda x: find_and_remove_from_pivot(x,select_return='left_base',min_index=min_index_value),axis=0) 
-    dfp_right_base = dfp_vol_sg_sub_fit.apply(lambda x: find_and_remove_from_pivot(x,select_return='right_base',min_index=min_index_value),axis=0) 
-    dfp_center_vals = dfp_vol_sg_sub_fit.apply(lambda x: find_and_remove_from_pivot(x,select_return='center_val',min_index=min_index_value),axis=0)
+    # dfp_left_base = dfp_vol_sg_sub_fit.apply(lambda x: find_and_remove_from_pivot(x,select_return='left_base',min_index=min_index_value),axis=0) 
+    # dfp_right_base = dfp_vol_sg_sub_fit.apply(lambda x: find_and_remove_from_pivot(x,select_return='right_base',min_index=min_index_value),axis=0) 
+    # dfp_center_vals = dfp_vol_sg_sub_fit.apply(lambda x: find_and_remove_from_pivot(x,select_return='center_val',min_index=min_index_value),axis=0)
+    for col in cols:
+        dfdict.update({f'{col}':dfpeaks[col]})
+    # dfdict.update({f'volume_{peak_str}_mask':dfp_mask})
+    # dfdict.update({f'volume_{peak_str}_centers':dfp_centers})
+    # dfdict.update({f'volume_{peak_str}_props_magnitude':dfp_magnitude})
+    # dfdict.update({f'volume_{peak_str}_left_bases':dfp_left_base})
+    # dfdict.update({f'volume_{peak_str}_right_bases':dfp_right_base})
+    # dfdict.update({f'volume_{peak_str}_centers_vals':dfp_center_vals})
 
-    dfdict.update({f'volume_{peak_str}_mask':dfp_mask})
-    dfdict.update({f'volume_{peak_str}_centers':dfp_centers})
-    dfdict.update({f'volume_{peak_str}_props_magnitude':dfp_magnitude})
-    dfdict.update({f'volume_{peak_str}_left_bases':dfp_left_base})
-    dfdict.update({f'volume_{peak_str}_right_bases':dfp_right_base})
-    dfdict.update({f'volume_{peak_str}_centers_vals':dfp_center_vals})
-
-
+    # compute the volume difference from center_vals and left_base
 
     # step 5: remove the peaks from the volume data
+    mask_col = f'volume_{peak_str}_mask'
+    dfp_mask = dfdict[mask_col].astype('bool')
     nanmask = np.ones(dfp_mask.shape, dtype='float')
     nanmask[dfp_mask.values] = np.nan
     dfp_vol1_unfilled = dfp_vol_sg * nanmask
@@ -256,6 +335,17 @@ def filter_out_volume_drops(dfd, volume_cols,find_drops=True,return_intermediate
             dfm1 = df.stack().reset_index()
             dfm1.rename(columns={0:key},inplace=True)
             dfm = dfm.merge(dfm1,on=['index_sequence','track_id'],how='outer')
+    
+    # set the datatypes (because they are lost in the pivot operation)
+    
+    # set data types
+    for col in dfm.columns:
+        if col in [f'volume_{peak_str}_mask',f'volume_{peak_str}_centers',f'volume_{peak_str}_has_peak']:
+            dfm[col] = dfm[col].astype('bool')
+        elif col in ['track_id','index_sequence']:
+            dfm[col] = dfm[col].astype('int')
+        else:
+            dfm[col] = dfm[col].astype('float')
         
     # now recover the CellId values
     dfmi = dfm.set_index(["index_sequence", "track_id"])
