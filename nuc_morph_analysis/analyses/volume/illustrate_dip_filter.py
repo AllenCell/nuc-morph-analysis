@@ -44,7 +44,7 @@ dftracks_out = filter_out_dips.run_script(dftracks,return_intermediates=False)
 
    #%%
 
-def add_peaks_to_plot(curr_ax,dftrack,ycol,peak_str = 'drops',yscale=1):
+def add_peaks_to_plot(curr_ax,dftrack,ycol,peak_str = 'jumps',yscale=1):
     xscale, xlabel, xunit, _ = get_plot_labels_for_metric("index_sequence")
     # yscale, ylabel, yunit, _ = get_plot_labels_for_metric("volume")
 
@@ -59,20 +59,28 @@ def add_peaks_to_plot(curr_ax,dftrack,ycol,peak_str = 'drops',yscale=1):
         left_base = int(dftrack.loc[peak,f"volume_{peak_str}_left_bases"])
         vol_at_left_base = dftrack.loc[left_base,ycol] * yscale
         
-        curr_ax.scatter(left_base * xscale,vol_at_left_base,color='k',marker='.',s=10)
-        ymin = np.min([vol_at_left_base,ypeak])
-        ymax = np.max([vol_at_left_base,ypeak])
+        curr_ax.scatter(left_base * xscale,vol_at_left_base,color='c',marker='.',s=10,label='left base')
+        
+        # ymin = np.min([vol_at_left_base,ypeak])
+        # ymax = np.max([vol_at_left_base,ypeak])
 
-        right_base = int(dftrack.loc[peak,f"volume_{peak_str}_right_bases"])
-        vol_at_right_base = dftrack.loc[right_base,ycol] * yscale
+        # right_base = int(dftrack.loc[peak,f"volume_{peak_str}_right_bases"])
+        # vol_at_right_base = dftrack.loc[right_base,ycol] * yscale
 
-        center = int(dftrack.loc[peak,f"volume_{peak_str}_centers_vals"])
+        # center = int(dftrack.loc[peak,f"volume_{peak_str}_centers_vals"])
 
-        curr_ax.scatter(right_base * xscale,vol_at_right_base,color='y',marker='.',s=10)
-        ymin = np.min([vol_at_left_base,ypeak])
-        ymax = np.max([vol_at_left_base,ypeak])
+        # curr_ax.scatter(right_base * xscale,vol_at_right_base,color='y',marker='.',s=10)
+        # ymin = np.min([vol_at_left_base,ypeak])
+        # ymax = np.max([vol_at_left_base,ypeak])
 
-        curr_ax.plot([xpeak,xpeak],[ymin,ymax],color='tab:red',linestyle='--')
+        # curr_ax.plot([xpeak,xpeak],[ymin,ymax],color='tab:red',linestyle='--')
+
+
+        props_magnitude = dftrack.loc[peak,f"volume_{peak_str}_magnitude"] * (0.108**3)
+        print(f"peak {peak} magnitude {props_magnitude}")
+        ymin = ypeak
+        ymax = ypeak + props_magnitude
+        curr_ax.plot([xpeak,xpeak],[ymin,ymax],color='r',linewidth=2,zorder=-200,linestyle='-',label='props magnitude')
     return dftrack
 
 def plot_peak_detection_validation(dftrack,peak_str = 'drops'):
@@ -110,10 +118,9 @@ def plot_peak_detection_validation(dftrack,peak_str = 'drops'):
         if ycol in ['fit_volume_interpolated','volume_sg']:
             yscale = 1
         y = dftrack[ycol].values * yscale
-        linewidth = 2 if ycol == 'volume_interpolated' else 1
+        linewidth = 2
         curr_ax.plot(x,y,label=ycol,color=colors[yi],linewidth=linewidth)
     curr_ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.2))
-
 
     yscale, _, _, _ = get_plot_labels_for_metric("volume")
 
@@ -122,10 +129,9 @@ def plot_peak_detection_validation(dftrack,peak_str = 'drops'):
     ycol = f'volume_sg_sub_fit_{peak_str}'
     y = dftrack[ycol].values
     curr_ax.plot(x,y,color='k',linewidth=2,label='smoothed vol - fit',zorder=-100)
-    add_peaks_to_plot(curr_ax,dftrack,ycol,peak_str = 'drops')
+    add_peaks_to_plot(curr_ax,dftrack,ycol,peak_str = peak_str)
     curr_ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.2))
 
-    
 
     # ax3
     curr_ax = ax[3]
@@ -136,9 +142,8 @@ def plot_peak_detection_validation(dftrack,peak_str = 'drops'):
     xpeak = x[mask]
     ypeak = y[mask]
     curr_ax.scatter(xpeak,ypeak,color='y',marker='.',s=2,label='masked peaks')
-    add_peaks_to_plot(curr_ax,dftrack,ycol,peak_str = 'drops',yscale=yscale)
+    add_peaks_to_plot(curr_ax,dftrack,ycol,peak_str = peak_str,yscale=yscale)
     curr_ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.2))
-
 
     # ax4
     curr_ax = ax[4]
@@ -149,14 +154,16 @@ def plot_peak_detection_validation(dftrack,peak_str = 'drops'):
     ypeak = y[mask]
     curr_ax.plot(x,y,color='k',linewidth=2,label='volume with peaks removed',zorder=-200)
     curr_ax.scatter(xpeak,ypeak,color='y',marker='.',s=2,label='masked peaks')
+    
     curr_ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.2))
+
 
 
     plt.suptitle(f"track {track_id}")
     plt.show()
 
 for track in track_list:
-    plot_peak_detection_validation(dftracks_out[dftracks_out['track_id'] == track])
+    plot_peak_detection_validation(dftracks_out[dftracks_out['track_id'] == track],peak_str = 'jumps')
 #%%
 
 

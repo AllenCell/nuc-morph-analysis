@@ -10,7 +10,7 @@ import pandas as pd
 def find_drops_relative_to_fit(y,
                                prominence=(20,None),
                                  width=(2,24),
-                                 height=(20,None),
+                                 height=(None,None),
                                  threshold=(None,None),
                                  rel_height=1,
                                  wlen=25):
@@ -145,13 +145,13 @@ def find_and_remove_from_pivot(y,select_return='mask',min_index=0,y2=None):
     elif select_return=='all':
         return y_mask, peak_centers_bool_array, has_peak_bool_array, prom_array, left_base_array, right_base_array
 
-def get_fit_volume_minus_smoothed_y(volume,fit_volume, return_all=False):
-    smooth_volume = savgol_filter(volume, window_length=12, polyorder=2, mode='constant', cval=np.nan)
-    y = smooth_volume - fit_volume
-    if return_all:
-        return y, fit_volume, smooth_volume
-    else:
-        return y
+# def get_fit_volume_minus_smoothed_y(volume,fit_volume, return_all=False):
+#     smooth_volume = savgol_filter(volume, window_length=12, polyorder=2, mode='constant', cval=np.nan)
+#     y = smooth_volume - fit_volume
+#     if return_all:
+#         return y, fit_volume, smooth_volume
+#     else:
+#         return y
     
 
 def get_fit_volume_minus_smoothed_y_from_df(dftrack, return_all=False):
@@ -210,7 +210,7 @@ def plot_features_and_peaks(dftrack,volume,smooth_volume,fit_volume,peaks,props,
 
 
 #%%
-def filter_out_volume_drops(dfd, volume_cols,find_drops=True,return_intermediates=False):
+def filter_out_volume_drops(dfd, volume_cols,find_drops=True,use_detrended=False,return_intermediates=False):
     """
     Remove the volume dips from the volume data
 
@@ -222,6 +222,10 @@ def filter_out_volume_drops(dfd, volume_cols,find_drops=True,return_intermediate
         list of columns to needed to find and filter out volume dips
     find_drops : bool
         if True, find and remove the volume dips (input to peak finder is inverse of detrended+smoothed volume)
+    use_detrended : bool
+        if True, use the detrended volume data (subtracted by the power law fit volume)
+    return_intermediates : bool
+        if True, return the intermediate dataframes for validation/visualization
 
     Returns
     -------
@@ -246,7 +250,6 @@ def filter_out_volume_drops(dfd, volume_cols,find_drops=True,return_intermediate
     dfdict.update({'fit_volume_interpolated':dfp['fit_volume']})
 
     # now apply savitzky golay filter to each column
-    # dfp_sg = dfp.apply(lambda x: savgol_filter(x, window_length=12, polyorder=2, mode='constant', cval=np.nan), axis=0)
     yscale, _, _, _ = get_plot_labels_for_metric("volume")
 
     #step 1: apply savgol filter to each column
@@ -259,19 +262,24 @@ def filter_out_volume_drops(dfd, volume_cols,find_drops=True,return_intermediate
     dfdict.update({'volume_sg_sub_fit':dfp_vol_sg_sub_fit})
 
 
-    # step 3: invert the detrended data to find the peaks (if find_drops is True)
+    # step 3: invert the input data (smoothed volume or detrended data) to find the peaks (if find_drops is True)
+    drop_scale = -1 
     if find_drops:
-        dfp_vol_sg_sub_fit = dfp_vol_sg_sub_fit * -1
+        drop_scale = -1
         peak_str = "drops"
     else:
         peak_str = "jumps"
+        drop_scale = 1
+
+    input = dfp_vol_sg_sub_fit * drop_scale if use_detrended else dfp_vol_sg * drop_scale
+
     dfdict.update({f'volume_sg_sub_fit_{peak_str}':dfp_vol_sg_sub_fit})
 
 
     # step 4: perform peak finding and get peak features
     
     #ALT approach. the only step that is difficult is to apply the mask and interpolate the values
-    out = find_and_remove_peaks_combined(dfp_vol_sg_sub_fit.values, dfp['volume'].values, dfp_vol_sg_sub_fit.index.values, dfp_vol_sg_sub_fit.columns.values, peak_str=peak_str)
+    out = find_and_remove_peaks_combined(input.values, dfp['volume'].values, dfp_vol_sg_sub_fit.index.values, dfp_vol_sg_sub_fit.columns.values, peak_str=peak_str)
     cols = [x for x in out.columns if x not in ['index_sequence','track_id']]
     dfpeaks = out.pivot(index="index_sequence", columns="track_id", values=cols)
     
@@ -368,7 +376,7 @@ def filter_out_volume_drops(dfd, volume_cols,find_drops=True,return_intermediate
 
 
 # %%
-def run_script(df=None,volume_cols=['volume','fit_volume'],return_intermediates=False):
+def run_script(df=None,volume_cols=['volume','fit_volume'],use_detrended=False,return_intermediates=False):
     """
     run the workflow
 
@@ -379,6 +387,8 @@ def run_script(df=None,volume_cols=['volume','fit_volume'],return_intermediates=
         with columns ['colony','track_id','index_sequence','label_img']+time_colsion
     volume_cols : list
         list of columns to needed to find and filter out volume dips
+    use_detrended : bool
+        if True, use the detrended volume data (subtracted by the power law fit volume)
     return_intermediates : bool
         if True, return the intermediate dataframes for validation/visualization
 
@@ -404,7 +414,7 @@ def run_script(df=None,volume_cols=['volume','fit_volume'],return_intermediates=
 
     for find_drops in [True,False]: # find drops and jumps
         # returns dfo with index=CellId
-        dfo = filter_out_volume_drops(dfd, volume_cols,find_drops=find_drops,return_intermediates=return_intermediates)
+        dfo = filter_out_volume_drops(dfd, volume_cols,find_drops=find_drops,use_detrended=use_detrended,return_intermediates=return_intermediates)
         new_columns = [x for x in dfo.columns.tolist() if x not in dforig.columns.tolist()]
         # add new columns to original dataframe
         dforig.loc[dfo.index.values, new_columns] = dfo.loc[dfo.index.values, new_columns]
