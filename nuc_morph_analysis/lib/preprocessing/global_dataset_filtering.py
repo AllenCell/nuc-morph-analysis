@@ -9,6 +9,7 @@ from nuc_morph_analysis.lib.preprocessing import (
     is_tp_outlier,
     add_features,
     add_neighborhood_avg_features,
+    add_neighborhood_avg_features_lrm,
     compute_change_over_time,
 )
 from nuc_morph_analysis.analyses.volume import add_growth_features
@@ -17,6 +18,7 @@ from nuc_morph_analysis.analyses.colony_context.colony_context_analysis import (
     add_fov_touch_timepoint_for_colonies,
 )
 from nuc_morph_analysis.analyses.height.add_colony_time import add_colony_time_all_datasets
+from nuc_morph_analysis.lib.visualization.plotting_tools import get_plot_labels_for_metric
 from nuc_morph_analysis.lib.preprocessing import labeling_neighbors_helper
 
 def load_dataset_with_features(
@@ -198,6 +200,9 @@ def process_all_tracks(df, dataset, remove_growth_outliers, num_workers):
     df = add_features.add_non_interphase_size_shape_flag(df)
     df = add_change_over_time(df)
     df = add_neighborhood_avg_features.run_script(df, num_workers=num_workers)
+    df = add_neighborhood_avg_features_lrm.run_script(df, num_workers=num_workers, 
+                                                feature_list=["volume", "height", "xy_aspect", "mesh_sa", "2d_area_nuc_cell_ratio"],
+                                                exclude_outliers=True)
 
     if dataset == "all_baseline":
         df = add_colony_time_all_datasets(df)
@@ -245,7 +250,7 @@ def process_full_tracks(df_all, thresh, pix_size, interval):
         df_full = add_features.add_location_at(df_full, frame, "y")
         df_full = add_features.add_time_at(df_full, frame, interval)
         df_full = add_features.add_colony_time_at(df_full, frame, interval)
-
+    
     df_full = add_features.add_duration_in_frames(df_full, "Ff", "frame_transition")
     df_full = add_features.add_duration_in_frames(df_full, "frame_transition", "Fb")
     df_full = add_features.add_duration_in_frames(df_full, "Ff", "Fb")
@@ -256,8 +261,15 @@ def process_full_tracks(df_all, thresh, pix_size, interval):
     df_full = add_growth_features.add_early_growth_rate(df_full, interval)
     df_full = add_growth_features.add_late_growth_rate_by_endpoints(df_full)
     df_full = add_growth_features.fit_tracks_to_time_powerlaw(df_full, "volume", interval)
-
+    
+    # For LRM
+    df_full = add_features.add_lineage_features(df_full, feature_list=['volume_at_B', 'duration_BC', 'volume_at_C', 'delta_volume_BC'])
+    df_full = add_features.add_feature_at(df_full, "frame_transition", 'height', 'height_percentile', pix_size) 
+    df_full = add_features.add_features_at_transition(df_full)
+    df_full = add_features.get_early_transient_gr_of_neighborhood(df_full, scale=get_plot_labels_for_metric('neighbor_avg_dxdt_48_volume_90um')[0])
     df_full = add_features.sum_mitotic_events_along_full_track(df_full)
+    df_full = add_features.normalize_sum_events(df_full)
+    df_full = add_features.add_mean_features(df_full)
 
     # Add flag for use after merging back to main manifest
     df_full = add_features.add_full_track_flag(df_full)

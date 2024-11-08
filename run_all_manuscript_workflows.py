@@ -58,6 +58,9 @@ class Workflows:
         
     def supplemental_figure_cell_health():
         import nuc_morph_analysis.analyses.cell_health.cell_health_workflow
+        
+    def supplemental_figure_linear_regression_model():
+        import nuc_morph_analysis.analyses.linear_regression.supplemental_lrm_figure_workflow
 
 
 ALL_WORKFLOWS = get_jobs(Workflows)
