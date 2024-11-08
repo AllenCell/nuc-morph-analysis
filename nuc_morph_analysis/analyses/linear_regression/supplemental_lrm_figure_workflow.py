@@ -65,6 +65,7 @@ for target, fig_height in zip(['duration_BC', 'delta_volume_BC'], [6, 2]):
                                                         tol=TOLERANCE, save_path=FIGDIR, save=False)
     plot_feature_contribution(df_alpha, df_test, df_coeff, target, computed_alpha[target], fig_height, FIGDIR)
 
-#%% Plot feature correlations using all full tracks
-plot_feature_cluster_correlations(df_track_level_features, get_feature_list(CONFIG['all_features'], None), FIGDIR)
-#%%
+#%% Plot feature correlations using lineage full tracks
+plot_feature_cluster_correlations(data, get_feature_list(CONFIG['all_features'], None), FIGDIR)
+
+# %%
