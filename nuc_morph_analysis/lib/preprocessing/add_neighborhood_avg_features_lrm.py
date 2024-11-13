@@ -7,8 +7,8 @@ from nuc_morph_analysis.lib.preprocessing.load_data import get_dataset_pixel_siz
 from nuc_morph_analysis.lib.preprocessing import filter_data
 from nuc_morph_analysis.lib.preprocessing.filter_data import all_timepoints_minimal_filtering
 
-LOCAL_RADIUS_LIST = [90, -1]
-LOCAL_RADIUS_STR_LIST = ["90um", "whole_colony"]
+LOCAL_RADIUS_LIST = [90]
+LOCAL_RADIUS_STR_LIST = ["90um"]
 NEIGHBOR_FEATURE_LIST = ["volume"]
 NEIGHBOR_PREFIX = "neighbor_avg_lrm_"
 
