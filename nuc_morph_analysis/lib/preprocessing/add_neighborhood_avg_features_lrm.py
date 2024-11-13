@@ -143,7 +143,7 @@ def run_script(
         dfi = df[df["colony"] == colony]
         pass_cols = ["index_sequence", "colony", "track_id", "centroid_x", "centroid_y"]
 
-        columns = feature_list + [x for x in dfi.columns if "dxdt" in x]
+        columns = feature_list
 
         # first find the unique index_sequence values
         index_sequences = dfi["index_sequence"].unique()
