@@ -474,7 +474,7 @@ def get_sister(df, pid, current_tid):
     sister_id = [tid for tid in tids if tid != current_tid]
     return sister_id
 
-def add_lineage_features(df, feature_list):
+def add_lineage_features(df, feature_list, relationship_list=['mother', 'sister']):
     """
     If the full track has a full track sister or mother, add the given relative's feature as a single track feature column in the dataframe. 
     
@@ -484,6 +484,8 @@ def add_lineage_features(df, feature_list):
         The dataframe
     feature_list: list
         List of column names
+    relationship_list: list
+        List of relationships to add
         
     Returns
     -------
@@ -492,17 +494,19 @@ def add_lineage_features(df, feature_list):
     """
     
     for feature in feature_list:
-        df[f"mothers_{feature}"] = np.nan
-        df[f"sisters_{feature}"] = np.nan
+        if 'mother' in relationship_list:
+            df[f"mothers_{feature}"] = np.nan
+        if 'sister' in relationship_list:
+            df[f"sisters_{feature}"] = np.nan
 
     df_lineage = df[df['colony'].isin(['small', 'medium'])]
 
     for tid, dft in df_lineage.groupby("track_id"):
         parent_id = dft.parent_id.values[0]
-        if parent_id != -1 and parent_id in df_lineage.track_id.unique():
+        if 'mother' in relationship_list and parent_id != -1 and parent_id in df_lineage.track_id.unique():
             for feature in feature_list:
                 df.loc[df.track_id == tid, f"mothers_{feature}"] = df_lineage.loc[df_lineage.track_id == parent_id, feature].values[0]
-        if parent_id != -1:        
+        if 'sister' in relationship_list and parent_id != -1:        
             sister_id = get_sister(df_lineage, parent_id, tid)
             if len(sister_id) > 0:
                 for feature in feature_list:
