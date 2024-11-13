@@ -263,7 +263,7 @@ def process_full_tracks(df_all, thresh, pix_size, interval):
     df_full = add_growth_features.fit_tracks_to_time_powerlaw(df_full, "volume", interval)
     
     # For LRM
-    df_full = add_features.add_lineage_features(df_full, feature_list=['volume_at_B', 'duration_BC', 'volume_at_C', 'delta_volume_BC'])
+    df_full = add_features.add_lineage_features(df_full, ['volume_at_B', 'duration_BC', 'delta_volume_BC'], ['sister'])
     df_full = add_features.add_feature_at(df_full, "frame_transition", 'height', 'height_percentile', pix_size) 
     df_full = add_features.add_features_at_transition(df_full)
     df_full = add_features.get_early_transient_gr_of_neighborhood(df_full, scale=get_plot_labels_for_metric('neighbor_avg_dxdt_48_volume_90um')[0])
