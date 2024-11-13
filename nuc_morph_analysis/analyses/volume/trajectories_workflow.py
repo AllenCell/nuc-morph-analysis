@@ -14,7 +14,7 @@ plt.rcParams["pdf.fonttype"] = 42
 plt.rcParams["font.family"] = "Arial"
 plt.rcParams["font.size"] = 18
 plt.rcParams["figure.figsize"] = [7, 5]
-figdir = "volume/figures/trajectories_fit"
+figdir = "volume/figures/trajectories"
 
 # %% load data
 df = global_dataset_filtering.load_dataset_with_features()
@@ -24,20 +24,20 @@ df_track_level_features = filter_data.track_level_features(df_full)
 # %%
 # Plot all tracks all datasets synchronized in real or normalized time
 for time in ["sync_time_Ff", "normalized_time"]:
-    plot_tracks.plot_all_tracks_synchronized(df_full, figdir, "fit_volume", time)
+    plot_tracks.plot_all_tracks_synchronized(df_full, figdir, "volume", time)
 
 # %% MAIN FIGURE PANELS
 
 # %%
 # Plot single sample track from same nucleus as in formation/breakdown figure
 
-yscale, ylabel, yunits, _ = get_plot_labels_for_metric("fit_volume")
+yscale, ylabel, yunits, _ = get_plot_labels_for_metric("volume")
 xscale, xlabel, xunits, _ = get_plot_labels_for_metric("index_sequence")
 
 sample_track_id = EXAMPLE_TRACKS["transition_point_workflow"]
 df_sample = df.loc[df["track_id"] == sample_track_id]
 df_sample = df_sample.sort_values("index_sequence")
-plt.plot(df_sample["index_sequence"] * xscale, df_sample["fit_volume"].values * yscale, color="k")
+plt.plot(df_sample["index_sequence"] * xscale, df_sample["volume"].values * yscale, color="k")
 plt.xlabel(f"{xlabel} {xunits}")
 plt.ylabel(f"{ylabel} {yunits}")
 plt.vlines(df_sample["Ff"].values[0] * xscale, 300, 1200, color="k", linestyle=":")

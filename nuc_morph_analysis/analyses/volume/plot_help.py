@@ -85,7 +85,7 @@ def group_and_extract(dfcc,xcol,ycol):
     dfg.rename(columns={'<lambda_0>':'5th','<lambda_1>':'95th'},inplace=True)
     return dfg
 
-def plot_dfg(dfcc,xcol,ycol,labelstr,curr_ax,plot_type='mean',colorby=None):
+def plot_dfg(dfcc,xcol,ycol,labelstr,curr_ax,plot_type='mean',colorby=None,required_N=10):
     """
     plot the mean of the value (ycol) binned by xcol from dfcc
     along with the 90% interpercentile range
@@ -108,6 +108,8 @@ def plot_dfg(dfcc,xcol,ycol,labelstr,curr_ax,plot_type='mean',colorby=None):
     colorby : str, optional
         color to plot. The default is None.
         can be 'colony','cellcycle', or a color
+    required_N : int, optional
+        required number of valid datapoitns for averaging at a given timepoint to be included
 
     Returns
     -------
@@ -116,7 +118,11 @@ def plot_dfg(dfcc,xcol,ycol,labelstr,curr_ax,plot_type='mean',colorby=None):
     """
     # remove rows with less than 10 counts
     dfg = group_and_extract(dfcc,xcol,ycol)
-    dfg= dfg[dfg['count'] >= 10]
+    dfgindex = dfg['count']<required_N
+    print(f" timepoints with less than {required_N} counts: {dfg[dfgindex].index.values}")
+    dfg= dfg[dfg['count'] >= required_N]
+    print(labelstr,dfg['count'].min(),dfg['count'].max(),dfg['count'].mean(),dfg['count'].sum(), "t=",dfg.shape[0])
+    
 
     xscale,xlabel,xunit,_ = get_plot_labels_for_metric(xcol)
     yscale,ylabel,yunit,_ = get_plot_labels_for_metric(ycol)
@@ -150,6 +156,7 @@ def plot_dfg(dfcc,xcol,ycol,labelstr,curr_ax,plot_type='mean',colorby=None):
         curr_ax.set_xlim(0,48)
         curr_ax.set_xticks(np.arange(0,48,12))
     elif xcol == 'dig_time':
+        curr_ax.set_xticks(np.arange(0,1.2,0.2))
         curr_ax.set_xlim(0,1)
 
     # adjust y axis details
@@ -158,14 +165,14 @@ def plot_dfg(dfcc,xcol,ycol,labelstr,curr_ax,plot_type='mean',colorby=None):
     elif plot_type == 'count':
         curr_ax.set_ylabel(f"Counts")
 
-    # if (ycol == 'dxdt_48_volume') & (plot_type == 'mean'):
-    #     curr_ax.set_yticks(np.arange(-20,80,20))
-    #     curr_ax.set_ylim(-5,70)
-    # if ('per_V' in ycol) & (plot_type == 'mean'):
-    #     curr_ax.set_yticks(np.arange(-0,0.1,0.02))
-    #     curr_ax.set_ylim(0.012,0.07)
-    # elif (ycol == 'volume') & (plot_type == 'mean'):
-    #     curr_ax.set_ylim(400,1200)
+    if (ycol in ['dxdt_48_volume','dxdt_48_smooth_volume_dips_removed_um','dxdt_48_volume_dips_removed_um']) & (plot_type == 'mean'):
+        curr_ax.set_yticks(np.arange(-20,80,20))
+        curr_ax.set_ylim(-5,70)
+    if ('per_V' in ycol) & (plot_type == 'mean'):
+        curr_ax.set_yticks(np.arange(-0,0.1,0.02))
+        curr_ax.set_ylim(0.012,0.07)
+    elif (ycol == 'volume') & (plot_type == 'mean'):
+        curr_ax.set_ylim(400,1200)
 
     return curr_ax
 
@@ -288,7 +295,7 @@ def _plot_lines(df_track,xcol,ycol1,ycol2,ax):
     """
     xscale,xlabel,xunit,_ = get_plot_labels_for_metric(xcol)
     yscale1,ylabel1,yunit1,_ = get_plot_labels_for_metric(ycol1)
-    yscale2,ylabel2,yunit2,_ = get_plot_labels_for_metric(ycol2)
+    yscale2,ylabel2,yunit2,_ = get_plot_labels_for_metric(ycol2.replace('nondt_','').replace('_unfilled',''))
 
     x = df_track[xcol].astype('float').values 
     transition = df_track["frame_transition"].astype('float').min()
@@ -299,7 +306,7 @@ def _plot_lines(df_track,xcol,ycol1,ycol2,ax):
     y2 = df_track[ycol2].values * yscale2
 
     ax.plot(x,y1,'k-',label=f"{ylabel1}")
-    ax.plot(x,y2,'r--',label=f"{ylabel2}")
+    ax.plot(x,y2,'r-',label=f"{ylabel2}")
 
     ax = _set_labels(ax,xcol,ycol1)
 

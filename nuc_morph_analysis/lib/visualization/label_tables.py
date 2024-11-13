@@ -91,9 +91,12 @@ def get_scale_factor_table(dataset="all_baseline"):
     }
 
     # add a couple of dxdt columns
-    dict1.update({'dxdt_48_fit_volume': 1/(time_interval_minutes/60)})
-    dict1.update({'dxdt_48_smooth_volume_dips_removed_um': 1/(time_interval_minutes/60)})
-    dict1.update({'dxdt_48_volume_dips_removed_um': 1/(time_interval_minutes/60)})
+    dict1.update({'dxdt_48_volume': 1/(time_interval_minutes/60)})
+    dict1.update({'dxdt_48_volume_dips_removed_um_unfilled': 1/(time_interval_minutes/60)})
+    dict1.update({'neighbor_avg_dxdt_48_volume_dips_removed_um_unfilled_90um': 1/(time_interval_minutes/60)})
+    dict1.update({'neighbor_avg_dxdt_48_volume_dips_removed_um_unfilled_whole_colony': 1/(time_interval_minutes/60)})
+
+
 
     dict1.update({'dxdt_48_fit_volume_per_V': (1)/(time_interval_minutes/60)})
     
@@ -182,6 +185,7 @@ LABEL_TABLE = {
     "tscale_linearityfit_volume": "Fitted Time Scaling Factor (\u03B1)",
     "RMSE_linearityfit_volume": "Root Mean Squared Error",
     "late_growth_rate_by_endpoints": "Growth Rate",
+    "dxdt_48_volume": "Transient Growth Rate",
     "dxdt_t2-dxdt_t1": "Late average transient growth rate - early average transient growth rate",
     # Height
     "height": "Height",
@@ -484,6 +488,7 @@ for bin_interval in BIN_INTERVAL_LIST:
     for feature in DXDT_FEATURE_LIST:
         UNIT_TABLE.update({f"dxdt_{bin_interval}_{feature}": f"({temp_dict[feature][1:-1]}/hr)"})
 
+temp_dict = get_one_to_one_dict(UNIT_TABLE)
 # now add the neighborhood columns
 for local_radius_str in LOCAL_RADIUS_STR_LIST:
     for feature in NEIGHBOR_FEATURE_LIST:

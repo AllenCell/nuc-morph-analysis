@@ -33,7 +33,7 @@ interval = load_data.get_dataset_time_interval_in_min("all_baseline")
 # %% Plot volume trajectories for all tracks with examples of varying track shapes highlighted
 plot_features.plot_traj(
     df_full,
-    "fit_volume",
+    "volume",
     figdir,
     interval,
     colony="all_baseline",
@@ -224,3 +224,30 @@ for local_radius_str in ["90um", "whole_colony"]:
             add_unity_line=True,
             remove_all_points_in_pdf=pngflag,
         )
+
+# %% 
+# SuppFigS10 -- rerun the above plots for the volume_dips_removed_um_unfilled feature (controlling for volume dip events) 
+for colony in ["all_baseline","small", "medium", "large"]:
+    color = "colony" if colony != "all_baseline" else "#808080"
+    dfc = dfin[dfin["colony"] == colony] if colony != "all_baseline" else dfin
+    for local_radius_str in ["90um", "whole_colony"]:
+        for pngflag in [True, False]:
+            plot_features.scatter_plot(
+                dfc,
+                "all_baseline",
+                f"neighbor_avg_dxdt_48_volume_dips_removed_um_unfilled_{local_radius_str}",
+                "dxdt_48_volume_dips_removed_um_unfilled",
+                color_map=color,
+                figdir=figdir,
+                fitting=False,
+                n_resamples=2,
+                require_square=False,
+                opacity=0.1,
+                markersize=10,
+                titleheader="full_tracks for all timepoints",
+                dpi=150,
+                file_extension=".pdf",
+                transparent=True,
+                add_unity_line=True,
+                remove_all_points_in_pdf=pngflag,
+            )

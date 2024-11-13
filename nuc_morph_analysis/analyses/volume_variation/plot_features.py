@@ -290,6 +290,8 @@ def scatter_plot(
     else:
         df_d = df[df.colony == colony]
 
+    df_d = df_d.dropna(subset=[column_1, column_2]) # this step is necessary to get an accurate N value from len(df_d)
+
     fig, ax = plt.subplots(1, 1, figsize=(5, 4), dpi=dpi)
 
     nas = np.logical_or(np.isnan(df_d[column_1]), np.isnan(df_d[column_2]))
@@ -307,7 +309,7 @@ def scatter_plot(
 
     xscale, xlabel, xunits, xlim = get_plot_labels_for_metric(column_1)
     yscale, ylabel, yunits, ylim = get_plot_labels_for_metric(column_2)
-
+    print(yscale)
     if colorby_time == True:
         cscale, clabel, cunits, clim = get_plot_labels_for_metric("index_sequence")
         # cis = df_d['normalized_time'].values

@@ -267,17 +267,7 @@ def process_full_tracks(df_all, thresh, pix_size, interval):
 
 
     df_full = filter_out_dips.run_script(df_full)
-    df_full = filter_out_dips.run_script(df_full, use_detrended=False,prefix='nondt_')
-
-    df_full = add_change_over_time(df_full, dxdt_feature_list=["fit_volume"], bin_interval_list=[48]) # compute growth rate for volumes from fits
-    df_full = compute_change_over_time.add_dvdt_over_V(df_full, columns=["dxdt_48_fit_volume"],volume_col='fit_volume') # compute growth rate normalized by volume
-    # df_full = add_neighborhood_avg_features.run_script(df_full, feature_list = ['dxdt_48_fit_volume','dxdt_48_fit_volume_per_V'])
-    df_full = compute_change_over_time.run_script(df_full, dxdt_feature_list=['smooth_volume_drops_removed_um','volume_drops_removed_um',
-                                                                              'volume_drops_removed_um_unfilled','smooth_volume_drops_removed_um_unfilled'], bin_interval_list=[48])
-    df_full = compute_change_over_time.add_dvdt_over_V(df_full,['dxdt_48_smooth_volume_drops_removed_um'],volume_col='smooth_volume_drops_removed_um')
-    df_full = compute_change_over_time.add_dvdt_over_V(df_full,['dxdt_48_volume_drops_removed_um'],volume_col='volume_drops_removed_um')
-    df_full = compute_change_over_time.add_dvdt_over_V(df_full,['dxdt_48_volume_drops_removed_um_unfilled'],volume_col='volume_drops_removed_um_unfilled')
-
+    df_full = compute_change_over_time.run_script(df_full, dxdt_feature_list=['volume_dips_removed_um_unfilled'], bin_interval_list=[48])
 
     df_full = add_features.sum_mitotic_events_along_full_track(df_full)
 

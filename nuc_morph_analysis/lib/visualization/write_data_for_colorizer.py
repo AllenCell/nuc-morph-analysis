@@ -13,6 +13,8 @@ import pandas as pd
 from pandas.core.groupby.generic import DataFrameGroupBy
 import time
 from pathlib import Path
+from nuc_morph_analysis.lib.preprocessing import filter_data
+from nuc_morph_analysis.analyses.volume import filter_out_dips
 
 from nuc_morph_analysis.lib.preprocessing.load_data import (
     get_dataset_pixel_size,
@@ -21,6 +23,7 @@ from nuc_morph_analysis.lib.preprocessing.load_data import (
 )
 from nuc_morph_analysis.lib.preprocessing.global_dataset_filtering import (
     load_dataset_with_features,
+    add_features,
 )
 from nuc_morph_analysis.lib.visualization.plotting_tools import (
     get_plot_labels_for_metric,
@@ -45,6 +48,7 @@ from colorizer_data.utils import (
     update_bounding_box_data,
 )
 
+from nuc_morph_analysis.lib.preprocessing import compute_change_over_time
 
 @dataclass
 class NucMorphFeatureSpec:
@@ -296,6 +300,51 @@ FEATURE_COLUMNS = {
 
         # extra old columns
         NucMorphFeatureSpec('colony_depth', type=FeatureType.DISCRETE),
+        NucMorphFeatureSpec('exiting_mitosis'),
+        NucMorphFeatureSpec('exiting_mitosis_short'),
+        NucMorphFeatureSpec('dxdt_5_volume_start'),
+        NucMorphFeatureSpec('dxdt_48_fit_volume'),
+        NucMorphFeatureSpec('dxdt_48_fit_volume_per_V'),
+
+        NucMorphFeatureSpec('fit_volume'),
+
+        NucMorphFeatureSpec('volume_dips_removed_um'), 
+        NucMorphFeatureSpec('smooth_volume_dips_removed_um'),
+        NucMorphFeatureSpec('dxdt_48_smooth_volume_dips_removed_um'),
+        NucMorphFeatureSpec('dxdt_48_volume_dips_removed_um'),
+        NucMorphFeatureSpec('dxdt_48_smooth_volume_dips_removed_um_per_V'),
+        NucMorphFeatureSpec('dxdt_48_volume_dips_removed_um_per_V'),
+
+        NucMorphFeatureSpec('volume_jumps_removed_um'), 
+        NucMorphFeatureSpec('smooth_volume_jumps_removed_um'),
+        NucMorphFeatureSpec('dxdt_48_smooth_volume_jumps_removed_um'),
+        NucMorphFeatureSpec('dxdt_48_volume_jumps_removed_um'),
+        NucMorphFeatureSpec('dxdt_48_smooth_volume_jumps_removed_um_per_V'),
+        NucMorphFeatureSpec('dxdt_48_volume_jumps_removed_um_per_V'),
+
+        NucMorphFeatureSpec('has_volume_drop'),
+        NucMorphFeatureSpec('has_volume_jump'),
+
+        NucMorphFeatureSpec('volume_dips_left_magnitude'),
+        NucMorphFeatureSpec('volume_jumps_right_magnitude'),
+
+        NucMorphFeatureSpec('volume_dips_max_magnitude'),
+        NucMorphFeatureSpec('volume_jumps_max_magnitude'),
+
+        NucMorphFeatureSpec('volume_dips_left_magnitude_mask'),
+        NucMorphFeatureSpec('volume_jumps_right_magnitude_mask'),
+
+        NucMorphFeatureSpec('nondt_volume_dips_left_magnitude'),
+        NucMorphFeatureSpec('nondt_volume_jumps_right_magnitude'),
+
+
+        NucMorphFeatureSpec('nondt_volume_dips_left_magnitude_mask'),
+        NucMorphFeatureSpec('nondt_volume_jumps_right_magnitude_mask'),
+
+        NucMorphFeatureSpec('volume_jumps_max_prominence'), #_max_prominence
+        NucMorphFeatureSpec('volume_dips_max_prominence'), #_max_prominence
+        NucMorphFeatureSpec('nondt_volume_jumps_max_prominence'), #_max_prominence
+        NucMorphFeatureSpec('nondt_volume_dips_max_prominence'), #_max_prominence
 
     ],
 }
@@ -375,6 +424,7 @@ def make_features(
     features: List[NucMorphFeatureSpec],
     dataset_name: str,
     writer: ColorizerDatasetWriter,
+    make_glossary: bool = False,
 ):
     """
     Generate the outlier, track, time, centroid, and feature data files.
@@ -419,7 +469,11 @@ def make_features(
         if scale_factor is not None:
             data = data * scale_factor
             
-        description = GLOSSARY[feature.column_name]
+        if feature.column_name in GLOSSARY.keys():
+            description = GLOSSARY[feature.column_name]
+        else:
+            description = ""
+
 
         writer.write_feature(
             data,
@@ -447,6 +501,7 @@ def make_dataset(
     do_frames=True,
     scale=0.25,
     parallel=False,
+    make_glossary=False,
 ):
     """Make a new dataset from the given data, and write the complete dataset
     files to the given output directory.
@@ -459,6 +514,14 @@ def make_dataset(
 
     # load the dataset once
     df_all = load_dataset_with_features("all_baseline", remove_growth_outliers=False)
+    df_all = compute_change_over_time.run_script(df=df_all, dxdt_feature_list=['volume'], bin_interval_list=[5])
+
+    # df_all2 = df_all.copy()
+    # df_all2.drop(columns=["exiting_mitosis"], inplace=True)
+    # df_all2 = add_features.add_division_entry_and_exit_annotations(df_all2,formation_threshold=12)
+    # df_all2.rename(columns={"exiting_mitosis": "exiting_mitosis_short"}, inplace=True)
+    
+    # df_all = df_all.join(df_all2[['exiting_mitosis_short']])
 
     for filter in filters:
         output_dir_subset = Path(output_dir) / filter
@@ -514,7 +577,7 @@ def make_dataset(
             nframes = len(grouped_frames)
             writer.set_frame_paths(generate_frame_paths(nframes))
 
-            make_features(full_dataset, FEATURE_COLUMNS[filter], dataset, writer)
+            make_features(full_dataset, FEATURE_COLUMNS[filter], dataset, writer, make_glossary)
             if do_frames:
                 make_all_frames(grouped_frames, scale, writer, parallel)
             writer.write_manifest(metadata=metadata)
@@ -572,6 +635,7 @@ def main():
         do_frames=not args.noframes,
         scale=args.scale,
         parallel=args.parallel,
+        make_glossary=False,
     )
 
 

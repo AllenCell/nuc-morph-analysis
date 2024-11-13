@@ -1,0 +1,15 @@
+- panel A left and middle
+    - plot_neighbors_with_volume_drop.py
+- panel A right
+    - TFE exported images
+- panel B
+    - filtering_smoothes_out_volume_dips.py
+- panel C
+    - illustrate_dip_filter.py
+- panel D
+    - count_dip_events_via_drop_detection.py
+- panel E
+    - avg_transient_growth_analysis_workflow.py
+- panel F and G
+    - local_growth_workflow
+

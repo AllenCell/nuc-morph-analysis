@@ -1,4 +1,4 @@
-# %%
+# %% SuppFig S10 E and D
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
@@ -7,23 +7,31 @@ from nuc_morph_analysis.analyses.volume.plot_help import (
     adjust_axis_positions, plot_track_with_fit_line,update_plotting_params, plot_track_with_volume_dip
     )
 from nuc_morph_analysis.lib.preprocessing.global_dataset_filtering import load_dataset_with_features
-from nuc_morph_analysis.lib.preprocessing import filter_data
+from nuc_morph_analysis.lib.preprocessing import filter_data,compute_change_over_time
 from nuc_morph_analysis.lib.visualization.notebook_tools import save_and_show_plot 
 #%%
 # load the data
-df = load_dataset_with_features('all_baseline',load_local=True)
+remove_growth_outliers = False
+df = load_dataset_with_features('all_baseline',load_local=True, remove_growth_outliers=False)
 df = filter_data.all_timepoints_minimal_filtering(df) # apply minimal filterting
 df_full = filter_data.all_timepoints_full_tracks(df) # filter to only full tracks
 #%% update plotting parameters
 fs,fw,fh = update_plotting_params()
 
 #%%
+
+# df_full = compute_change_over_time.run_script(df_full, dxdt_feature_list=['nondt_volume_dips_removed_um',
+#                                                                             'nondt_volume_dips_removed_um_unfilled'], bin_interval_list=[48])
+# df_full = compute_change_over_time.add_dvdt_over_V(df_full,['dxdt_48_nondt_volume_dips_removed_um'],volume_col='nondt_volume_dips_removed_um')
 #%%
-# make figure showing that the fit volume smooths out volume drops
-figdir = Path(__file__).parent / 'figures' / 'fig5_fit_volume_smooths_out_volume_drops'
+#%%
+# make figure showing that the fit volume smooths out volume dips
+figdir = Path(__file__).parent / 'figures' / 'fig5_fit_volume_smooths_out_volume_dips'
 
-TRACK_ID_LIST = [71532,73610,82349,86570,77291]
 
+TRACK_ID_LIST = [71532,73610,82349,86570,77291,75411]
+if remove_growth_outliers==False:
+    TRACK_ID_LIST = [71044] + TRACK_ID_LIST
 for track_id in TRACK_ID_LIST:
     df_track = df_full[df_full.track_id == track_id]
     fig,axlist = plt.subplots(2,1,figsize=(fw,fh),sharey=False)
@@ -34,13 +42,16 @@ for track_id in TRACK_ID_LIST:
     _ = plot_track_with_fit_line(df_track,
                                   'index_sequence',
                                   'volume',
-                                    'fit_volume',
+                                  'volume_dips_removed_um_unfilled',
+                                    # 'nondt_volume_dips_removed_um',
                                   axlist[0])
     
     _ = plot_track_with_fit_line(df_track,
                                   'index_sequence',
                                   'dxdt_48_volume',
-                                    'dxdt_48_fit_volume',
+                                    'dxdt_48_volume_dips_removed_um_unfilled',
+                                    # 'dxdt_48_nondt_volume_dips_removed_um',
+
                                   axlist[1])
 
     xlimmax = np.max([ax.get_xlim()[1] for ax in axlist])

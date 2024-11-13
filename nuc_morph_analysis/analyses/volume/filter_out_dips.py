@@ -41,7 +41,7 @@ import pandas as pd
 #     return 
 
 
-def find_drops_relative_to_fit(y,
+def find_dips_relative_to_fit(y,
                                prominence=(20,None),
                                  width=(2,24),
                                  height=(None,None),
@@ -49,7 +49,7 @@ def find_drops_relative_to_fit(y,
                                  rel_height=1,
                                  wlen=25):
     """
-    find the drops in a trajectory
+    find the dips in a trajectory
     the default parameters assume nuclear volume data smoothed AND relative to the power law fit volume (or smoothed only)
 
     Parameters
@@ -67,7 +67,7 @@ def find_drops_relative_to_fit(y,
     peaks, props = find_peaks(y, prominence=prominence, width=width,height=height,threshold=threshold,rel_height=rel_height,wlen=wlen)
     return peaks, props
 
-def find_and_remove_from_pivot(y,y2,min_index=0,peak_str='drops'):
+def find_and_remove_from_pivot(y,y2,min_index=0,peak_str='dips'):
     """
     find peaks in y (volume data, smoothed and detrended OR smoothed only), 
     collect features, and determine mask to use in order to remove the peaks from the volume data
@@ -82,7 +82,7 @@ def find_and_remove_from_pivot(y,y2,min_index=0,peak_str='drops'):
         minimum index value for the volume data
         this is needed to ensure the index values are correct in the final dataframe
     peak_str : str
-        string to use for the peak type ('drops' or 'jumps')
+        string to use for the peak type ('dips' or 'jumps')
 
     Returns
     -------
@@ -100,17 +100,23 @@ def find_and_remove_from_pivot(y,y2,min_index=0,peak_str='drops'):
         where {} is the peak_str
     """
 
-    peaks, props = find_drops_relative_to_fit(y)
+    peaks, props = find_dips_relative_to_fit(y)
     has_peak_bool_array = np.zeros(y.shape,dtype='bool') if len(peaks)==0 else np.ones(y.shape,dtype='bool')
     
     # initialize the peak_magnitude_array as nans
-    peak_centers_bool_array = np.zeros(y.shape,dtype='bool')
-    is_peak_mask = np.zeros(y.shape,dtype='bool')
-    magnitude_mask = np.zeros(y.shape,dtype='float32') * np.nan
-    prom_array = np.zeros(y.shape,dtype='float32') * np.nan
+    peak_center_mask = np.zeros(y.shape,dtype='bool')
+    peak_region_mask = np.zeros(y.shape,dtype='bool')
     left_base_array = np.zeros(y.shape,dtype='float32') * np.nan
     right_base_array = np.zeros(y.shape,dtype='float32') * np.nan
-    magnitude_array = np.zeros(y.shape,dtype='float32') * np.nan
+    prominence_array = np.zeros(y.shape,dtype='float32') * np.nan
+    left_magnitude_array = np.zeros(y.shape,dtype='float32') * np.nan
+    left_magnitude_mask = np.zeros(y.shape,dtype='float32') * np.nan
+    right_magnitude_array = np.zeros(y.shape,dtype='float32') * np.nan
+    right_magnitude_mask = np.zeros(y.shape,dtype='float32') * np.nan
+
+    right_magnitude_array = np.zeros(y.shape,dtype='float32') * np.nan
+    right_magnitude_mask = np.zeros(y.shape,dtype='float32') * np.nan
+
     peak_id_array = np.zeros(y.shape,dtype='float32') * np.nan
     peak_id_mask = np.zeros(y.shape,dtype='float32') * np.nan
     if len(peaks)>0:
@@ -118,45 +124,50 @@ def find_and_remove_from_pivot(y,y2,min_index=0,peak_str='drops'):
 
             left_base = props['left_bases'][pi].copy()
             right_base = props['right_bases'][pi].copy()
-            volume_change = y2[peak] - y2[left_base] # changed so that drops will be negative
+            left_volume_change = y2[peak] - y2[left_base] # changed so that dips will be negative
+            right_volume_change = y2[peak] - y2[right_base]
 
-            peak_centers_bool_array[peak] = True
+            peak_center_mask[peak] = True
 
             peak_indices = np.arange(left_base,right_base+1,1,dtype='uint16')
-            is_peak_mask[peak_indices] = True
+            peak_region_mask[peak_indices] = True
 
-            magnitude_array[peak] = volume_change  
-            magnitude_mask[peak_indices] = volume_change
+            left_magnitude_array[peak] = left_volume_change  
+            left_magnitude_mask[peak_indices] = left_volume_change
+
+            right_magnitude_array[peak] = right_volume_change
+            right_magnitude_mask[peak_indices] = right_volume_change
 
             peak_id_array[peak] = pi
             peak_id_mask[peak_indices] = pi
 
-            prom_array[peak] = props['prominences'][pi]
+            prominence_array[peak] = props['prominences'][pi]
             left_base_array[peak] = props['left_bases'][pi].copy() + min_index
             right_base_array[peak] = props['right_bases'][pi] + min_index
     
-    # take minimum of peak_magnitude if peak_str is drops ()
-    func = np.nanmin if peak_str=='drops' else np.nanmax
-    max_val = func(magnitude_array) if len(peaks)>0 else np.nan
+    # take minimum of peak_magnitude if peak_str is dips ()
+    func = np.nanmin if peak_str=='dips' else np.nanmax
+    max_val = func(left_magnitude_array) if len(peaks)>0 else np.nan
 
     max_peak_val_array = np.ones(y.shape,dtype='float32') * max_val
-    max_prominence_array = np.ones(y.shape,dtype='float32') * np.nanmax(prom_array)
+    max_prominence_array = np.ones(y.shape,dtype='float32') * np.nanmax(prominence_array)
     
     return {
-        f'volume_{peak_str}_peak_region_mask':is_peak_mask, # boolean array, true at all points within peak region(s)
-        f'volume_{peak_str}_peak_center_mask':peak_centers_bool_array, # boolean array, true at all peak centers
+        f'volume_{peak_str}_peak_region_mask':peak_region_mask, # boolean array, true at all points within peak region(s)
+        f'volume_{peak_str}_peak_center_mask':peak_center_mask, # boolean array, true at all peak centers
         f'volume_{peak_str}_has_peak':has_peak_bool_array, #boolean array, true at all points if there is a peak
-        f'volume_{peak_str}_prom':prom_array, # prominence of each peak
+        f'volume_{peak_str}_prom':prominence_array, # prominence of each peak
         f'volume_{peak_str}_left_bases':left_base_array, # left base of each peak region
         f'volume_{peak_str}_right_bases':right_base_array, # right base of each peak region
-        f'volume_{peak_str}_magnitude':magnitude_array, # magnitude value at each peak center
-        f'volume_{peak_str}_magnitude_mask':magnitude_mask, # magnitude values at all points within peak region(s)
-
+        f'volume_{peak_str}_left_magnitude':left_magnitude_array, # magnitude value at each peak center (left_base - peak)
+        f'volume_{peak_str}_left_magnitude_mask':left_magnitude_mask, # magnitude values at all points within peak region(s) (left_base - peak)
+        f'volume_{peak_str}_right_magnitude':right_magnitude_array, # magnitude value at each peak center (right_base - peak)
+        f'volume_{peak_str}_right_magnitude_mask':right_magnitude_mask, # magnitude values at all points within peak region(s) (right_base - peak)
         f'volume_{peak_str}_max_magnitude':max_peak_val_array, # maximum magnitude value (at all points in array)
         f'volume_{peak_str}_max_prominence':max_prominence_array, # maximum prominence value (at all points in array)
     }
 
-def find_and_remove_peaks_combined(vol_det_array, vol_array, index_sequence_vec, track_id_vec, peak_str='drops'):
+def find_and_remove_peaks_combined(vol_det_array, vol_array, index_sequence_vec, track_id_vec, peak_str='dips'):
     """
     run the peak finding algorithm for each track_id (column) in detrended volume data (vol_det_array) and extract features from peaks (using both vol_det_array and vol_array)
     the collect the outputs and return a dataframe
@@ -172,7 +183,7 @@ def find_and_remove_peaks_combined(vol_det_array, vol_array, index_sequence_vec,
     track_id_vec : np.array
         track_id values for the volume data (columns)
     peak_str : str
-        string to use for the peak type ('drops' or 'jumps')
+        string to use for the peak type ('dips' or 'jumps')
 
     Returns
     -------
@@ -184,14 +195,14 @@ def find_and_remove_peaks_combined(vol_det_array, vol_array, index_sequence_vec,
         'volume_{peak_str}_prom',
         'volume_{peak_str}_left_base',
         'volume_{peak_str}_right_base',
-        'volume_{peak_str}_magnitude',
+        'volume_{peak_str}_left_magnitude',
         'volume_{peak_str}_max_magnitude',
         'volume_{peak_str}_max_prominence',
-        'volume_{peak_str}_magnitude_mask']
+        'volume_{peak_str}_left_magnitude_mask']
 
     """
 
-    # apply find_drops_relative_to_fit(y) to each column of vol_det_array
+    # apply find_dips_relative_to_fit(y) to each column of vol_det_array
     min_index = index_sequence_vec.min()
 
     # iterate through each track_id
@@ -199,12 +210,12 @@ def find_and_remove_peaks_combined(vol_det_array, vol_array, index_sequence_vec,
     
     dfout_list = [pd.DataFrame(x.values(),columns = index_sequence_vec, index=x.keys()).T for x in out]
     dfout_list = [x.reset_index().rename(columns={'index':'index_sequence'}).set_index('index_sequence') for x in dfout_list]
-    # keys = ['volume_drops_peak_region_mask','volume_drops_centers','volume_drops_has_peak','volume_drops_prom','volume_drops_left_base','volume_drops_right_base','volume_drops_y2_magnitude']
+    # keys = ['volume_dips_peak_region_mask','volume_dips_centers','volume_dips_has_peak','volume_dips_prom','volume_dips_left_base','volume_dips_right_base','volume_dips_y2_magnitude']
     dfout = pd.concat(dfout_list,axis=0,keys=track_id_vec, names=['track_id']).reset_index()
     
     return dfout
 
-def filter_out_volume_drops(dfd, volume_cols, find_drops=True, use_detrended=True, return_intermediates=False, prefix=''):
+def filter_out_volume_dips(dfd, volume_cols, find_dips=True, use_detrended=True, return_intermediates=False, prefix=''):
     """
     Remove the volume dips from the volume data
 
@@ -215,7 +226,7 @@ def filter_out_volume_drops(dfd, volume_cols, find_drops=True, use_detrended=Tru
     volume_cols : list
         list of columns to needed to find and filter out volume dips
         default is ['volume','fit_volume'], fit_volume is used to detrend the volume data
-    find_drops : bool
+    find_dips : bool
         if True, find and remove the volume dips (input to peak finder is inverse of detrended+smoothed volume)
     use_detrended : bool
         if True, use the detrended volume data (subtracted by the power law fit volume)
@@ -241,18 +252,18 @@ def filter_out_volume_drops(dfd, volume_cols, find_drops=True, use_detrended=Tru
             f"volume_{peak_str}_prom",
             f"volume_{peak_str}_left_base",
             f"volume_{peak_str}_right_base",
-            f"volume_{peak_str}_magnitude",
+            f"volume_{peak_str}_left_magnitude",
             f"volume_{peak_str}_max_magnitude",
             f"volume_{peak_str}_max_prominence",
-            f"volume_{peak_str}_magnitude_mask",
+            f"volume_{peak_str}_left_magnitude_mask",
 
-            f"smooth_volume_{peak_str}_removed_um_unfilled", # drops or jumps removed and nans filled in
-            f"volume_{peak_str}_removed_um_unfilled", # drops or jumps removed and nans filled in
-            f"smooth_volume_{peak_str}_removed_um", # drops or jumps removed and linearly interpolated to fill in
-            f"volume_{peak_str}_removed_um", # drops or jumps removed and linearly interpolated to fill in
+            f"smooth_volume_{peak_str}_removed_um_unfilled", # dips or jumps removed and nans filled in
+            f"volume_{peak_str}_removed_um_unfilled", # dips or jumps removed and nans filled in
+            f"smooth_volume_{peak_str}_removed_um", # dips or jumps removed and linearly interpolated to fill in
+            f"volume_{peak_str}_removed_um", # dips or jumps removed and linearly interpolated to fill in
         ]
 
-        where {} is the peak_str ('drops' or 'jumps')
+        where {} is the peak_str ('dips' or 'jumps')
 
                 
     """
@@ -289,11 +300,11 @@ def filter_out_volume_drops(dfd, volume_cols, find_drops=True, use_detrended=Tru
     dfp_vol_sg_sub_fit = dfp_vol_sg - dfp_fit_vol
     dfdict.update({'volume_sg_sub_fit':dfp_vol_sg_sub_fit}) # add detrended volume data to dictionary
  
-    # step 3: invert the input data (smoothed volume or detrended data) to find the peaks (if find_drops is True)
+    # step 3: invert the input data (smoothed volume or detrended data) to find the peaks (if find_dips is True)
     drop_scale = -1 
-    if find_drops:
+    if find_dips:
         drop_scale = -1
-        peak_str = "drops"
+        peak_str = "dips"
     else:
         peak_str = "jumps"
         drop_scale = 1
@@ -320,11 +331,11 @@ def filter_out_volume_drops(dfd, volume_cols, find_drops=True, use_detrended=Tru
     nanmask = np.ones(dfp_mask.shape, dtype='float')
 
     # determine which peak regions to remove based on threshold
-    drop_thresh = 0 if find_drops else 0
+    drop_thresh = -20 if find_dips else 20
     if drop_thresh is not None:
-        col = f'volume_{peak_str}_magnitude_mask'
+        col = f'volume_{peak_str}_left_magnitude_mask' if find_dips else f'volume_{peak_str}_right_magnitude_mask'
         dfp_mag = dfdict[col].values
-        thresh_bool = dfp_mag<drop_thresh if find_drops else dfp_mag>drop_thresh
+        thresh_bool = dfp_mag<drop_thresh if find_dips else dfp_mag>drop_thresh
         # if the value crosses the threshold then it is True and we want it to be set to NaN, if False then we want to keep the value
         # the nan values will later be interpolated
     else: 
@@ -437,16 +448,16 @@ def run_script(df=None,volume_cols=['volume','fit_volume'],use_detrended=True,re
             f"volume_{peak_str}_prom",
             f"volume_{peak_str}_left_base",
             f"volume_{peak_str}_right_base",
-            f"volume_{peak_str}_magnitude",
+            f"volume_{peak_str}_left_magnitude",
             f"volume_{peak_str}_max_magnitude",
             f"volume_{peak_str}_max_prominence",
-            f"volume_{peak_str}_magnitude_mask",
+            f"volume_{peak_str}_left_magnitude_mask",
             
 
-            f"smooth_volume_{peak_str}_removed_um_unfilled", # drops or jumps removed and nans filled in
-            f"volume_{peak_str}_removed_um_unfilled", # drops or jumps removed and nans filled in
-            f"smooth_volume_{peak_str}_removed_um", # drops or jumps removed and linearly interpolated to fill in
-            f"volume_{peak_str}_removed_um", # drops or jumps removed and linearly interpolated to fill in
+            f"smooth_volume_{peak_str}_removed_um_unfilled", # dips or jumps removed and nans filled in
+            f"volume_{peak_str}_removed_um_unfilled", # dips or jumps removed and nans filled in
+            f"smooth_volume_{peak_str}_removed_um", # dips or jumps removed and linearly interpolated to fill in
+            f"volume_{peak_str}_removed_um", # dips or jumps removed and linearly interpolated to fill in
         ]
         
     """
@@ -463,9 +474,9 @@ def run_script(df=None,volume_cols=['volume','fit_volume'],use_detrended=True,re
     # convert all time_cols to float32
     dfd[volume_cols] = dfd[volume_cols].astype(np.float32)
 
-    for find_drops in [True,False]: # find drops and jumps
+    for find_dips in [True,False]: # find dips and jumps
         # returns dfo with index=CellId
-        dfo = filter_out_volume_drops(dfd, volume_cols,find_drops,use_detrended,return_intermediates,prefix)
+        dfo = filter_out_volume_dips(dfd, volume_cols,find_dips,use_detrended,return_intermediates,prefix)
         new_columns = [x for x in dfo.columns.tolist() if x not in dforig.columns.tolist()]
         
         # add new columns to original dataframe
