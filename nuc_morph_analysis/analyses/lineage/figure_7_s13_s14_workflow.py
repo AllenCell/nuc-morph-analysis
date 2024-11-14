@@ -29,7 +29,7 @@ track_level_feature_df = filter_data.track_level_features(df_with_lineage_annota
 interval = load_data.get_dataset_time_interval_in_min("all_baseline")
 pixel_size = load_data.get_dataset_pixel_size("all_baseline")
 
-### MAIN FIGURE 7 ###
+### MAIN FIGURES ###
 
 figdir = "lineage/figures/main/"
 # %%
@@ -130,7 +130,7 @@ sister_symmetry.feature_density(
     track_level_feature_df, df_symmetric, df_asymmetric, "volume_at_B", figdir=figdir
 )
 
-### SUPPLEMENTAL FIG S14 ###
+### SUPPLEMENT ###
 # %%
 figdir = "lineage/figures/supp1/"
 
