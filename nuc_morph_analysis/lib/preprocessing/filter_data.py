@@ -939,6 +939,7 @@ def all_timepoints_full_tracks(df):
     """
     df = all_timepoints_minimal_filtering(df)
     df = df.loc[df["is_full_track"] == True]
+    df = df.sort_values('index_sequence')
     return df
 
 
