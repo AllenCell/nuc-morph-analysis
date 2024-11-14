@@ -13,7 +13,7 @@ class Workflows:
     def figure_s1_cell_health():
         import nuc_morph_analysis.analyses.cell_health.figure_s1_workflow
         
-    def figure_s2_s3_segmentation_model_validation():
+    def figure_s2_s3_s18_segmentation_model_validation():
         seg_model_validation_figure_workflow.save_out_specified_image_pairs_with_overlays()
         import nuc_morph_analysis.analyses.segmentation_model_validation.quantitative_validation_workflow
         
@@ -23,10 +23,10 @@ class Workflows:
         # figure 3 images generated using timelapse feauture explorer
         import nuc_morph_analysis.analyses.height.figure_3_s4_workflow
         
-    # figure s5 is raw image data can be found on quilt
+    # figure s5 image data can be found on quilt
     
-    def figure_s6_inhibitors():
-        import nuc_morph_analysis.analyses.inhibitors.figure_s6_workflow
+    def figure_s6_s16_inhibitors():
+        import nuc_morph_analysis.analyses.inhibitors.figure_s6_s16_workflow
         colony_area_workflow.aphidicolin_control_starting_area()
         colony_area_workflow.importazole_control_starting_area()
         
@@ -53,8 +53,7 @@ class Workflows:
     def figure_s15_linear_regression_model():
         import nuc_morph_analysis.analyses.linear_regression.figure_s15_workflow
     
-    # figure s16 is this in s6?    
-    # figure s17, s18 ? none?
+    # figure s17 image data can be found on quilt
     
     def figure_s19_transition_point():
         import nuc_morph_analysis.analyses.volume.figure_s19_workflow
