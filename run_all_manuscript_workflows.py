@@ -12,12 +12,14 @@ class Workflows:
     def figure_s1_cell_health():
         import nuc_morph_analysis.analyses.cell_health.figure_s1_workflow
         
-    def figure_s2_segmentation_model_validation(): # and s3??
+    def figure_s2_segmentation_model_validation():
         from nuc_morph_analysis.analyses.segmentation_model_validation import (
             seg_model_validation_figure_workflow,
         )
         seg_model_validation_figure_workflow.save_out_specified_image_pairs_with_overlays()
         import nuc_morph_analysis.analyses.segmentation_model_validation.quantitative_validation_workflow
+    
+    # figure s3?
         
     # figure 2 images generated using timelapse feature exploroer   
             
