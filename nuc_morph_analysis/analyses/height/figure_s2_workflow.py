@@ -1,11 +1,10 @@
 # %%
 from nuc_morph_analysis.analyses.colony_context.colony_context_analysis import plot_radial_profile
 from nuc_morph_analysis.lib.preprocessing.global_dataset_filtering import load_dataset_with_features
-from nuc_morph_analysis.lib.preprocessing import load_data, filter_data, global_dataset_filtering
+from nuc_morph_analysis.lib.preprocessing import load_data, filter_data
 from nuc_morph_analysis.lib.preprocessing.load_data import get_dataset_pixel_size
 from nuc_morph_analysis.analyses.height import plot
 from nuc_morph_analysis.analyses.height.plot_crowding import plot_density_schematic
-from nuc_morph_analysis.analyses.height.toymodel import toymodel
 from nuc_morph_analysis.analyses.height.centroid import (
     get_centroid,
     get_neighbor_centroids,
@@ -22,9 +21,8 @@ figdir.mkdir(exist_ok=True)
 
 # load data
 df_all = load_dataset_with_features("all_baseline", remove_growth_outliers=False)
-
 #%%
-# plot radial profile plot
+# plot radial intermediate correlation plots for medium colony
 plot_radial_profile(
     df_all,
     col_to_plot="height",
@@ -36,9 +34,9 @@ plot_radial_profile(
     bootstrap_count=100,
     save_format="pdf",
     weight_by_r2=False,
-    save_intermediate_correlations=None,
     save_intermediate_correlations_colony="medium",
     make_height_profile_lineplot=False,
+    make_height_profile_scatterplot=False,
 )
 plt.close("all")
 
@@ -48,12 +46,6 @@ plt.close("all")
 df_all = filter_data.all_timepoints_minimal_filtering(df_all)
 interval = load_data.get_dataset_time_interval_in_min("all_baseline")
 pixel_size = load_data.get_dataset_pixel_size("all_baseline")
-
-# Plot height over aligned colony time
-plot.height_colony_time_alignment(
-    df_all, pixel_size, interval, time_axis="colony_time", show_legend=True
-)
-
 
 # %% Plot density and schematic
 
@@ -74,9 +66,3 @@ plot_density_schematic(
 
 # plot colony-averaged density over aligned colony time
 plot.density_colony_time_alignment(df_all, pixel_size, interval, time_axis="colony_time")
-
-# %%
-# Run and plot toy model
-toymodel()
-
-# %%
