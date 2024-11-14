@@ -73,7 +73,7 @@ plt.xlabel(f"{label} {units}")
 plt.ylabel("Counts")
 save_and_show_plot(f"{figdir}/hist_volume_fold_change_BC")
 
-# %% SUPPLEMENTAL FIGURES
+# %% SUPPLEMENTAL FIGURE PANELS
 
 # %%
 # Plot mean of all volume and fold-change tracks with 5th to 95th percentile shaded
