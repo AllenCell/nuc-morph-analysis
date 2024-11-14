@@ -40,7 +40,7 @@ class Workflows:
     def figure_4_s8_volume_trajectories():
         import nuc_morph_analysis.analyses.volume.figure_4_s8_workflow
         
-    def figure_5_and_s9_local_growth():
+    def figure_5_s9_local_growth():
         import nuc_morph_analysis.analyses.volume.figure_5_s9_workflow
         #s10 coming soon
 
