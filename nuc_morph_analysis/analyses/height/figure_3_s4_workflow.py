@@ -23,7 +23,6 @@ figdir.mkdir(exist_ok=True)
 # load data
 df_all = load_dataset_with_features("all_baseline", remove_growth_outliers=False)
 
-#%%
 # plot radial profile plot
 plot_radial_profile(
     df_all,
@@ -36,7 +35,6 @@ plot_radial_profile(
     bootstrap_count=100,
     save_format="pdf",
     weight_by_r2=False,
-    save_intermediate_correlations=None,
     save_intermediate_correlations_colony="medium",
     make_height_profile_lineplot=False,
 )
@@ -46,6 +44,7 @@ plt.close("all")
 
 # load data
 df_all = filter_data.all_timepoints_minimal_filtering(df_all)
+track_level_feature_df = filter_data.track_level_features(df_all)
 interval = load_data.get_dataset_time_interval_in_min("all_baseline")
 pixel_size = load_data.get_dataset_pixel_size("all_baseline")
 
@@ -78,5 +77,3 @@ plot.density_colony_time_alignment(df_all, pixel_size, interval, time_axis="colo
 # %%
 # Run and plot toy model
 toymodel()
-
-# %%

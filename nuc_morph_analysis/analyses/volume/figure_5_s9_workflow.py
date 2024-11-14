@@ -224,3 +224,5 @@ for local_radius_str in ["90um", "whole_colony"]:
             add_unity_line=True,
             remove_all_points_in_pdf=pngflag,
         )
+
+# %%
