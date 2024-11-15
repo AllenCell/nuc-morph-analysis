@@ -73,4 +73,4 @@ python nuc_morph_analysis/lib/visualization/write_data_for_colorizer.py
 
 ## Explore results in timelapse feature explorer
 
-To interactively explore the results and features generated in this repository and shown in each figure panel of the paper follow the links provided in [this table](/docs/TFE_links.md). 
+To interactively explore the results and features generated in this repository and shown in the paper, follow the links provided in [this table](/docs/TFE_links.md). 
