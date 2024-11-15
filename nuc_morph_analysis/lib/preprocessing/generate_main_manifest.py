@@ -24,10 +24,12 @@ from nuc_morph_analysis.lib.preprocessing.generate_manifest_helper import (
     write_result,
     update_id_by_colony,
 )
+from nuc_morph_analysis.lib.preprocessing.twoD_zMIP_area import watershed_workflow
+
 
 
 # %%
-@warn_slow("9min")  # In testing takes about 4-5 minutes
+@warn_slow("60min")  # takes about 60 min to run without paralellization
 def generate_manifest_one_colony(morflowgenesis_df, colony, manual_lineage_annotations=None):
     """
     Parameters
@@ -89,7 +91,24 @@ def generate_manifest_one_colony(morflowgenesis_df, colony, manual_lineage_annot
     # --------------------------
     # density and other add_colony_metrics features
     logging.info("Calculating colony metrics")
-    return add_colony_metrics(step4_df)
+    step5_df = step4_df.copy()
+    step5_df = add_colony_metrics(step5_df)
+
+    # --------------------------
+    # STEP 6: calculate 2D object-based density
+    # --------------------------
+    logging.info("Calculating image-based density metrics")
+    step6_df = step5_df.copy()
+    density_df = watershed_workflow.get_pseudo_cell_boundaries_for_movie(colony,parallel=True)
+    # now merge the density_df with the main dataframe
+    step6_df = pd.merge(step6_df,
+                            density_df,
+                            on=['colony','index_sequence','label_img'],
+                            suffixes=('', '__dup_col'),
+                            how='left')
+    # now remove columns with __dup_col suffix
+    step6_df = step6_df[step6_df.columns.drop(list(step6_df.filter(regex='__dup_col')))]
+    return step6_df
 
 
 @warn_slow("90s")  # Usually takes 20-30s
@@ -105,31 +124,34 @@ def write_main_manifest(df, destdir=None, format="parquet"):
     """
     write_result(df, "main_manifest", destdir, format)
 
-
-# %%
-dataset = "large"
-morflowgenesis_df = load_data.load_morflowgenesis_dataframe(dataset)
-
-termination_df = load_data.load_apoptosis_annotations(dataset)
-df_with_apop_annotation = track_matching_apoptosis.merge_termination_annotations(
-    morflowgenesis_df, termination_df
-)
-df = generate_manifest_one_colony(df_with_apop_annotation, dataset)
-
-# %%
-for dataset in ["small", "medium"]:
+def run_workflow():
+    # %%
+    dataset = "large"
     morflowgenesis_df = load_data.load_morflowgenesis_dataframe(dataset)
-    annotations_for_morflowgenesis = load_data.load_lineage_annotations(dataset)
 
-    output = generate_manifest_one_colony(
-        morflowgenesis_df, dataset, annotations_for_morflowgenesis
+    termination_df = load_data.load_apoptosis_annotations(dataset)
+    df_with_apop_annotation = track_matching_apoptosis.merge_termination_annotations(
+        morflowgenesis_df, termination_df
     )
-    df = pd.concat([df, output], axis="rows")
+    df = generate_manifest_one_colony(df_with_apop_annotation, dataset)
+
+    # %%
+    for dataset in ["small", "medium"]:
+        morflowgenesis_df = load_data.load_morflowgenesis_dataframe(dataset)
+        annotations_for_morflowgenesis = load_data.load_lineage_annotations(dataset)
+
+        output = generate_manifest_one_colony(
+            morflowgenesis_df, dataset, annotations_for_morflowgenesis
+        )
+        df = pd.concat([df, output], axis="rows")
 
 
-# %% Each track should have a single formation/breakdown value
-validate_formation_breakdown(df)
+    # %% Each track should have a single formation/breakdown value
+    validate_formation_breakdown(df)
 
-# %%
-write_main_manifest(df)
-# %%
+    # %%
+    write_main_manifest(df)
+    # %%
+
+if __name__ == "__main__":
+    run_workflow()

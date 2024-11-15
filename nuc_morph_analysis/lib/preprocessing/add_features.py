@@ -1,4 +1,5 @@
 from nuc_morph_analysis.analyses.lineage.get_features import lineage_trees
+from nuc_morph_analysis.lib.visualization.plotting_tools import get_plot_labels_for_metric
 import numpy as np
 
 FRAME_COL = {"Ff": "A", "frame_transition": "B", "Fb": "C"}
@@ -138,6 +139,68 @@ def add_feature_at(df, frame_column, feature, feature_column, multiplier=1):
         df.loc[df.track_id == tid, f"{feature}_at_{FRAME_COL.get(frame_column)}"] = (
             value * multiplier
         )
+    return df
+
+def add_mean_feature_over_trajectory(df, feature_list, multiplier_list):
+    """
+    Add the mean of a given feature over the growth trajectory 
+    from transition to frame breakdown. 
+    
+    Parameters
+    ----------
+    df : DataFrame
+        The dataframe
+    feature_list : list
+        List of column names
+    multiplier_list : list
+        List of scale to multiply the mean by
+        
+    Returns
+    -------
+    df : DataFrame
+        The dataframe with the added mean feature columns
+    """
+    for feature, multiplier in zip(feature_list, multiplier_list):
+        for tid, dft in df.groupby("track_id"):
+            start = dft.frame_transition.values[0]
+            stop = dft.Fb.values[0]
+            df_mean = dft[(dft['index_sequence'] >= start) & (dft['index_sequence'] <= stop)]
+            mean = df_mean[feature].mean() * multiplier
+            df.loc[df.track_id == tid, f"mean_{feature}"] = mean
+    return df
+
+
+def get_early_transient_gr_of_neighborhood(df, scale, time_shift=24, window_length=6):
+    """
+    Get the transient growth rate of the local neighborhood 2 hours into the growth trajectory. 
+    
+    This time shift of two hours into the growth trajectory is necessary because the metric
+    is calculated as the average of a 4 hour rolling window. The middle of a four hour window
+    does not occur until two hours into the timelapse. To calculate this feature equivalently 
+    for each trajectory, two hours was used for all tracks to get a metric for the transient 
+    growth rate of the neighborhood early in the growth trajectory. The early transient growth
+    rate is averaged over 30 minutes as defined by the window_length. 
+    
+    Parameters
+    ----------
+    df : DataFrame
+        The dataframe
+    time_shift : int
+        The time shift in frames to calculate the transient growth rate in frames
+    window_length : int
+        The length of the time window in frames to average over
+        
+    Returns
+    -------
+    df : DataFrame
+        The dataframe with the added transient growth rate feature columns
+    """
+    for tid, dft in df.groupby("track_id"):
+        t_calculate = dft.index_sequence.min() + time_shift
+        time_window_mask = dft.index_sequence.between(t_calculate, t_calculate + window_length)
+        transient_gr_90um = dft.loc[time_window_mask, "neighbor_avg_dxdt_48_volume_90um"].mean()
+        df.loc[df.track_id == tid, "early_neighbor_avg_dxdt_48_volume_90um"] = transient_gr_90um * scale
+        
     return df
 
 
@@ -390,6 +453,62 @@ def add_non_interphase_size_shape_flag(df):
     ].any(axis=1)
     return df
 
+def get_sister(df, pid, current_tid):
+    """
+    Gets the track_id of the sibling
+
+    Parameters
+    ----------
+    df: Dataframe
+        The dataset dataframe
+    track_id: int
+        The track_id of the cell
+
+    Returns
+    -------
+    sister_id: List
+        List containing the track_id of the sibling cell
+    """
+    df_sisters = df.loc[df.parent_id == pid]
+    tids = df_sisters.track_id.unique()
+    sister_id = [tid for tid in tids if tid != current_tid]
+    return sister_id
+
+def add_lineage_features(df, feature_list):
+    """
+    If the full track has a full track sister or mother, add the given relative's feature as a single track feature column in the dataframe. 
+    
+    Paramaters
+    ----------
+    df: DataFrame
+        The dataframe
+    feature_list: list
+        List of column names
+        
+    Returns
+    -------
+    df: DataFrame
+        The dataframe with new columns (ie mothers_vol_at_B, sisters_duration)
+    """
+    
+    for feature in feature_list:
+        df[f"mothers_{feature}"] = np.nan
+        df[f"sisters_{feature}"] = np.nan
+
+    df_lineage = df[df['colony'].isin(['small', 'medium'])]
+
+    for tid, dft in df_lineage.groupby("track_id"):
+        parent_id = dft.parent_id.values[0]
+        if parent_id != -1 and parent_id in df_lineage.track_id.unique():
+            for feature in feature_list:
+                df.loc[df.track_id == tid, f"mothers_{feature}"] = df_lineage.loc[df_lineage.track_id == parent_id, feature].values[0]
+        if parent_id != -1:        
+            sister_id = get_sister(df_lineage, parent_id, tid)
+            if len(sister_id) > 0:
+                for feature in feature_list:
+                    df.loc[df.track_id == tid, f"sisters_{feature}"] = df_lineage.loc[df_lineage.track_id == sister_id[0], feature].values[0]
+
+    return df
 
 def sum_events_along_full_track(df0, feature_list, index_columns=['track_id','index_sequence','Fb','frame_transition']):
     """
@@ -468,3 +587,99 @@ def sum_mitotic_events_along_full_track(df0, feature_list=[]):
 
     return sum_events_along_full_track(df0, feature_list)
 
+def normalize_sum_events(df_full, event_cols=['sum_has_mitotic_neighbor', 'sum_has_dying_neighbor']):
+    """
+    Normalize sum of mitotic and death events by growth duration 
+    
+    Parameters
+    ----------
+    df_full: DataFrame
+        The dataframe of full tracks
+    event_cols: list
+        ie. 'sum_has_mitotic_neighbor', 'sum_has_dying_neighbor'
+        
+    Returns
+    -------
+    df_full: DataFrame
+        The dataframe with the normalized sum of events columns
+    """
+    for col in event_cols:
+        df_full[f"normalized_{col}"] = df_full[col] / df_full['duration_BC']
+    return df_full
+
+def add_perimeter_ratio(df): 
+    """
+    compute ratio of the nucleus perimeter to the pseudo cell perimeter (2d)
+    this feature is important for `filter_data.apply_density_related_filters`
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        dataframe that minimally has the following columns:
+        ['2d_perimeter_nucleus','2d_perimeter_pseudo_cell']
+
+    Returns
+    -------
+    df : pd.DataFrame
+        dataframe with the added column '2d_perimeter_nuc_cell_ratio'
+    
+    """
+    df['2d_perimeter_nuc_cell_ratio'] = df['2d_perimeter_nucleus'] / df['2d_perimeter_pseudo_cell']
+    return df
+
+def add_features_at_transition(df, 
+                               feature_list=['xy_aspect', 
+                                            'SA_vol_ratio', 
+                                            'neighbor_avg_lrm_volume_90um', 
+                                            'neighbor_avg_lrm_height_90um',
+                                            'neighbor_avg_lrm_xy_aspect_90um',
+                                            'neighbor_avg_lrm_mesh_sa_90um',
+                                            'neighbor_avg_dxdt_48_volume_90um',
+                                            'neighbor_avg_lrm_2d_area_nuc_cell_ratio_90um']
+                               ):
+    """
+    Add feature measurements at transition that are used in the linear regression analysis.
+    Features should be pre-calculated and not need to be scaled. 
+    
+    Parameters
+    ----------
+    df_full : DataFrame
+        The dataframe containing full trajectories
+    feature_list : list
+        List of column names
+    
+    Returns
+    -------
+    df_full : DataFrame
+        The dataframe with the added feature columns 
+    """
+    for feature in feature_list:
+        df = add_feature_at(df, "frame_transition", feature, feature)
+    return df
+
+def add_mean_features(df, 
+                      feature_list=['neighbor_avg_dxdt_48_volume_90um',
+                                    'neighbor_avg_lrm_volume_90um', 
+                                    'neighbor_avg_lrm_height_90um',
+                                    'neighbor_avg_lrm_xy_aspect_90um',
+                                    'neighbor_avg_lrm_mesh_sa_90um',
+                                    'neighbor_avg_lrm_2d_area_nuc_cell_ratio_90um']
+                      ):
+    """
+    Add mean feature measurements over the growth trajectory that are used in the linear regression analysis.
+    
+    Parameters
+    ----------
+    df : DataFrame
+        The dataframe containing full trajectories
+    feature_list : list
+        List of column names
+    
+    Returns
+    -------
+    df : DataFrame
+        The dataframe with the added mean feature columns
+    """
+    multiplier_list = [get_plot_labels_for_metric(x)[0] for x in feature_list]
+    df = add_mean_feature_over_trajectory(df, feature_list, multiplier_list)
+    return df

@@ -7,7 +7,7 @@ from nuc_morph_analysis.analyses.neighbor_of_X import example_timepoint_of_neigh
 from nuc_morph_analysis.analyses.neighbor_of_X import example_timepoint_numbers_of_mitotic
 from nuc_morph_analysis.analyses.neighbor_of_X import example_of_tracks_with_multiple_mitotic_neighbors
 #%%
-df = global_dataset_filtering.load_dataset_with_features(dataset='all_baseline',load_local=True)
+df = global_dataset_filtering.load_dataset_with_features(dataset='all_baseline')
 #%%
 example_dying_track_neighbors.run_example(df)
 example_mitotic_track_neighbors.run_example(df)
