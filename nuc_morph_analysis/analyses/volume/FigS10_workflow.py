@@ -150,7 +150,7 @@ magnitude_col = 'volume_dips_volume_change_at_center'
 ycol = 'volume_dips_peak_mask_at_center' 
 colony_list = ['small','medium','large']
 
-for threshold in [-100,0]:
+for threshold in [-50,0]:
     fig,axlist = plt.subplots(1,1,figsize=(fw,fh))
     axlist = np.asarray([axlist]) if type(axlist) != np.ndarray else axlist # for mypy
     assert type(axlist) == np.ndarray # for mypy
@@ -175,11 +175,12 @@ for threshold in [-100,0]:
 
         print(np.where(df_all['number_of_dips'] > 5))
 
-        ax.plot(x,y,label=colony,color=plotting_tools.COLONY_COLORS[colony],zorder=ci*-1000)
+        zorderval = 1 if threshold !=0 else -1 # to ensure large colony is in front when it has fewer peaks
+        ax.plot(x,y,label=colony,color=plotting_tools.COLONY_COLORS[colony],zorder=ci*1000*zorderval)
     ax.set_xlabel(f"{xlabel} {xunit}")
     ax.set_ylabel(f'% of nuclei')
     # ax.set_title('Number of dips over time')
-    if threshold == -100:
+    if threshold !=0 :
         text_str = f"dips < {threshold} μm\u00B3"
     else:
         text_str = f"all dips"
@@ -195,9 +196,11 @@ for threshold in [-100,0]:
     # if threshold == -50:
     #     ax.set_yticks(np.arange(0,110,10))
     #     ax.set_ylim(0,30)
-    if threshold == -100:
-        ax.set_yticks(np.arange(0,8,2))
-        ax.set_ylim(0,6)
+    if threshold != -100:
+        curr_ylim = ax.get_ylim()
+
+        ax.set_yticks(np.arange(0,30,5))
+        ax.set_ylim(0,curr_ylim[1]*1.2)
     else:
         ax.set_yticks(np.arange(0,30,10))
         ax.set_ylim(0,28)

@@ -516,7 +516,6 @@ def make_dataset(
 
     # load the dataset once
     df_all = load_dataset_with_features("all_baseline", remove_growth_outliers=False)
-    df_all = compute_change_over_time.run_script(df=df_all, dxdt_feature_list=['volume'], bin_interval_list=[5])
 
     # df_all2 = df_all.copy()
     # df_all2.drop(columns=["exiting_mitosis"], inplace=True)
