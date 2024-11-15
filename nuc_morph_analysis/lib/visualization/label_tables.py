@@ -56,7 +56,7 @@ def get_scale_factor_table(dataset="all_baseline"):
         ): pix_size,
        
         ("mesh_sa"): pix_size**2,
-        ("volume", "volume_sub"): pix_size**3,
+        ("volume", "volume_sub",  "volume_change_over_25_minutes"): pix_size**3,
         ("fit_volume"): 1, #already scaled in code
         ("density", "avg_density", "avg_early_density", "avg_late_density"): 1 / pix_size**2,
         
@@ -259,6 +259,9 @@ LABEL_TABLE = {
     "2d_intensity_min_edge" : "Min distance to (pseudo)cell edge",
     "2d_intensity_mean_edge" : "Average distance to (pseudo)cell edge",
     "2d_intensity_max_edge" : "Max distance to (pseudo)cell edge",
+
+    # dip event features
+    "volume_change_over_25_minutes": "Change in volume in 25 minute window",
 }
 # now add the dxdt columns
 
@@ -402,6 +405,9 @@ COLORIZER_LABEL_TABLE = {
     "2d_intensity_min_edge" : "Min distance to (pseudo)cell edge",
     "2d_intensity_mean_edge" : "Average distance to (pseudo)cell edge",
     "2d_intensity_max_edge" : "Max distance to (pseudo)cell edge",
+
+    # dip event features
+     "volume_change_over_25_minutes": "Change in volume in 25 minute window",
 }
 
 # units for quantities
@@ -445,6 +451,7 @@ UNIT_TABLE = {
         "difference_volume_at_B",
         "difference_half_vol_at_C_and_B" "avg_sister_volume_at_B",
         "volume_sub",
+         "volume_change_over_25_minutes",
     ): "(μm\u00B3)",
     "SA_vol_ratio": "(μm⁻¹)",
     (

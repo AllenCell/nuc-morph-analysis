@@ -328,8 +328,8 @@ FEATURE_COLUMNS = {
         NucMorphFeatureSpec('volume_dips_left_magnitude'),
         NucMorphFeatureSpec('volume_jumps_right_magnitude'),
 
-        NucMorphFeatureSpec('volume_dips_max_magnitude'),
-        NucMorphFeatureSpec('volume_jumps_max_magnitude'),
+        NucMorphFeatureSpec('volume_dips_max_volume_change'),
+        NucMorphFeatureSpec('volume_jumps_max_volume_change'),
 
         NucMorphFeatureSpec('volume_dips_left_magnitude_mask'),
         NucMorphFeatureSpec('volume_jumps_right_magnitude_mask'),
@@ -346,6 +346,8 @@ FEATURE_COLUMNS = {
         NucMorphFeatureSpec('nondt_volume_jumps_max_prominence'), #_max_prominence
         NucMorphFeatureSpec('nondt_volume_dips_max_prominence'), #_max_prominence
 
+
+        NucMorphFeatureSpec('volume_change_over_25_minutes')
     ],
 }
 

@@ -16,9 +16,9 @@ def compute_change_over_time_on_dataframe(dfpi,bin_interval,time_cols,prefix,tim
         # because we want the difference centered at timepoint t, we will shift the difference by bin_interval//2
         diff = dfpi.diff(axis=0, periods=bin_interval).shift(-1 * bin_interval // 2)
         suffix=''
-    elif time_location=='start':
+    elif time_location=='end':
         diff = dfpi.diff(axis=0, periods=bin_interval)
-        suffix='_start'
+        suffix='_end'
 
     # now normalize the changes by the bin_interval
     diff = diff / float(bin_interval)
@@ -27,7 +27,7 @@ def compute_change_over_time_on_dataframe(dfpi,bin_interval,time_cols,prefix,tim
     dfm = dfm.rename(columns={x: f"{prefix}{x}{suffix}" for x in time_cols})
     return dfm
 
-def get_change_over_time_array(dfd, time_cols, bin_interval):
+def get_change_over_time_array(dfd, time_cols, bin_interval, time_location='center'):
     """
     Compute a rolling window-based change_over_time for all tracks.
     The change_over_time at T=t is computed as the difference between the values at t+bin_interval/2 divided and t-bin_interval/2 divided by bin_interval.
@@ -53,9 +53,7 @@ def get_change_over_time_array(dfd, time_cols, bin_interval):
         # if not, fill in missing timepoints with np.nan
         dfp = dfp.reindex(index=range(dfp.index.values.min(), dfp.index.values.max() + 1))
 
-    dfm1 = compute_change_over_time_on_dataframe(dfp, bin_interval, time_cols, prefix, time_location='center')
-    dfm2 = compute_change_over_time_on_dataframe(dfp, bin_interval, time_cols, prefix, time_location='start')
-    dfm = dfm1.merge(dfm2,on=['index_sequence','track_id'],how='outer') 
+    dfm = compute_change_over_time_on_dataframe(dfp, bin_interval, time_cols, prefix, time_location)
     # now drop rows with nan values
     # dfm = dfm.dropna(axis=0,how='all')
     
@@ -76,7 +74,7 @@ def get_change_over_time_array(dfd, time_cols, bin_interval):
 
 
 # %%
-def run_script(df=None, dxdt_feature_list = None, bin_interval_list=None, exclude_outliers=True):
+def run_script(df=None, dxdt_feature_list = None, bin_interval_list=None, exclude_outliers=True, time_location='center'):
     """
     run the compute_change_over_time workflow for a given bin_interval
 
@@ -91,6 +89,10 @@ def run_script(df=None, dxdt_feature_list = None, bin_interval_list=None, exclud
         list of integers, which represents the number of frames to compute growth over
     exclude_outliers : bool
         if True, exclude outlier time points from the growth rate calculation
+    time_location : str
+        'center' or 'end', determines where the change over time value is returned in the bin_interval
+        default is 'center' (e.g. for bin_interval=48, the change over time value is returned at timepoint 24)
+        when 'end', the change over time value is returned at timepoint 0
 
     Returns
     -------
@@ -121,7 +123,7 @@ def run_script(df=None, dxdt_feature_list = None, bin_interval_list=None, exclud
 
     # returns dfo with index=CellId
     for bin_interval in bin_interval_list:
-        dfo = get_change_over_time_array(dfd, dxdt_feature_list, bin_interval)
+        dfo = get_change_over_time_array(dfd, dxdt_feature_list, bin_interval, time_location)
         new_columns = [x for x in dfo.columns.tolist() if x not in dforig.columns.tolist()]
         # add new columns to original dataframe
         dforig.loc[dfo.index.values, new_columns] = dfo.loc[dfo.index.values, new_columns]

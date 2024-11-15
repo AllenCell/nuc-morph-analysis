@@ -23,7 +23,7 @@ df0 = filter_data.all_timepoints_minimal_filtering(df0)
 df_full = filter_data.all_timepoints_full_tracks(df0)
 #%%
 save_dir = Path(__file__).parent / 'figures' / 'volume_dip_figures'
-ycol = 'volume_dips_peak_center_mask' 
+ycol = 'volume_dips_peak_mask_at_center' 
 # threshold = -100
 thresh_col ='dips_threshold'
 threshold = df0[[thresh_col]].dropna()[thresh_col].values[0]
