@@ -52,121 +52,6 @@ def add_early_growth_rate(df, interval, flag_dropna=False):
     return df
 
 
-def fit_tracks_to_time_powerlaw(
-    df,
-    feature_col,
-    interval,
-    plot=False,
-):
-    """
-
-    Parameters
-    ----------
-    df : DataFrame
-        full tracks dataframe
-    feature_col: str
-        Name of column with feature to fit
-    interval : float
-        The time interval in minutes
-    plot : bool, optional
-        If True, a plot of the volume vs time for each track and its exponential fit is displayed. The default is False.
-
-    Returns
-    -------
-    df : Dataframe
-        The input dataframe with an additional columns with linearity fit parameters added
-    """
-
-    # get parameters based on fitting volume or SA
-    if feature_col == "volume":
-        short = "volume"
-        atB_0 = 550
-        rate_0 = 35
-        tscale_0 = 1
-    elif feature_col == "mesh_sa":
-        short = "SA"
-        atB_0 = 400
-        rate_0 = 15
-        tscale_0 = 1
-    else:
-        raise ValueError(
-            "Function currently only designed to work \
-                        with volume and mesh_sa.\
-                        To fit antoher column, update this function."
-        )
-    trackdir = f"volume/figures/linearity/{short}/tracks/"
-    yscale, ylabel, yunits, _ = get_plot_labels_for_metric(feature_col)
-
-    features = [
-        f"tscale_linearityfit_{short}",
-        f"atB_linearityfit_{short}",
-        f"rate_linearityfit_{short}",
-        f"RMSE_linearityfit_{short}",
-    ]
-    for feature in features:
-        df[feature] = np.nan
-
-    fail_count = 0
-    for track, df_track in df.groupby("track_id"):
-
-        try:
-            # trim tracks to transition to breakdown
-            transition = df_track["frame_transition"].min()
-            fb = df_track["Fb"].values.min()
-            df_track = df_track.sort_values("index_sequence")
-            df_track_trim = df_track[
-                (df_track.index_sequence > transition) & (df_track.index_sequence <= fb)
-            ]
-
-            # get trimmed track times and volumes
-            x = df_track_trim["index_sequence"].values * interval / 60
-            x -= x[0]
-            y = df_track_trim[feature_col].values * yscale
-
-            # fit trimmed track to model with initial guesses
-            popt, _ = curve_fit(powerfunc, x, y, [rate_0, atB_0, tscale_0])
-
-            # get fits parameters, residuals and mse
-            z = powerfunc(x, *popt)
-            res = z - y
-            rmse = np.sqrt(np.nanmean(res**2))
-            rate = popt[0]
-            atB = popt[1]
-            tscale = popt[2]
-
-            # plot real track and fitted model
-            if plot is True:
-                plt.plot(x, y, label=f"Track ID: {track}", c="grey", alpha=0.5)
-                plt.plot(
-                    x,
-                    z,
-                    c="red",
-                    alpha=0.5,
-                    label=f"tscale {np.round(tscale,2)}, atB {np.round(atB)}, "
-                    f"r {np.round(rate)}, RMSE {np.round(rmse)}",
-                )
-                plt.legend()
-                plt.ylabel(f"{ylabel} {yunits}")
-                plt.xlabel("Time (hr)")
-                plt.tight_layout()
-                save_and_show_plot(f"{trackdir}/track{track}", quiet=True)
-                plt.close()
-
-            # add fit parameters and error to manifest
-            df.loc[df_track.index, f"tscale_linearityfit_{short}"] = tscale
-            df.loc[df_track.index, f"atB_linearityfit_{short}"] = atB
-            df.loc[df_track.index, f"rate_linearityfit_{short}"] = rate
-            df.loc[df_track.index, f"RMSE_linearityfit_{short}"] = rmse
-
-        except Exception:
-            fail_count += 1
-
-    if fail_count > 0:
-        print(f"Failed {short} linearity fit count: {fail_count}")
-
-    return df
-
-
 def fit_tracks_to_model(
     df,
     interval,
@@ -213,7 +98,7 @@ def fit_tracks_to_model(
         raise ValueError(
             "Function currently only fits volumes to power law, exponential or linear model."
         )
-    trackdir = f"volume/figures/linearity/volume/tracks/"
+
     yscale, ylabel, yunits, _ = get_plot_labels_for_metric("volume")
 
     features = [
@@ -272,6 +157,7 @@ def fit_tracks_to_model(
                 plt.ylabel(f"{ylabel} {yunits}")
                 plt.xlabel("Time (hr)")
                 plt.tight_layout()
+                trackdir = f"volume/figures/linearity/volume/tracks/"
                 save_and_show_plot(f"{trackdir}/track{track}", quiet=True)
                 plt.close()
 
@@ -304,6 +190,8 @@ def plot_fit_parameter_distribution(
         Dataframe containing full-track data from all colony datasets
     figdir: path
         Path to directory to save all figures for this script
+    feature: str
+        Name of feature to plot
     by_colony_flag: bool
         Flag for whether to separate data out by colony
     density_flag: bool
@@ -370,13 +258,13 @@ def plot_fit_parameter_distribution(
             df = df_all
 
             # get kde and find feature value giving max to add to legend
-            sb.kdeplot(df[f"RMSE_{model}fit_volume"], color=color, ax=ax)
+            sb.kdeplot(df[feature], color=color, ax=ax)
             x = ax.lines[ind].get_xdata()  # Get the x data of the distribution
             y = ax.lines[ind].get_ydata()  # Get the y data of the distribution
             maxid = np.argmax(y)  # The id of the peak (maximum of y data)
             label = f"{model_name} ({np.round(x[maxid],2)})"
             # replot kde now with complete label
-            sb.kdeplot(df[f"RMSE_{model}fit_volume"], color=color, label=label, ax=ax)
+            sb.kdeplot(df[feature], color=color, label=label, ax=ax)
 
 
     if "tscale" in feature:

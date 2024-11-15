@@ -48,7 +48,7 @@ def exponential(x, a, b):
 def powerfunc(x, a, b, c):
     """
     This function gives the y values of power law
-    of the form y = a * x + b
+    of the form y = a * (x^c) + b
 
     Parameters
     ----------
