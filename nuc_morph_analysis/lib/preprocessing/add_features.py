@@ -638,7 +638,6 @@ def add_features_at_transition(df,
                                             'neighbor_avg_lrm_height_90um',
                                             'neighbor_avg_lrm_xy_aspect_90um',
                                             'neighbor_avg_lrm_mesh_sa_90um',
-                                            'neighbor_avg_dxdt_48_volume_90um',
                                             'neighbor_avg_lrm_2d_area_nuc_cell_ratio_90um']
                                ):
     """
