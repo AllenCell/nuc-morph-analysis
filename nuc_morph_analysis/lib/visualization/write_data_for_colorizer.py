@@ -22,6 +22,11 @@ from nuc_morph_analysis.lib.preprocessing.load_data import (
 from nuc_morph_analysis.lib.preprocessing.global_dataset_filtering import (
     load_dataset_with_features,
 )
+from nuc_morph_analysis.lib.visualization.write_mips_for_colorizer import (
+    save_colony_backdrop_mips,
+    add_backdrop_path_to_dataframe,
+)
+
 from nuc_morph_analysis.lib.visualization.plotting_tools import (
     get_plot_labels_for_metric,
 )
@@ -447,6 +452,7 @@ def make_dataset(
     do_frames=True,
     scale=0.25,
     parallel=False,
+    do_backdrops=True,
 ):
     """Make a new dataset from the given data, and write the complete dataset
     files to the given output directory.
@@ -459,7 +465,15 @@ def make_dataset(
 
     # load the dataset once
     df_all = load_dataset_with_features("all_baseline", remove_growth_outliers=False)
-
+    
+    # add backdrop images
+    if do_backdrops:
+        for colony in ["small", "medium", "large"]:
+            save_colony_backdrop_mips(colony, output_dir + "tfe_backdrop/")
+        df_all = add_backdrop_path_to_dataframe(df_all, output_dir + "tfe_backdrop/")
+    else:
+        df_all = add_backdrop_path_to_dataframe(df_all, output_dir + "tfe_backdrop/")
+    
     for filter in filters:
         output_dir_subset = Path(output_dir) / filter
         output_dir_subset.mkdir(parents=True, exist_ok=True)
@@ -558,6 +572,12 @@ parser.add_argument(
     "Has no effect with --noframes.",
 )
 
+parser.add_argument(
+    "--nobackdrops",
+    action="store_true",
+    help="If included, used previously generated backdrops instead of generating new ones."
+)
+
 args = parser.parse_args()
 
 
@@ -572,6 +592,7 @@ def main():
         do_frames=not args.noframes,
         scale=args.scale,
         parallel=args.parallel,
+        do_backdrops=not args.noframes,
     )
 
 

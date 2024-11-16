@@ -7,7 +7,7 @@ from nuc_morph_analysis.lib.preprocessing.single_track_contact.export_code impor
 from nuc_morph_analysis.lib.preprocessing import global_dataset_filtering, load_data
 
 # %%
-def save_colony_backdrop_mips(colony, figdir="data/tfe_backdrop/",dtype ="uint8"):
+def save_colony_backdrop_mips(colony, figdir="./data/tfe_backdrop/", dtype ="uint8"):
     """
     Save maximum intensity projection (MIP) images for a given colony.
 
@@ -35,8 +35,7 @@ def save_colony_backdrop_mips(colony, figdir="data/tfe_backdrop/",dtype ="uint8"
         egfp_mip = egfp_flip.max(axis=0).astype(dtype)
         egfp_mip_rescale = skex.rescale_intensity(image=egfp_mip, in_range=(110, 140), out_range=dtype).astype(dtype)
 
-        repo_top_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-        save_path = os.path.join(repo_top_dir, figdir, colony)
+        save_path = os.path.join(figdir, colony)
         os.makedirs(save_path, exist_ok=True)
         save_image = os.path.join(save_path, f'{timepoint_frame}.tiff')
         
@@ -46,12 +45,12 @@ def add_backdrop_path_to_dataframe(df, figdir):
     df['tfe_backdrop_path'] = figdir + df['colony'] + '/' + df['index_sequence'].astype(str) + '.tiff'    
     return df
 
+
 # %% slow takes ~1hr because multiprocessing doesnt work with the  s3
 for colony in ['small', 'medium', 'large']:
-    save_colony_backdrop_mips(colony)
-
-# %%
+    save_colony_backdrop_mips(colony, figdir="./data/tfe_backdrop/")
+# %% add path seperately
 df = global_dataset_filtering.load_dataset_with_features()
-df2 = add_backdrop_path_to_dataframe(df, figdir="data/tfe_backdrop/")
+df2 = add_backdrop_path_to_dataframe(df, figdir="./data/tfe_backdrop/")
 # %%
 
