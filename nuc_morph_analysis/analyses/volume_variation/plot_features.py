@@ -309,7 +309,6 @@ def scatter_plot(
 
     xscale, xlabel, xunits, xlim = get_plot_labels_for_metric(column_1)
     yscale, ylabel, yunits, ylim = get_plot_labels_for_metric(column_2)
-    print(yscale)
     if colorby_time == True:
         cscale, clabel, cunits, clim = get_plot_labels_for_metric("index_sequence")
         # cis = df_d['normalized_time'].values

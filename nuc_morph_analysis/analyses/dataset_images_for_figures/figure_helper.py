@@ -673,7 +673,7 @@ def assemble_formation_middle_breakdown_dataframe(df):
     return df_fmb
 
 
-def load_images_for_formation_middle_breakdown(df_fmb, df, colony, crop_sizes_20x = [160, 160]):
+def load_images_for_formation_middle_breakdown(df_fmb, df, colony):
     """
     load FOV images for all of the timepoints, and crop them around the centroids of the tracked cell
     return the segmentation crops and raw fluorescence crops
@@ -693,8 +693,6 @@ def load_images_for_formation_middle_breakdown(df_fmb, df, colony, crop_sizes_20
         The list of segmentation images [t0,t1,...,tn]
     raw_img_list : list
         The list of raw fluorescence images [t0,t1,...,tn]
-    crop_sizes_20x : list
-        The crop sizes for the 20x images
     """
     # initialize the image reader for the CZI file containing movies from the three colonies
     raw_reader = get_dataset_original_file_reader(colony)
@@ -704,7 +702,8 @@ def load_images_for_formation_middle_breakdown(df_fmb, df, colony, crop_sizes_20
     raw_img_list = []
 
     # define the dimensions of the crop
-    crop_sizes_100x = np.uint32(np.asarray(crop_sizes_20x)*RESCALE_FACTOR_100x_to_20X)
+    crop_sizes_20x = [160, 160]
+    crop_sizes_100x = [400, 400]
 
     # get the timepoints to get images from
     t_list = df_fmb.index.values
@@ -732,7 +731,7 @@ def load_images_for_formation_middle_breakdown(df_fmb, df, colony, crop_sizes_20
     return seg_img_list, raw_img_list
 
 
-def process_images_and_add_to_dataframe(df_fmb, df, seg_img_list, raw_img_list, track_id = None, contours=True):
+def process_images_and_add_to_dataframe(df_fmb, df, seg_img_list, raw_img_list):
     """
     now convert the images in seg_img_list and raw_img_list into slice views with proper intensity rescaling
     also gather contours for segmentations
@@ -749,9 +748,6 @@ def process_images_and_add_to_dataframe(df_fmb, df, seg_img_list, raw_img_list, 
         The list of segmentation images [t0,t1,...,tn]
     raw_img_list : list
         The list of raw fluorescence images [t0,t1,...,tn]
-    track_id : int
-        The track id to use for the images
-        default is None, which uses the example track
 
     Returns
     -------
@@ -773,9 +769,7 @@ def process_images_and_add_to_dataframe(df_fmb, df, seg_img_list, raw_img_list, 
     df_fmb["seg_zx_contours"] = df_fmb["seg_zx_contours"].astype(object)
     df_fmb["seg_yx_contours"] = df_fmb["seg_yx_contours"].astype(object)
 
-    if track_id is None:
-        track_id = EXAMPLE_TRACKS["figure_dataset_formation_and_breakdown"]
-
+    track_id = EXAMPLE_TRACKS["figure_dataset_formation_and_breakdown"]
     dfi = df[df["track_id"] == track_id].set_index("index_sequence")
     for ti in tqdm(range(df_fmb.shape[0])):
         # retrieve the raw and seg images
@@ -804,8 +798,6 @@ def process_images_and_add_to_dataframe(df_fmb, df, seg_img_list, raw_img_list, 
             # now retrieve the contours
             if (
                 label_img_val > 0
-            ) & (
-                contours
             ):  # only draw the contour if the cell is present in the segmentation image
                 # identify the contours from the label image and save them as matplotlib Polygons
                 contour_factor = [1 / RESCALE_FACTOR_100x_to_20X, 1 / RESCALE_FACTOR_100x_to_20X]
@@ -822,12 +814,3 @@ def process_images_and_add_to_dataframe(df_fmb, df, seg_img_list, raw_img_list, 
             df_fmb.loc[timepoint, f"seg_{yx_zx_zy}_contours"] = [contour_and_color_list]
 
     return df_fmb
-
-
-def process_images_and_add_to_dataframe_raw_only(raw_3d_image_img_list):
-    raw_slice_list = []
-    for raw_3d_image in raw_3d_image_img_list:
-        raw_slices = process_channels_into_slices(raw_3d_image, "egfp", "uint16")
-        raw_slices_rs = rescale_intensities(raw_slices, "egfp", "uint8")
-        raw_slice_list.append(raw_slices_rs)
-    return raw_slice_list
