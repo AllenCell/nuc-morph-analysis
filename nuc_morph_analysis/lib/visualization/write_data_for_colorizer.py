@@ -446,7 +446,7 @@ def make_dataset(
     do_frames=True,
     scale=0.25,
     parallel=False,
-    generate_backdrops=True,
+    make_backdrops=True,
 ):
     """Make a new dataset from the given data, and write the complete dataset
     files to the given output directory.
@@ -461,7 +461,7 @@ def make_dataset(
     df_all = load_dataset_with_features("all_baseline", remove_growth_outliers=False)
     
     # save backdrop images
-    if generate_backdrops:
+    if make_backdrops:
         for colony in ["small", "medium", "large"]:
             save_colony_backdrop_mips(colony, output_dir + f"/{colony}/backdrops/")
     
@@ -524,7 +524,7 @@ def make_dataset(
             if do_frames:
                 make_all_frames(grouped_frames, scale, writer, parallel)
             
-            if generate_backdrops:     
+            if make_backdrops:     
                 backdrop_paths = [f"./backdrops/{i}.png" for i in range(nframes)]
                 writer.add_backdrops("Max intensity z projection of Lamin B1",
                                         backdrop_paths)
@@ -571,7 +571,7 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--generate_backdrops",
+    "--make_backdrops",
     type=bool,
     default=False,
     help="If True, generate backdrops. False will not save new backdrops and use previously generated or display none. Default is False.",
@@ -591,7 +591,7 @@ def main():
         do_frames=not args.noframes,
         scale=args.scale,
         parallel=args.parallel,
-        generate_backdrops=args.generate_backdrops,
+        make_backdrops=args.make_backdrops,
     )
 
 
