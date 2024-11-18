@@ -83,22 +83,27 @@ save_and_show_plot(f"{figdir}/sample_extreme_tracks_{track_ids[0]}_{track_ids[1]
 plt.close()
 
 
-# %% Plot distribution of tscale fitted values and root mean squared error
+# %% Plot distribution of tscale fitted values
 # both pooled for all baseline colonies and separated by colony
-for feature in ["tscale_linearityfit_volume", "RMSE_linearityfit_volume"]:
-    for by_colony_flag in [True, False]:
-        if "RMSE" in feature and not by_colony_flag:
-            allmodels_flag=True
-        else:
-            allmodels_flag=False
-        plot_fit_parameter_distribution(
-            df_track_level_features,
-            figdir,
-            feature,
-            by_colony_flag=by_colony_flag,
-            density_flag=True,
-            allmodels_flag=allmodels_flag,
-        )
+for by_colony_flag in [True, False]:
+    plot_fit_parameter_distribution(
+        df_track_level_features,
+        figdir,
+        "tscale_linearityfit_volume",
+        by_colony_flag=by_colony_flag,
+        density_flag=True,
+        allmodels_flag=False,
+    )
+
+# Plot distribution of RMSE values for all fits
+plot_fit_parameter_distribution(
+    df_track_level_features,
+    figdir,
+    "RMSE",
+    by_colony_flag=by_colony_flag,
+    density_flag=True,
+    allmodels_flag=True,
+)
 
 # %% plot relationships of alpha to fold change and colony time for all data pooled
 for feature in ["volume_fold_change_BC", "colony_time_at_B"]:

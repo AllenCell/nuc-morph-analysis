@@ -258,6 +258,7 @@ def plot_fit_parameter_distribution(
             df = df_all
 
             # get kde and find feature value giving max to add to legend
+            feature = "RMSE_" + model + "fit_volume"
             sb.kdeplot(df[feature], color=color, ax=ax)
             x = ax.lines[ind].get_xdata()  # Get the x data of the distribution
             y = ax.lines[ind].get_ydata()  # Get the y data of the distribution
@@ -269,12 +270,12 @@ def plot_fit_parameter_distribution(
 
     if "tscale" in feature:
         plt.axvline(1, color="k", linestyle=":")
+        plt.xlim(0, 3)
     if "RMSE" in feature:
         plt.axvline(5.54, color="k", linestyle=":", label=f"Segmnetation error (5.54 {xunits[1:-1]})")
-
+        plt.xlim(0, 50)
     plt.xlabel(f"{xlabel} {xunits}")
     plt.ylabel(ylabel)
-    plt.xlim(0, 50)
     plt.legend(prop={"size": 12})
     plt.tight_layout()
     save_and_show_plot(figlabel)
