@@ -73,13 +73,7 @@ class NucMorphFeatureSpec:
 # volume	float	In FMS manifest	Volume of a single nucleus in pixels in a given frame
 # height	float	In FMS manifest	Height (in the z-direction) of the a single nucleus in pixels in a given frame
 # NUC_PC1	float	Needs calculated and added	Value for shape mode 1 for a single nucleus in a given frame
-# NUC_PC2	float	Needs calculated and added	Value for shape mode 2 for a single nucleus in a given frame
-# NUC_PC3	float	Needs calculated and added	Value for shape mode 3 for a single nucleus in a given frame
-# NUC_PC4	float	Needs calculated and added	Value for shape mode 4 for a single nucleus in a given frame
-# NUC_PC5	float	Needs calculated and added	Value for shape mode 5 for a single nucleus in a given frame
-# NUC_PC6	float	Needs calculated and added	Value for shape mode 6 for a single nucleus in a given frame
-# NUC_PC7	float	Needs calculated and added	Value for shape mode 7 for a single nucleus in a given frame
-# NUC_PC8	float	Needs calculated and added	Value for shape mode 8 for a single nucleus in a given frame
+
 
 
 OBJECT_ID_COLUMN = "label_img"
@@ -452,7 +446,7 @@ def make_dataset(
     do_frames=True,
     scale=0.25,
     parallel=False,
-    do_backdrops=True,
+    generate_backdrops=True,
 ):
     """Make a new dataset from the given data, and write the complete dataset
     files to the given output directory.
@@ -466,13 +460,10 @@ def make_dataset(
     # load the dataset once
     df_all = load_dataset_with_features("all_baseline", remove_growth_outliers=False)
     
-    # add backdrop images
-    if do_backdrops:
+    # save backdrop images
+    if generate_backdrops:
         for colony in ["small", "medium", "large"]:
-            save_colony_backdrop_mips(colony, output_dir + "tfe_backdrop/")
-        df_all = add_backdrop_path_to_dataframe(df_all, output_dir + "tfe_backdrop/")
-    else:
-        df_all = add_backdrop_path_to_dataframe(df_all, output_dir + "tfe_backdrop/")
+            save_colony_backdrop_mips(colony, output_dir + f"/{colony}/backdrops/")
     
     for filter in filters:
         output_dir_subset = Path(output_dir) / filter
@@ -525,12 +516,19 @@ def make_dataset(
             )
 
             # Make the features, frame data, and manifest.
-            nframes = len(grouped_frames)
+            nframes = len(grouped_frames)         
             writer.set_frame_paths(generate_frame_paths(nframes))
 
             make_features(full_dataset, FEATURE_COLUMNS[filter], dataset, writer)
+            
             if do_frames:
                 make_all_frames(grouped_frames, scale, writer, parallel)
+            
+            if generate_backdrops:     
+                backdrop_paths = [f"./backdrops/{i}.png" for i in range(nframes)]
+                writer.add_backdrops("Max intensity z projection of Lamin B1",
+                                        backdrop_paths)
+                
             writer.write_manifest(metadata=metadata)
 
 
@@ -573,9 +571,10 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--nobackdrops",
-    action="store_true",
-    help="If included, used previously generated backdrops instead of generating new ones."
+    "--generate_backdrops",
+    type=bool,
+    default=False,
+    help="If True, generate backdrops. False will not save new backdrops and use previously generated or display none. Default is False.",
 )
 
 args = parser.parse_args()
@@ -592,7 +591,7 @@ def main():
         do_frames=not args.noframes,
         scale=args.scale,
         parallel=args.parallel,
-        do_backdrops=not args.noframes,
+        generate_backdrops=args.generate_backdrops,
     )
 
 
