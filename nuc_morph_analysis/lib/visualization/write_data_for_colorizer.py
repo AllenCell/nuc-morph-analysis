@@ -23,8 +23,7 @@ from nuc_morph_analysis.lib.preprocessing.global_dataset_filtering import (
     load_dataset_with_features,
 )
 from nuc_morph_analysis.lib.visualization.write_mips_for_colorizer import (
-    save_colony_backdrop_mips,
-    add_backdrop_path_to_dataframe,
+    save_colony_backdrop_mips
 )
 
 from nuc_morph_analysis.lib.visualization.plotting_tools import (
