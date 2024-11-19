@@ -37,7 +37,7 @@ def get_contours_from_pair_of_2d_seg_image(nuc_mip,cell_mip,dft=None):
 
         return contour_list
 
-def draw_contours_on_image(axlist,contour_list,new_color=None,filled=False,colorize=False,dft=None,linewidth=1,colorfeat='2d_area_nuc_cell_ratio',cmapstr='PiYG'):
+def draw_contours_on_image(axlist,contour_list,new_color=None,filled=False,colorize=False,dft=None,linewidth=1,colorfeat='2d_area_nuc_cell_ratio',cmapstr='PiYG',usedfcolors=False,cmap=None):
     # draw contours
     if dft is not None:
         minval = dft[colorfeat].min()
@@ -46,6 +46,11 @@ def draw_contours_on_image(axlist,contour_list,new_color=None,filled=False,color
         if new_color is not None:
             color = new_color
         
+        if usedfcolors:
+            if label not in dft['label_img'].values:
+                color = np.asarray((0.4,0.4,0.4,1))
+            else:
+                color = np.float64(cmap(dft.loc[dft['label_img']==label,colorfeat].values[0]))
         
         if colorize:
             if label not in dft['label_img'].values:
@@ -55,6 +60,7 @@ def draw_contours_on_image(axlist,contour_list,new_color=None,filled=False,color
             new_value = (value - minval) / (maxval - minval)
             cmap = cm.get_cmap(cmapstr)
             color = np.float64(cmap(new_value))
+            
         for contour in nuc_contours:
             axlist.plot(contour[:, 1], contour[:, 0], linewidth=linewidth, color=color)
             if filled: # now draw as filled

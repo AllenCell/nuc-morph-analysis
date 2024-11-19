@@ -63,7 +63,7 @@ def determine_colormaps(img,key,crop_exp):
     return cmap, vmin, vmax
 
 
-def run_validation_and_plot(TIMEPOINT=48,track=84103,colony='medium',RESOLUTION_LEVEL=1,plot_everything=False, testing=False):
+def run_validation_and_plot(TIMEPOINT=88,track=81463,colony='medium',RESOLUTION_LEVEL=1,plot_everything=False, testing=False):
     """
     run an image through the watershed based pseudo cell segmentation and examine the outputs
     optionally, run a test image through the same pipeline
@@ -71,9 +71,9 @@ def run_validation_and_plot(TIMEPOINT=48,track=84103,colony='medium',RESOLUTION_
     Parameters
     ----------
     TIMEPOINT : int, optional
-        The timepoint to analyze, by default 48
+        The timepoint to analyze, by default 88
     track : int, optional
-        The track to analyze, by default 84103
+        The track to analyze, by default 81463
     colony : str, optional
         The colony to analyze, by default 'medium'
     RESOLUTION_LEVEL : int, optional
@@ -122,7 +122,9 @@ def run_validation_and_plot(TIMEPOINT=48,track=84103,colony='medium',RESOLUTION_
     for full_crop, sizes in [('crop',(track_x,track_y,crop_w,crop_h)),('full',(0,0,mip.shape[1],mip.shape[0]))]:
         x1,y1,w,h = sizes
         crop_exp = np.index_exp[y1:y1+h,x1:x1+w]
-        key_list = ['raw_image','mip_of_labeled_image','binarized_mip','distance','pseudo_cells_img','overlay','colorize']
+        # key_list = ['raw_image','mip_of_labeled_image','binarized_mip','distance','pseudo_cells_img','overlay','colorize']
+        key_list = ['mip_of_labeled_image','distance','pseudo_cells_img','colorize']
+
         
         nrows = 1
         ncols = len(key_list)

@@ -14,6 +14,11 @@ class Workflows:
 
     def figure3_figureS2_height():
         import nuc_morph_analysis.analyses.height.height_workflow
+        from nuc_morph_analysis.analyses.density import figure_watershed_based_density_schematic
+        from nuc_morph_analysis.analyses.neighbor_of_X import figure_mitotic_filtering_examples
+
+        figure_watershed_based_density_schematic.run_validation_and_plot() #SuppFigS4 panel C
+        figure_mitotic_filtering_examples.run_validation_and_plot() #SuppFigS4 panel D, this code takes ~6 min to run
 
     def figure4_figureS5_volume_trajectories():
         # excludes aphidicolin panel S5C

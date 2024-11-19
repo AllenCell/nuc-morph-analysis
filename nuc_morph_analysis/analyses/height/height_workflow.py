@@ -72,9 +72,8 @@ plot_density_schematic(
 )
 
 # plot colony-averaged density over aligned colony time
-for use_old_density in [True, False]:
-    plot.density_colony_time_alignment(df_all, pixel_size, interval, time_axis="colony_time",
-                                   use_old_density=use_old_density)
+plot.density_colony_time_alignment(df_all, pixel_size, interval, time_axis="colony_time",
+                                   use_old_density=False)
 
 # %%
 # Run and plot toy model
