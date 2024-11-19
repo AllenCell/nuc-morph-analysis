@@ -459,15 +459,15 @@ def make_dataset(
     # load the dataset once
     df_all = load_dataset_with_features("all_baseline", remove_growth_outliers=False)
     
-    # save backdrop images
-    if make_backdrops:
-        for colony in ["small", "medium", "large"]:
-            save_colony_backdrop_mips(colony, output_dir + f"/{colony}/backdrops/")
-    
     for filter in filters:
         output_dir_subset = Path(output_dir) / filter
         output_dir_subset.mkdir(parents=True, exist_ok=True)
         output_dir_subset = str(output_dir_subset)
+        
+        # save backdrop images
+        if make_backdrops:
+            for colony in ["small", "medium", "large"]:
+                save_colony_backdrop_mips(colony, output_dir_subset + f"/{colony}/backdrops/")
 
         df_filter = df_all.copy()
         df_filter.loc[df_filter[filter] == False, "is_outlier"] = True
@@ -572,10 +572,9 @@ parser.add_argument(
 parser.add_argument(
     "--make_backdrops",
     type=bool,
-    default=False,
-    help="If True, generate backdrops. False will not save new backdrops and use previously generated or display none. Default is False.",
+    default=True,
+    help="If True, generate backdrops. False will not save new backdrops and use previously generated or display none.",
 )
-
 args = parser.parse_args()
 
 

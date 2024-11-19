@@ -8,7 +8,7 @@ from nuc_morph_analysis.lib.preprocessing.single_track_contact.export_code impor
 from nuc_morph_analysis.lib.preprocessing import load_data
 
 # %%
-def save_colony_backdrop_mips(colony, figdir="./data/tfe_backdrop/", dtype ="uint8", downsample_factor=2):
+def save_colony_backdrop_mips(colony, figdir, dtype ="uint8", downsample_factor=2):
     """
     Save maximum intensity projection (MIP) images for a given colony.
 
@@ -19,7 +19,7 @@ def save_colony_backdrop_mips(colony, figdir="./data/tfe_backdrop/", dtype ="uin
     Parameters:
     -----------
     colony (str): The name of the colony to process.
-    figdir (str): The directory where the MIP images will be saved. Default is "data/tfe_backdrop/".
+    figdir (str): The directory where the MIP images will be saved.
     dtype (str): The data type to use for the images. Default is "uint8".
     downsample_factor (int): The factor by which to downsample the images. Default is 2.
 
@@ -27,6 +27,7 @@ def save_colony_backdrop_mips(colony, figdir="./data/tfe_backdrop/", dtype ="uin
     --------
     None
     """
+    print(f"Processing {colony} colony backdrops")
     reader = load_data.get_dataset_original_file_reader(colony)
     for timepoint_frame in range(0, reader.dims.T, 1):
         egfp = export_helper.load_raw_fov_image(colony, timepoint_frame, reader, channel="egfp")
@@ -37,7 +38,7 @@ def save_colony_backdrop_mips(colony, figdir="./data/tfe_backdrop/", dtype ="uin
         downsample_shape = (egfp_mip_rescale.shape[0] // downsample_factor, egfp_mip_rescale.shape[1] // downsample_factor)
         egfp_mip_downsampled = resize(egfp_mip_rescale, downsample_shape, anti_aliasing=True, preserve_range=True).astype(dtype)
               
-        save_path = os.path.join(figdir, colony)
-        os.makedirs(save_path, exist_ok=True)
-        save_image = os.path.join(save_path, f'{timepoint_frame}.png')
+        os.makedirs(figdir, exist_ok=True)
+        save_image = os.path.join(figdir, f'{timepoint_frame}.png')
         two_d_writer.TwoDWriter.save(egfp_mip_downsampled, uri=save_image)
+# %%
