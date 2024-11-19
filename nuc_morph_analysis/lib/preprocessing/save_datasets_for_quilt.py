@@ -52,7 +52,173 @@ def save_dataset_for_quilt(df, dataset_name, destdir=None):
 
 # %% Load baseline colonies
 df_all_baseline = global_dataset_filtering.load_dataset_with_features()
-print(*[col for col in df_all_baseline.columns if "NUC_sh" not in col], sep="\n")
+# print(*[col for col in df_all_baseline.columns if "NUC_sh" not in col], sep="\n")
+#%% old and new col lists
+previous_cols = [
+    "CellId",
+    "label_img",
+    "track_id",
+    "colony",
+    "index_sequence",
+    "roi",
+    "centroid_x",
+    "centroid_y",
+    "centroid_z",
+    "volume",
+    "height",
+    "mesh_vol",
+    "mesh_sa",
+    "SA_vol_ratio",
+    "transform_params",
+    "NUC_",
+    "length",
+    "width",
+    "xz_aspect",
+    "xy_aspect",
+    "zy_aspect",
+    "fov_edge",
+    "predicted_formation",
+    "predicted_breakdown",
+    "Ff",
+    "Fb",
+    "after_breakdown_outlier",
+    "before_formation_outlier",
+    "is_after_breakdown_before_formation_outlier",
+    "termination",
+    "entering_mitosis",
+    "exiting_mitosis",
+    "entering_or_exiting_division",
+    "neighbors",
+    "neigh_distance",
+    "density",
+    "is_tp_outlier",
+    "track_length",
+    "is_outlier_by_short_track",
+    "is_outlier_curated_by_id",
+    "is_growth_outlier",
+    "is_outlier_track",
+    "is_outlier",
+    "parent_id",
+    "family_id",
+    "distance_from_centroid",
+    "colony_depth",
+    "normalized_colony_depth",
+    "normalized_distance_from_centroid",
+    "colony_edge_in_fov",
+    "colony_time",
+    "non_interphase_volume",
+    "non_interphase_mesh_sa",
+    "non_interphase_SA_vol_ratio",
+    "non_interphase_size_shape",
+    "dxdt_48_volume",
+    "neighbor_avg_volume_90um",
+    "neighbor_avg_dxdt_48_volume_90um",
+    "neighbor_avg_volume_whole_colony",
+    "neighbor_avg_dxdt_48_volume_whole_colony",
+    "normalized_time",
+    "frame_transition",
+    "sync_time_Ff",
+    "volume_at_A",
+    "location_x_at_A",
+    "location_y_at_A",
+    "time_at_A",
+    "colony_time_at_A",
+    "volume_at_B",
+    "location_x_at_B",
+    "location_y_at_B",
+    "time_at_B",
+    "colony_time_at_B",
+    "volume_at_C",
+    "location_x_at_C",
+    "location_y_at_C",
+    "time_at_C",
+    "colony_time_at_C",
+    "duration_AB",
+    "duration_BC",
+    "duration_AC",
+    "delta_volume_BC",
+    "volume_fold_change_BC",
+    "SA_at_B",
+    "SA_at_C",
+    "delta_SA_BC",
+    "SA_fold_change_BC",
+    "volume_fold_change_fromB",
+    "SA_fold_change_fromB",
+    "growth_rate_AB",
+    "late_growth_rate_by_endpoints",
+    "tscale_linearityfit_volume",
+    "atB_linearityfit_volume",
+    "rate_linearityfit_volume",
+    "RMSE_linearityfit_volume",
+    "is_full_track",
+    "exploratory_dataset",
+    "baseline_colonies_dataset",
+    "full_interphase_dataset",
+    "lineage_annotated_dataset"
+]
+columns_list = [col for col in df_all_baseline.columns if "NUC_sh" not in col]
+
+#%% Get differences
+previous_not_in_current = [col for col in previous_cols if col not in columns_list]
+current_not_in_previous = [col for col in columns_list if col not in previous_cols]
+print("Columns in previous but not in current:")
+print(previous_not_in_current)
+print("\nColumns in current but not in previous:")
+print(current_not_in_previous)
+
+#%% 139 NEW COLUMNS!!
+new_cols = current_not_in_previous
+keep_list = [
+    #needed to calc linear reg model feats
+    "has_mitotic_neighbor",
+    "has_dying_neighbor",
+    "sum_has_dying_neighbor",
+    "sum_has_mitotic_neighbor",
+    "neighbor_avg_lrm_volume_90um",
+    "neighbor_avg_lrm_height_90um",
+    "neighbor_avg_lrm_xy_aspect_90um",
+    "neighbor_avg_lrm_mesh_sa_90um",
+    "neighbor_avg_lrm_2d_area_nuc_cell_ratio_90um",
+    "neighbor_avg_lrm_dxdt_48_volume_90um",        
+    
+    #used in lrm
+    "sisters_volume_at_B",
+    "sisters_duration_BC",
+    "sisters_delta_volume_BC",
+    "height_at_B",
+    "xy_aspect_at_B",
+    "SA_vol_ratio_at_B",
+    "neighbor_avg_lrm_volume_90um_at_B",
+    "neighbor_avg_lrm_height_90um_at_B",
+    "neighbor_avg_lrm_xy_aspect_90um_at_B",
+    "neighbor_avg_lrm_mesh_sa_90um_at_B",
+    "neighbor_avg_lrm_2d_area_nuc_cell_ratio_90um_at_B",
+    "early_neighbor_avg_dxdt_48_volume_90um",
+    "mean_neighbor_avg_dxdt_48_volume_90um",
+    "mean_neighbor_avg_lrm_volume_90um",
+    "mean_neighbor_avg_lrm_height_90um",
+    "mean_neighbor_avg_lrm_xy_aspect_90um",
+    "mean_neighbor_avg_lrm_mesh_sa_90um",
+    "mean_neighbor_avg_lrm_2d_area_nuc_cell_ratio_90um", 
+    "normalized_sum_has_mitotic_neighbor",
+    "normalized_sum_has_dying_neighbor",]
+
+new_cols = [col for col in new_cols if col not in keep_list]
+
+print(len(keep_list))    
+print(len(new_cols))
+#%%
+for col in new_cols:
+    print(col)
+
+#%% Suggest we remove      
+drop_list = [
+    'level_0', # there is code in global datasets filtering and lebeling neighbors helper that is checking for this and there is now warning printed??
+    'index', # cell id should be the index column.. why is this here?
+    
+    # Loads of 2d columns are unused... work with chris to identify which ones we actually need. 
+    ]
+
 
 # %% Filter baseline colonies
 df_baseline = filter_data.all_timepoints_minimal_filtering(df_all_baseline)
@@ -103,4 +269,4 @@ save_dataset_for_quilt(df_lineage, "lineage-annotated_analysis_dataset")
 save_dataset_for_quilt(df_full_feeding_control, "feeding_control_analysis_dataset")
 save_dataset_for_quilt(df_aphidicolin, "dna_replication_inhibitor_analysis_dataset")
 save_dataset_for_quilt(df_importazole, "nuclear_import_inhibitor_analysis_dataset")
-# %%
+
