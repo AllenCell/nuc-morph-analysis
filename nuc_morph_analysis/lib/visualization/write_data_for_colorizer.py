@@ -462,12 +462,7 @@ def make_dataset(
     for filter in filters:
         output_dir_subset = Path(output_dir) / filter
         output_dir_subset.mkdir(parents=True, exist_ok=True)
-        output_dir_subset = str(output_dir_subset)
-        
-        # save backdrop images
-        if make_backdrops:
-            for colony in ["small", "medium", "large"]:
-                save_colony_backdrop_mips(colony, output_dir_subset + f"/{colony}/backdrops/")
+        output_dir_subset = str(output_dir_subset)        
 
         df_filter = df_all.copy()
         df_filter.loc[df_filter[filter] == False, "is_outlier"] = True
@@ -523,10 +518,10 @@ def make_dataset(
             if do_frames:
                 make_all_frames(grouped_frames, scale, writer, parallel)
             
-            if make_backdrops:     
+            if make_backdrops:
+                save_colony_backdrop_mips(dataset, output_dir_subset + f"/{dataset}/backdrops/")     
                 backdrop_paths = [f"./backdrops/{i}.png" for i in range(nframes)]
-                writer.add_backdrops("Max intensity z projection of Lamin B1",
-                                        backdrop_paths)
+                writer.add_backdrops("MIP of Lamin B1", backdrop_paths)
                 
             writer.write_manifest(metadata=metadata)
 
