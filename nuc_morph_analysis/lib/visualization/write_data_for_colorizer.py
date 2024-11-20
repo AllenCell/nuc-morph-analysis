@@ -229,26 +229,26 @@ FEATURE_COLUMNS = {
         NucMorphFeatureSpec("SA_vol_ratio"),
 
         # mitotic and apoptotic neighbor columns
-        NucMorphFeatureSpec(column_name="frame_of_breakdown", type=FeatureType.CATEGORICAL, categories=["False", "True"]),
-        NucMorphFeatureSpec(column_name="frame_of_formation", type=FeatureType.CATEGORICAL, categories=["False", "True"]),
-        NucMorphFeatureSpec(column_name="number_of_frame_of_breakdown_neighbors"),
-        NucMorphFeatureSpec(column_name="number_of_frame_of_formation_neighbors"),
-        NucMorphFeatureSpec(column_name="has_mitotic_neighbor_breakdown", type=FeatureType.CATEGORICAL, categories=["False", "True"]),
-        NucMorphFeatureSpec(column_name="has_mitotic_neighbor_formation", type=FeatureType.CATEGORICAL, categories=["False", "True"]),
-        NucMorphFeatureSpec(column_name="has_mitotic_neighbor_breakdown_forward_dilated", type=FeatureType.CATEGORICAL, categories=["False", "True"]),
-        NucMorphFeatureSpec(column_name="has_mitotic_neighbor_formation_backward_dilated", type=FeatureType.CATEGORICAL, categories=["False", "True"]),
-        NucMorphFeatureSpec(column_name="has_mitotic_neighbor", type=FeatureType.CATEGORICAL, categories=["False", "True"]),
-        NucMorphFeatureSpec(column_name="has_mitotic_neighbor_dilated", type=FeatureType.CATEGORICAL, categories=["False", "True"]),
-        NucMorphFeatureSpec(column_name="frame_of_death", type=FeatureType.CATEGORICAL, categories=["False", "True"]),
-        NucMorphFeatureSpec(column_name="has_dying_neighbor", type=FeatureType.CATEGORICAL, categories=["False", "True"]),
-        NucMorphFeatureSpec(column_name="has_dying_neighbor_forward_dilated", type=FeatureType.CATEGORICAL, categories=["False", "True"]),
-        NucMorphFeatureSpec(column_name="number_of_frame_of_death_neighbors"),
-        NucMorphFeatureSpec(column_name="sum_has_mitotic_neighbor_breakdown"), # per track feature
-        NucMorphFeatureSpec(column_name="sum_has_mitotic_neighbor_formation"),# per track feature
-        NucMorphFeatureSpec(column_name="sum_has_mitotic_neighbor"),# per track feature
-        NucMorphFeatureSpec(column_name="sum_has_dying_neighbor"),# per track feature
-        NucMorphFeatureSpec(column_name="sum_number_of_frame_of_breakdown_neighbors"),# per track feature
-        NucMorphFeatureSpec(column_name="number_of_frame_of_death_neighbors"),# per track feature
+        NucMorphFeatureSpec("frame_of_breakdown", type=FeatureType.CATEGORICAL, categories=["False", "True"]),
+        NucMorphFeatureSpec("frame_of_formation", type=FeatureType.CATEGORICAL, categories=["False", "True"]),
+        NucMorphFeatureSpec("number_of_frame_of_breakdown_neighbors"),
+        NucMorphFeatureSpec("number_of_frame_of_formation_neighbors"),
+        NucMorphFeatureSpec("has_mitotic_neighbor_breakdown", type=FeatureType.CATEGORICAL, categories=["False", "True"]),
+        NucMorphFeatureSpec("has_mitotic_neighbor_formation", type=FeatureType.CATEGORICAL, categories=["False", "True"]),
+        NucMorphFeatureSpec("has_mitotic_neighbor_breakdown_forward_dilated", type=FeatureType.CATEGORICAL, categories=["False", "True"]),
+        NucMorphFeatureSpec("has_mitotic_neighbor_formation_backward_dilated", type=FeatureType.CATEGORICAL, categories=["False", "True"]),
+        NucMorphFeatureSpec("has_mitotic_neighbor", type=FeatureType.CATEGORICAL, categories=["False", "True"]),
+        NucMorphFeatureSpec("has_mitotic_neighbor_dilated", type=FeatureType.CATEGORICAL, categories=["False", "True"]),
+        NucMorphFeatureSpec("frame_of_death", type=FeatureType.CATEGORICAL, categories=["False", "True"]),
+        NucMorphFeatureSpec("has_dying_neighbor", type=FeatureType.CATEGORICAL, categories=["False", "True"]),
+        NucMorphFeatureSpec("has_dying_neighbor_forward_dilated", type=FeatureType.CATEGORICAL, categories=["False", "True"]),
+        NucMorphFeatureSpec("number_of_frame_of_death_neighbors"),
+        NucMorphFeatureSpec("sum_has_mitotic_neighbor_breakdown"), # per track feature
+        NucMorphFeatureSpec("sum_has_mitotic_neighbor_formation"),# per track feature
+        NucMorphFeatureSpec("sum_has_mitotic_neighbor"),# per track feature
+        NucMorphFeatureSpec("sum_has_dying_neighbor"),# per track feature
+        NucMorphFeatureSpec("sum_number_of_frame_of_breakdown_neighbors"),# per track feature
+        NucMorphFeatureSpec("number_of_frame_of_death_neighbors"),# per track feature
 
 
         # new columns
@@ -417,7 +417,7 @@ def make_features(
         if scale_factor is not None:
             data = data * scale_factor
             
-        description = GLOSSARY[feature.column_name]
+        description = GLOSSARY.get(feature.column_name, "Coming soon")
 
         writer.write_feature(
             data,
