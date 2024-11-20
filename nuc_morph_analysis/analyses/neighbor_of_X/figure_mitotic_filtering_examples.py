@@ -1,4 +1,5 @@
 #%%
+#SuppFigS4 panel D, this code takes ~6 min to run
 from nuc_morph_analysis.lib.preprocessing.twoD_zMIP_area import watershed_workflow, pseudo_cell_helper, pseudo_cell_testing_helper
 from pathlib import Path
 import pandas as pd
@@ -15,7 +16,7 @@ from nuc_morph_analysis.lib.visualization.notebook_tools import save_and_show_pl
 from nuc_morph_analysis.analyses.dataset_images_for_figures.figure_helper import return_glasbey_on_dark
 
 
-from nuc_morph_analysis.analyses.density.watershed_validate import get_contours_from_pair_of_2d_seg_image, draw_contours_on_image
+from nuc_morph_analysis.analyses.density.visually_validate_watershed_psuedo_cell_seg_workflow import get_contours_from_pair_of_2d_seg_image, draw_contours_on_image
 from nuc_morph_analysis.analyses.dataset_images_for_figures.figure_helper import INTENSITIES_DICT
 from tqdm import tqdm
 

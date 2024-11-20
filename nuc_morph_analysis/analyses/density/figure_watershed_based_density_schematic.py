@@ -1,4 +1,5 @@
 #%%
+# code for SuppFigS4 panel C
 from nuc_morph_analysis.lib.preprocessing.twoD_zMIP_area import watershed_workflow, pseudo_cell_helper, pseudo_cell_testing_helper
 from pathlib import Path
 import pandas as pd
@@ -14,15 +15,13 @@ from nuc_morph_analysis.lib.visualization.notebook_tools import save_and_show_pl
 from nuc_morph_analysis.analyses.dataset_images_for_figures.figure_helper import return_glasbey_on_dark
 
 
-from nuc_morph_analysis.analyses.density.watershed_validate import get_contours_from_pair_of_2d_seg_image, draw_contours_on_image
+from nuc_morph_analysis.analyses.density.visually_validate_watershed_psuedo_cell_seg_workflow import get_contours_from_pair_of_2d_seg_image, draw_contours_on_image
 from nuc_morph_analysis.analyses.dataset_images_for_figures.figure_helper import INTENSITIES_DICT
 
 import matplotlib
 matplotlib.rcParams['pdf.fonttype'] = 42
 matplotlib.rcParams['ps.fonttype'] = 42
 matplotlib.rcParams['font.size'] = 7
-
-
 
 def determine_crop_size_and_location_from_track(track,df,crop_w=250,crop_h=250,RESOLUTION_LEVEL=1):
     """

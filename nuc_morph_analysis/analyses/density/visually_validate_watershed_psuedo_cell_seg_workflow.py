@@ -244,7 +244,7 @@ def run_validation_and_plot(TIMEPOINT=48,colony='medium',RESOLUTION_LEVEL=1,plot
     
 if __name__ == '__main__':
     # set the details
-    # dft_test = run_validation_and_plot(testing=True)
-    # dft0 = run_validation_and_plot(plot_everything=True)
+    dft_test = run_validation_and_plot(testing=True,plot_everything=False)
+    dft0 = run_validation_and_plot(testing=False,plot_everything=False)
     # dft0 = run_validation_and_plot(247,colony='small',RESOLUTION_LEVEL=1,plot_everything=True)
-    dft0 = run_validation_and_plot(110,colony='medium',RESOLUTION_LEVEL=1,plot_everything=True)
+    # dft0 = run_validation_and_plot(110,colony='medium',RESOLUTION_LEVEL=1,plot_everything=True)
