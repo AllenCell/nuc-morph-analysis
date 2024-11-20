@@ -103,5 +103,5 @@ jobs:
             Due to some [challenges](https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#triggering-further-workflow-runs),
             with getting this PR to trigger the tests, please manually close and re-open this PR.
           branch: admin/requirements-update_${{ steps.timestamp.outputs.timestamp }}
-          commit-message: Updating requirements.txt after change to `pdm.lock` was pushed to `${{ github.head_ref || github.ref_name }}`
+          commit-message: Updating requirements.txt after change to `pdm.lock` was pushed to `${{ github.ref_name }}`
           delete-branch: true
