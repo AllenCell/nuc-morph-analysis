@@ -19,14 +19,15 @@ matplotlib.rcParams["pdf.fonttype"] = 42
 plt.rcParams["font.family"] = "Arial"
 
 
-def toymodel(nc_ratio=0.29, cvol=745/(0.108**3), cell_H_mod=2, num_workers=1, old_unfiltered_method=False):
+def toymodel(nc_ratio=0.29, cvol=0.5e6, cell_H_mod=0, num_workers=1, old_unfiltered_method=False):
     """
     main function to run
 
     args
     --------
     nc_ratio: ratio of nuclear to cytoplastic volumes - default is 0.3
-    cvol: target volume of nuclei to fit toy model to (default is 745, mean volume of cells in the middle of the cell cycle)
+    cvol: target volume of nuclei to fit toy model to, default is 0.5e6 pixels^3 ~ 630 um^3
+    cell_H_mod: height difference between top of nucleus and top of cell to use for toy model. default is 0
     num_workers: how many workers to use for multiprocessing
     old_unfiltered_method: whether to use the old (unfiltered) method that does not remove bad pseudo cells
     """
@@ -130,7 +131,7 @@ def plot_toy_model(data, toy_stats, save_path=Path("./"), old_unfiltered_method=
     axes.set_ylim(10, 40)
     axes.legend()
     suffix = "unfiltered.pdf" if old_unfiltered_method else ".pdf"
-    savename = f"toymodel-{toy_stats['cell_height_diff'].values[0]}-{toy_stats['cell_vol'].values[0]}{suffix}"
+    savename = f"toymodel{suffix}"
     fig.savefig(save_path / savename, bbox_inches="tight")
 
 
