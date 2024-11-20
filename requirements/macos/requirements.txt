@@ -35,7 +35,7 @@ click==8.1.7
 cloudpickle==3.0.0
 colorama==0.4.6; sys_platform == "win32" or platform_system == "Windows"
 colorcet==3.0.1
-colorizer-data @ git+https://github.com/allen-cell-animated/colorizer-data.git@v1.2.0
+colorizer-data @ git+https://github.com/allen-cell-animated/colorizer-data.git@v1.4.2
 colour-science==0.4.4
 comm==0.2.1
 contourpy==1.1.1
