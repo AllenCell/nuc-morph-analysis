@@ -5,6 +5,8 @@ on:
   push:
     branches:
       - main
+      - bioRxiv-v1
+      - dev
     paths:
       - "pdm.lock"
 
