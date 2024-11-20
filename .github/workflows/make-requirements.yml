@@ -96,12 +96,12 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
         with:
-          base: main
+          base: ${{ github.ref_name }}
           title: admin/requirements-update_${{ steps.timestamp.outputs.timestamp }}
           body: Updating requirements.txt.
 
             Due to some [challenges](https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#triggering-further-workflow-runs),
             with getting this PR to trigger the tests, please manually close and re-open this PR.
           branch: admin/requirements-update_${{ steps.timestamp.outputs.timestamp }}
-          commit-message: Updating requirements.txt after change to `pdm.lock` was pushed to `main`
+          commit-message: Updating requirements.txt after change to `pdm.lock` was pushed to `${{ github.head_ref || github.ref_name }}`
           delete-branch: true
