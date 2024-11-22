@@ -21,12 +21,12 @@ df = global_dataset_filtering.load_dataset_with_features()
 df_full = filter_data.all_timepoints_full_tracks(df)
 df_track_level_features = filter_data.track_level_features(df_full)
 
+# %% MAIN FIGURE PANELS
+
 # %%
 # Plot all tracks all datasets synchronized in real or normalized time
 for time in ["sync_time_Ff", "normalized_time"]:
     plot_tracks.plot_all_tracks_synchronized(df_full, figdir, "volume", time)
-
-# %% MAIN FIGURE PANELS
 
 # %%
 # Plot single sample track from same nucleus as in formation/breakdown figure

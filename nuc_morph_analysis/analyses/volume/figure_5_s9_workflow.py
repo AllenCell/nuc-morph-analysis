@@ -83,17 +83,27 @@ save_and_show_plot(f"{figdir}/sample_extreme_tracks_{track_ids[0]}_{track_ids[1]
 plt.close()
 
 
-# %% Plot distribution of tscale fitted values and root mean squared error
+# %% Plot distribution of tscale fitted values
 # both pooled for all baseline colonies and separated by colony
-for feature in ["tscale_linearityfit_volume", "RMSE_linearityfit_volume"]:
-    for by_colony_flag in [True, False]:
-        plot_fit_parameter_distribution(
-            df_track_level_features,
-            figdir,
-            feature,
-            by_colony_flag=by_colony_flag,
-            density_flag=True,
-        )
+for by_colony_flag in [True, False]:
+    plot_fit_parameter_distribution(
+        df_track_level_features,
+        figdir,
+        "tscale_linearityfit_volume",
+        by_colony_flag=by_colony_flag,
+        density_flag=True,
+        allmodels_flag=False,
+    )
+
+# Plot distribution of RMSE values for all fits
+plot_fit_parameter_distribution(
+    df_track_level_features,
+    figdir,
+    "RMSE",
+    by_colony_flag=by_colony_flag,
+    density_flag=True,
+    allmodels_flag=True,
+)
 
 # %% plot relationships of alpha to fold change and colony time for all data pooled
 for feature in ["volume_fold_change_BC", "colony_time_at_B"]:
@@ -161,7 +171,7 @@ column = "dxdt_48_volume"
 dfint.loc[df_t1.index.values, f"{column}_at_t1"] = df_t1.loc[df_t1.index.values, column]
 dfint.loc[df_t2.index.values, f"{column}_at_t2"] = df_t2.loc[df_t2.index.values, column]
 dfint["dxdt_t2-dxdt_t1"] = dfint[f"{column}_at_t2"] - dfint[f"{column}_at_t1"]
-yscale, ylabel, yunits, _ = get_plot_labels_for_metric("dxdt_t2-dxdt_t1")
+
 # %% scatter plot of alpha vs difference in late and early avg local growth rates for all individual trajectories
 plot_features.scatter_plot(
     dfint,
@@ -225,29 +235,4 @@ for local_radius_str in ["90um", "whole_colony"]:
             remove_all_points_in_pdf=pngflag,
         )
 
-# %% 
-# SuppFigS10 -- rerun the above plots for the volume_dips_removed_um_unfilled feature (controlling for volume dip events) 
-for colony in ["all_baseline","small", "medium", "large"]:
-    color = "colony" if colony != "all_baseline" else "#808080"
-    dfc = dfin[dfin["colony"] == colony] if colony != "all_baseline" else dfin
-    for local_radius_str in ["90um", "whole_colony"]:
-        for pngflag in [True, False]:
-            plot_features.scatter_plot(
-                dfc,
-                "all_baseline",
-                f"neighbor_avg_dxdt_48_volume_dips_removed_um_unfilled_{local_radius_str}",
-                "dxdt_48_volume_dips_removed_um_unfilled",
-                color_map=color,
-                figdir=figdir,
-                fitting=False,
-                n_resamples=2,
-                require_square=False,
-                opacity=0.1,
-                markersize=10,
-                titleheader="full_tracks for all timepoints",
-                dpi=150,
-                file_extension=".pdf",
-                transparent=True,
-                add_unity_line=True,
-                remove_all_points_in_pdf=pngflag,
-            )
+# %%
