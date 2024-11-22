@@ -406,7 +406,7 @@ def make_features(
             dataset=dataset_name,
             colorizer=True,
         )
-        
+
         # Remove parentheses from unit names, if included.
         if len(unit) >= 2 and unit[0] == "(" and unit[-1] == ")":
             unit = unit[1:-1]
@@ -416,7 +416,7 @@ def make_features(
         # Get data and scale to use actual units
         if scale_factor is not None:
             data = data * scale_factor
-            
+
         description = GLOSSARY.get(feature.column_name, "")
 
         writer.write_feature(
@@ -458,11 +458,11 @@ def make_dataset(
 
     # load the dataset once
     df_all = load_dataset_with_features("all_baseline", remove_growth_outliers=False)
-    
+
     for filter in filters:
         output_dir_subset = Path(output_dir) / filter
         output_dir_subset.mkdir(parents=True, exist_ok=True)
-        output_dir_subset = str(output_dir_subset)        
+        output_dir_subset = str(output_dir_subset)
 
         df_filter = df_all.copy()
         df_filter.loc[df_filter[filter] == False, "is_outlier"] = True
@@ -510,19 +510,19 @@ def make_dataset(
             )
 
             # Make the features, frame data, and manifest.
-            nframes = len(grouped_frames)         
+            nframes = len(grouped_frames)
             writer.set_frame_paths(generate_frame_paths(nframes))
 
             make_features(full_dataset, FEATURE_COLUMNS[filter], dataset, writer)
-            
+
             if do_frames:
                 make_all_frames(grouped_frames, scale, writer, parallel)
-            
+
             if make_backdrops:
-                save_colony_backdrop_mips(dataset, output_dir_subset + f"/{dataset}/backdrops/")     
+                save_colony_backdrop_mips(dataset, output_dir_subset + f"/{dataset}/backdrops/")
                 backdrop_paths = [f"./backdrops/{i}.png" for i in range(nframes)]
                 writer.add_backdrops("Max intensity z-projection of Lamin B1", backdrop_paths)
-                
+
             writer.write_manifest(metadata=metadata)
 
 
