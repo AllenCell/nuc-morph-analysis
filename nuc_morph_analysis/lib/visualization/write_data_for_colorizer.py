@@ -568,7 +568,7 @@ parser.add_argument(
     "--make_backdrops",
     type=bool,
     default=True,
-    help="True will generate backdrops (Default). False will use previously generated backdrops or display none if they have not.",
+    help="True will generate backdrops (Default). False will use previously generated backdrops or display none if they have not been generated before.",
 )
 args = parser.parse_args()
 
