@@ -26,7 +26,7 @@ from nuc_morph_analysis.lib.preprocessing import labeling_neighbors_helper
 def load_dataset_with_features(
     dataset="all_baseline",
     remove_growth_outliers=True,
-    load_local=True,
+    load_local=False,
     save_local=False,
     num_workers=32,
 ):
@@ -204,7 +204,7 @@ def process_all_tracks(df, dataset, remove_growth_outliers, num_workers):
     df = add_fov_touch_timepoint_for_colonies(df)
     df = add_features.add_non_interphase_size_shape_flag(df)
     df = add_change_over_time(df)
-    df = add_volume_change_over_25_minute_window(df)
+    df = compute_change_over_time.add_dvdt_over_V(df)
 
     # df = add_dvdt_over_V(df)
     df = add_neighborhood_avg_features.run_script(df, num_workers=num_workers)
