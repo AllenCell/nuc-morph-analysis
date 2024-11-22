@@ -168,6 +168,14 @@ def filter_out_volume_dips(dfd, volume_cols, find_dips=True, use_detrended=True,
     """
     Remove the volume dips from the volume data
 
+    STEPS:
+    - inputs are volume trajectory and power law fit (used for detrending)
+    - both inputs are interpolated so there is a value at each point in time (necessary for smoothing)
+    - volume trajectory is smoothed using savgol filter 
+    - smoothed volume trajectory is detrended by subtracting the power law fit
+    - search for volume dips by putting inverse of detrended smoothed volume trajectory into scipy.signal.find_peaks
+    - peak regions are removed from the volume trajectories by filling with nans. 
+
         Parameters
     ----------
     dfd : pd.DataFrame
@@ -188,27 +196,28 @@ def filter_out_volume_dips(dfd, volume_cols, find_dips=True, use_detrended=True,
         dataframe with columns ['track_id','index_sequence','CellId'] +
         [
             # intermediate columns (only kept if return_intermediates is True)
-            f"input_{peak_str}", # input to peak finder
-            f"volume_smooth", # smoothed volume data
-            f"volume_interpolated", # interpolated volume data
-            f"fit_volume_interpolated", # interpolated fit_volume data
-            f"volume_smooth_detrended", # detrended volume data
+                f"input_{peak_str}", # input to peak finder
+                f"volume_smooth", # smoothed volume data
+                f"volume_interpolated", # interpolated volume data
+                f"fit_volume_interpolated", # interpolated fit_volume data
+                f"volume_smooth_detrended", # detrended volume data
 
             # values from find_peaks_and_collect_features
-            f'volume_{peak_str}_peak_mask_at_region', # boolean array, true at all points within peak region(s)
-            f'volume_{peak_str}_peak_mask_at_center', # boolean array, true at all peak centers
-            f'volume_{peak_str}_has_peak', # boolean array, true at all points if there is a peak
-            f'volume_{peak_str}_volume_change_at_center', # magnitude value at each peak center (left_base - peak)
-            f'volume_{peak_str}_volume_change_at_region', # magnitude values at all points within peak region(s) (left_base - peak)
-            f'volume_{peak_str}_width_at_center', # width of the peak at the peak center index
-            f'volume_{peak_str}_width_at_region', # width of the peak at all indices in the peak region
-            f'volume_{peak_str}_max_volume_change', # maximum magnitude value (at all points in array)
-            f'volume_{peak_str}_peak_id_at_center', # peak id at the peak center index
-            f'volume_{peak_str}_peak_id_at_region', # peak id at all indices in the peak region
-            f'volume_{peak_str}_total_number', # total number of peaks
+                f'volume_{peak_str}_peak_mask_at_region', # boolean array, true at all points within peak region(s)
+                f'volume_{peak_str}_peak_mask_at_center', # boolean array, true at all peak centers
+                f'volume_{peak_str}_has_peak', # boolean array, true at all points if there is a peak
+                f'volume_{peak_str}_volume_change_at_center', # magnitude value at each peak center (left_base - peak)
+                f'volume_{peak_str}_volume_change_at_region', # magnitude values at all points within peak region(s) (left_base - peak)
+                f'volume_{peak_str}_width_at_center', # width of the peak at the peak center index
+                f'volume_{peak_str}_width_at_region', # width of the peak at all indices in the peak region
+                f'volume_{peak_str}_max_volume_change', # maximum magnitude value (at all points in array)
+                f'volume_{peak_str}_peak_id_at_center', # peak id at the peak center index
+                f'volume_{peak_str}_peak_id_at_region', # peak id at all indices in the peak region
+                f'volume_{peak_str}_total_number', # total number of peaks
 
 
-            f"volume_{peak_str}_removed_um_unfilled", # dips or jumps removed (refilled with nans)
+            # values after peak regions are removed
+                f"volume_{peak_str}_removed_um_unfilled", # dips or jumps removed (refilled with nans)
         ]
 
         where {} is the peak_str ('dips' or 'jumps')
@@ -364,27 +373,27 @@ def run_script(df=None,volume_cols=['volume','fit_volume'],use_detrended=True,re
         
         [
             # intermediate columns (only kept if return_intermediates is True)
-            f"input_{peak_str}", # input to peak finder
-            f"volume_smooth", # smoothed volume data
-            f"volume_interpolated", # interpolated volume data
-            f"fit_volume_interpolated", # interpolated fit_volume data
-            f"volume_smooth_detrended", # detrended volume data
+                f"input_{peak_str}", # input to peak finder
+                f"volume_smooth", # smoothed volume data
+                f"volume_interpolated", # interpolated volume data
+                f"fit_volume_interpolated", # interpolated fit_volume data
+                f"volume_smooth_detrended", # detrended volume data
 
             # values from find_peaks_and_collect_features
-            f'volume_{peak_str}_peak_mask_at_region', # boolean array, true at all points within peak region(s)
-            f'volume_{peak_str}_peak_mask_at_center', # boolean array, true at all peak centers
-            f'volume_{peak_str}_has_peak', # boolean array, true at all points if there is a peak
-            f'volume_{peak_str}_volume_change_at_center', # magnitude value at each peak center (left_base - peak)
-            f'volume_{peak_str}_volume_change_at_region', # magnitude values at all points within peak region(s) (left_base - peak)
-            f'volume_{peak_str}_width_at_center', # width of the peak at the peak center index
-            f'volume_{peak_str}_width_at_region', # width of the peak at all indices in the peak region
-            f'volume_{peak_str}_max_volume_change', # maximum magnitude value (at all points in array)
-            f'volume_{peak_str}_peak_id_at_center', # peak id at the peak center index
-            f'volume_{peak_str}_peak_id_at_region', # peak id at all indices in the peak region
-            f'volume_{peak_str}_total_number', # total number of peaks
+                f'volume_{peak_str}_peak_mask_at_region', # boolean array, true at all points within peak region(s)
+                f'volume_{peak_str}_peak_mask_at_center', # boolean array, true at all peak centers
+                f'volume_{peak_str}_has_peak', # boolean array, true at all points if there is a peak
+                f'volume_{peak_str}_volume_change_at_center', # magnitude value at each peak center (left_base - peak)
+                f'volume_{peak_str}_volume_change_at_region', # magnitude values at all points within peak region(s) (left_base - peak)
+                f'volume_{peak_str}_width_at_center', # width of the peak at the peak center index
+                f'volume_{peak_str}_width_at_region', # width of the peak at all indices in the peak region
+                f'volume_{peak_str}_max_volume_change', # maximum magnitude value (at all points in array)
+                f'volume_{peak_str}_peak_id_at_center', # peak id at the peak center index
+                f'volume_{peak_str}_peak_id_at_region', # peak id at all indices in the peak region
+                f'volume_{peak_str}_total_number', # total number of peaks
 
-
-            f"volume_{peak_str}_removed_um_unfilled", # dips or jumps removed (refilled with nans)
+            # values after peak regions are removed
+                f"volume_{peak_str}_removed_um_unfilled", # dips or jumps removed (refilled with nans)
         ]
         
     """

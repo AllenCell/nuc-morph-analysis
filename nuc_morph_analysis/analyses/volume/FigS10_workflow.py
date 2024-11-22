@@ -262,23 +262,6 @@ for local_radius_str in ["90um", "whole_colony"]:
             remove_all_points_in_pdf=pngflag,
         )
 
-#%%
-# S5 panel E and S9 panel E
-df_full = add_times.digitize_time_column(df_full,0,1,step_size=0.02,time_col='normalized_time',new_col='dig_time')
-
-ycol = 'dxdt_48_volume'
-for colony in colony_list:
-    dfc = df_full[df_full['colony']==colony]
-    fig,ax = plot_dxdt_over_time(dfc,ycol)
-
-    fig,ax = adjust_axis_positions(fig,ax,curr_pos=None,width=0.9,height=0.6,space=0.075)
-
-    plt.suptitle(f"{ycol}")
-    # savepath = figdir / f"cell_cycle_bins_{ycol}_{xcol1}_{plot_type}.png"
-    for ext in ['.png','.pdf']:
-        savepath = save_dir / f"S5_E-cell_cycle_bins_for_only_{colony}_{ycol}_{ext}"
-        save_and_show_plot(str(savepath),ext,fig,transparent=False,keep_open=True)
-    plt.show()
 
 
 #%%

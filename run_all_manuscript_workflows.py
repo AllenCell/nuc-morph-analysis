@@ -36,9 +36,11 @@ class Workflows:
     def figure_4_s8_volume_trajectories():
         import nuc_morph_analysis.analyses.volume.figure_4_s8_workflow
         
-    def figure_5_s9_local_growth():
+    def figure_5_s9_s10_local_growth():
         import nuc_morph_analysis.analyses.volume.figure_5_s9_workflow
         #s10 coming soon
+        import nuc_morph_analysis.analyses.volume.FigS10_workflow
+
 
     def figure_6_s11_compensation():
         import nuc_morph_analysis.analyses.volume_variation.figure_6_s11_workflow
