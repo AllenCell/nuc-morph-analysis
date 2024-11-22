@@ -9,7 +9,7 @@ from nuc_morph_analysis.analyses.volume import plot_help
 from nuc_morph_analysis.analyses.volume.plot_help import (
     plot_neighbors_volume_over_time, plot_tracks_aligned_at_volume_drop_onset,update_plotting_params,
     adjust_axis_positions, plot_track_with_fit_line, plot_track_with_volume_dip,
-    plot_dip_detection_validation, plot_dxdt_over_time
+    plot_dip_detection_validation, plot_dxdt_over_time_by_cell_cycle
 )
 from nuc_morph_analysis.lib.preprocessing import filter_data, compute_change_over_time, add_times
 from nuc_morph_analysis.lib.visualization.notebook_tools import save_and_show_plot 
@@ -223,7 +223,7 @@ df_full = add_times.digitize_time_column(df_full,0,1,step_size=0.02,time_col='no
 ycol = 'dxdt_48_volume_dips_removed_um_unfilled'
 for colony in colony_list:
     dfc = df_full[df_full['colony']==colony]
-    fig,ax = plot_dxdt_over_time(dfc,ycol)
+    fig,ax = plot_dxdt_over_time_by_cell_cycle(dfc,ycol)
 
     fig,ax = adjust_axis_positions(fig,ax,curr_pos=None,width=0.9,height=0.6,space=0.075)
 

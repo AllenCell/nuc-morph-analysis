@@ -11,7 +11,7 @@ from nuc_morph_analysis.lib.preprocessing.add_times import (
 from nuc_morph_analysis.lib.visualization.plotting_tools import get_plot_labels_for_metric
 from nuc_morph_analysis.lib.visualization.example_tracks import EXAMPLE_TRACKS
 
-from nuc_morph_analysis.analyses.volume.plot_help import plot_dxdt_over_time, adjust_axis_positions
+from nuc_morph_analysis.analyses.volume.plot_help import plot_dxdt_over_time_by_cell_cycle, adjust_axis_positions
 import matplotlib
 import matplotlib.pyplot as plt
 
@@ -243,13 +243,13 @@ ycol = 'dxdt_48_volume'
 colony_list = ['small','medium','large']
 for colony in colony_list:
     dfc = df_full[df_full['colony']==colony]
-    fig,ax = plot_dxdt_over_time(dfc,ycol)
+    fig,ax = plot_dxdt_over_time_by_cell_cycle(dfc,ycol)
 
     fig,ax = adjust_axis_positions(fig,ax,curr_pos=None,width=0.9,height=0.6,space=0.075)
 
     plt.suptitle(f"{ycol}")
     # savepath = figdir / f"cell_cycle_bins_{ycol}_{xcol1}_{plot_type}.png"
     for ext in ['.png','.pdf']:
-        savepath = figdir / f"S5_E-cell_cycle_bins_for_only_{colony}_{ycol}_{ext}"
+        savepath = Path(figdir) / f"S5_E-cell_cycle_bins_for_only_{colony}_{ycol}_{ext}"
         save_and_show_plot(str(savepath),ext,fig,transparent=False,keep_open=True)
     plt.show()

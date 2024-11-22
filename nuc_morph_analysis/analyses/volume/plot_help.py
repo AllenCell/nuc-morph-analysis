@@ -466,7 +466,7 @@ def plot_dip_detection_validation(dftrack,peak_str = 'dips'):
 
 
 
-def plot_dxdt_over_time(dfc,ycol,xcol1='index_sequence',plot_type='mean',cell_cycle_width=0.2,cell_cycle_centers=[0.3,0.5,0.7],bin_labels=['Early','Mid','Late'],fw=6.5,fh=8):
+def plot_dxdt_over_time_by_cell_cycle(dfc,ycol,xcol1='index_sequence',plot_type='mean',cell_cycle_width=0.2,cell_cycle_centers=[0.3,0.5,0.7],bin_labels=['Early','Mid','Late'],fw=6.5,fh=8):
     """
     plot dxdt over time
 
