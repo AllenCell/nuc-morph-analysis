@@ -417,7 +417,7 @@ def make_features(
         if scale_factor is not None:
             data = data * scale_factor
             
-        description = GLOSSARY.get(feature.column_name, "Coming soon")
+        description = GLOSSARY.get(feature.column_name, "")
 
         writer.write_feature(
             data,
@@ -521,7 +521,7 @@ def make_dataset(
             if make_backdrops:
                 save_colony_backdrop_mips(dataset, output_dir_subset + f"/{dataset}/backdrops/")     
                 backdrop_paths = [f"./backdrops/{i}.png" for i in range(nframes)]
-                writer.add_backdrops("MIP of Lamin B1", backdrop_paths)
+                writer.add_backdrops("Max intensity z-projection of Lamin B1", backdrop_paths)
                 
             writer.write_manifest(metadata=metadata)
 
