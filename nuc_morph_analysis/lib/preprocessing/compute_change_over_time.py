@@ -92,7 +92,8 @@ def run_script(df=None, dxdt_feature_list = None, bin_interval_list=None, exclud
     time_location : str
         'center' or 'end', determines where the change over time value is returned in the bin_interval
         default is 'center' (e.g. for bin_interval=48, the change over time value is returned at timepoint 24)
-        when 'end', the change over time value is returned at timepoint 0
+        when 'end', the change over time value is returned at timepoint 0 ( this is important for the new feature
+        `dxdt_5_volume_end` which gets renamed into dfm['volume_change_over_25_minutes'] = dfm['dxdt_5_volume_end']*5)
 
     Returns
     -------
