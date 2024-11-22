@@ -18,7 +18,7 @@ def save_colony_backdrop_mips(colony, figdir, dtype ="uint8", downsample_factor=
     
     Two downsampling methods are available. 
     
-    1. Load directly a precomputed lower resolution zarr. Options are 0, 1, 2, 3, 4.
+    1. Load directly a precomputed lower resolution zarr. Options are 0, 1, 2, 3, 4. 
     2. Resize the image using skimage and downsample the image using a custom scaling factor. 
     
     The default behavior is to resize the image using skimage. This is the same method used to generate
@@ -47,12 +47,10 @@ def save_colony_backdrop_mips(colony, figdir, dtype ="uint8", downsample_factor=
         
         if downsample_factor is not None:
             downsample_shape = (egfp_mip.shape[0] // downsample_factor, egfp_mip.shape[1] // downsample_factor)
-            egfp_mip = resize(egfp_mip, downsample_shape, anti_aliasing=True, preserve_range=True).astype(dtype)
+            egfp_mip = resize(egfp_mip, downsample_shape, anti_aliasing=False, preserve_range=True, order=1).astype(dtype)
         
         egfp_mip = skex.rescale_intensity(image=egfp_mip, in_range=(110, 140), out_range=dtype).astype(dtype)
         
         os.makedirs(figdir, exist_ok=True)
         save_image = os.path.join(figdir, f'{timepoint_frame}.png')
         two_d_writer.TwoDWriter.save(egfp_mip, uri=save_image)
-
-#%%
