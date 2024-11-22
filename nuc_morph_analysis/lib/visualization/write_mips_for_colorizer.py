@@ -21,7 +21,7 @@ def save_colony_backdrop_mips(colony, figdir, dtype ="uint8", downsample_factor=
     1. Load directly a precomputed lower resolution zarr. Options are 0, 1, 2, 3, 4.
     2. Resize the image using skimage and downsample the image using a custom scaling factor. 
     
-    The default behavior is to resizing the image using skimage. This is the same method used to generate
+    The default behavior is to resize the image using skimage. This is the same method used to generate
     MIPs in Figure 1. 
 
     Parameters:
