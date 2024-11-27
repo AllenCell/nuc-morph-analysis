@@ -64,7 +64,7 @@ def determine_colormaps(img,key,crop_exp):
         vmax= INTENSITIES_DICT['egfp_max'][1]
     return cmap, vmin, vmax
 
-def run_validation_and_plot(track_id=87135,RESOLUTION_LEVEL=1,frames_before=1,frames_after=7,w=300,plot_everything=False):
+def run_validation_and_plot(track_id=87135,RESOLUTION_LEVEL=1,frames_before=0,frames_after=7,w=300,plot_everything=False):
     """
     run an image through the watershed based pseudo cell segmentation and examine the outputs
     optionally, run a test image through the same pipeline
@@ -169,10 +169,15 @@ def run_validation_and_plot(track_id=87135,RESOLUTION_LEVEL=1,frames_before=1,fr
 
                 colormap_dict = {} #type:ignore
                 colormap_dict.update({'nothing':('frame_of_breakdown',False,1,(0.4,0.4,0.4),f"")}) 
-                colormap_dict.update({'has_mitotic_neighbor_breakdown_dilated':('has_mitotic_neighbor_breakdown_forward_dilated',True,3,(0.8,0,0),f"has mitotic neighbor (forward)")})
-                colormap_dict.update({'has_mitotic_neighbor_breakdown':('has_mitotic_neighbor_breakdown',True,4,(1.0,0.0,1.0),f"has mitotic neighbor")})
+                # colormap_dict.update({'has_mitotic_neighbor_breakdown_dilated':('has_mitotic_neighbor_breakdown_forward_dilated',True,3,(0.8,0,0),f"has mitotic neighbor (forward)")})
+                colormap_dict.update({'has_mitotic_neighbor_dilated':('has_mitotic_neighbor_dilated',True,3,(0.8,0,0),f"has mitotic neighbor (propagated)")})
+                # colormap_dict.update({'has_mitotic_neighbor_breakdown':('has_mitotic_neighbor_breakdown',True,4,(1.0,0.0,1.0),f"has mitotic neighbor (breakdown)")})
+                colormap_dict.update({'has_mitotic_neighbor':('has_mitotic_neighbor',True,4,(1.0,0.0,1.0),f"has mitotic neighbor")})
+
                 colormap_dict.update({'track':('track_id',track_id,2,(0.0,1.0,0.0),f"cell that will divide")}) #type:ignore
                 colormap_dict.update({'frame_of_breakdown':('frame_of_breakdown',True,8,(1.0,1.0,0.0),f"breakdown event")})
+                colormap_dict.update({'frame_of_formation':('frame_of_formation',True,9,(0.0,1.0,1.0),f"formation event")})
+
                 # now update colors in contour_list based on colormap_dict
                 # contour_list.append((label_img,nuc_contours,cell_contours,color))
 
