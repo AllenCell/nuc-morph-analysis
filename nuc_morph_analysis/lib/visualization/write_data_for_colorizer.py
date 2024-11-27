@@ -306,7 +306,7 @@ FEATURE_COLUMNS = {
         NucMorphFeatureSpec('dxdt_48_fit_volume'),
         NucMorphFeatureSpec('dxdt_48_fit_volume_per_V'),
 
-        NucMorphFeatureSpec('fit_volume'),
+        NucMorphFeatureSpec('power_fit_volume'),
 
         NucMorphFeatureSpec('volume_dips_removed_um'), 
         NucMorphFeatureSpec('smooth_volume_dips_removed_um'),

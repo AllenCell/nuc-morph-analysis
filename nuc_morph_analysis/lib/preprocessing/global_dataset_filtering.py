@@ -28,7 +28,7 @@ from nuc_morph_analysis.analyses.volume import filter_out_dips
 def load_dataset_with_features(
     dataset="all_baseline",
     remove_growth_outliers=True,
-    load_local=True,
+    load_local=False,
     save_local=False,
     num_workers=32,
 ):
@@ -270,7 +270,7 @@ def process_full_tracks(df_all, thresh, pix_size, interval):
     df_full = add_features.add_fold_change_track_fromB(df_full, "SA", "mesh_sa", pix_size**2)
     df_full = add_growth_features.add_early_growth_rate(df_full, interval)
     df_full = add_growth_features.add_late_growth_rate_by_endpoints(df_full)
-    df_full = add_growth_features.fit_tracks_to_model(df_full, interval, "power")
+    df_full = add_growth_features.fit_tracks_to_model(df_full, interval, "power",add_fit_volume=True) #add_fit_volume=True, used for volume dip detection
     df_full = add_growth_features.fit_tracks_to_model(df_full, interval, "exponential")
     df_full = add_growth_features.fit_tracks_to_model(df_full, interval, "linear")
     

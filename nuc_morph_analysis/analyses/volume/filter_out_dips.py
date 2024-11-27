@@ -182,7 +182,7 @@ def filter_out_volume_dips(dfd, volume_cols, find_dips=True, use_detrended=True,
         dataframe with columns ['track_id','index_sequence'] + volume_cols
     volume_cols : list
         list of columns to needed to find and filter out volume dips
-        default is ['volume','fit_volume'], fit_volume is used to detrend the volume data
+        default is ['volume','power_fit_volume'], fit_volume is used to detrend the volume data
     find_dips : bool
         if True, find and remove the volume dips (input to peak finder is inverse of detrended+smoothed volume)
     use_detrended : bool
@@ -347,7 +347,7 @@ def filter_out_volume_dips(dfd, volume_cols, find_dips=True, use_detrended=True,
 
 
 # %%
-def run_script(df=None,volume_cols=['volume','fit_volume'],use_detrended=True,return_intermediates=False):
+def run_script(df=None,volume_cols=['volume','power_fit_volume'],use_detrended=True,return_intermediates=False):
     """
     run the workflow to find, characterize, and remove volume dips from the volume data
 
