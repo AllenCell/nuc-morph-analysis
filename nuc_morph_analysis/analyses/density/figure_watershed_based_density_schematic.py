@@ -14,8 +14,7 @@ from nuc_morph_analysis.lib.visualization.notebook_tools import save_and_show_pl
 
 from nuc_morph_analysis.analyses.dataset_images_for_figures.figure_helper import return_glasbey_on_dark
 
-
-from nuc_morph_analysis.analyses.density.visually_validate_watershed_psuedo_cell_seg_workflow import get_contours_from_pair_of_2d_seg_image, draw_contours_on_image
+from nuc_morph_analysis.analyses.density.extra_checks.visually_validate_watershed_psuedo_cell_seg_workflow import get_contours_from_pair_of_2d_seg_image, draw_contours_on_image
 from nuc_morph_analysis.analyses.dataset_images_for_figures.figure_helper import INTENSITIES_DICT
 
 import matplotlib
@@ -64,7 +63,7 @@ def determine_colormaps(img,key,crop_exp):
 
 def run_validation_and_plot(TIMEPOINT=88,track=81463,colony='medium',RESOLUTION_LEVEL=1,plot_everything=False, testing=False):
     """
-    run an image through the watershed based pseudo cell segmentation and examine the outputs
+    run an image through the watershed based pseudo cell segmentation and examine the outputs (as full fov and crop within that fov)
     optionally, run a test image through the same pipeline
 
     Parameters
@@ -121,7 +120,6 @@ def run_validation_and_plot(TIMEPOINT=88,track=81463,colony='medium',RESOLUTION_
     for full_crop, sizes in [('crop',(track_x,track_y,crop_w,crop_h)),('full',(0,0,mip.shape[1],mip.shape[0]))]:
         x1,y1,w,h = sizes
         crop_exp = np.index_exp[y1:y1+h,x1:x1+w]
-        # key_list = ['raw_image','mip_of_labeled_image','binarized_mip','distance','pseudo_cells_img','overlay','colorize']
         key_list = ['mip_of_labeled_image','distance','pseudo_cells_img','colorize']
 
         
@@ -201,29 +199,24 @@ def run_validation_and_plot(TIMEPOINT=88,track=81463,colony='medium',RESOLUTION_
                 ax.set_position(position)
                 # adjust position of colorbar
                 cbar_position = cbar.ax.get_position()
-                # cbar.ax.set_position([cbar_position.x0+0.05,cbar_position.y0,cbar_position.width,cbar_position.height]) # for left location
                 cbar.ax.set_position([cbar_position.x0,cbar_position.y0-0.15,cbar_position.width,cbar_position.height]) # for bottom location
 
         # now save the figure
         savedir = Path(__file__).parent / 'figures' / 'watershed_figure_illustration'
         savedir.mkdir(exist_ok=True,parents=True)
         
-        for ext in ['.png','.pdf']:
-            savename = f'{colony}_{track}_{TIMEPOINT}_{full_crop}_res{RESOLUTION_LEVEL}_{cmapstr}'
-            savepath = savedir / savename
-            print(f'Saved figure to {savepath}')
-            save_and_show_plot(str(savepath),
-                               file_extension=ext,
-                               figure=fig,
-                               transparent=True,
-                               keep_open=True,
-                               **{'dpi':600}
-                            )
+        ext = '.pdf'
+        savename = f'{colony}_{track}_{TIMEPOINT}_{full_crop}_res{RESOLUTION_LEVEL}_{cmapstr}'
+        savepath = savedir / savename
+        save_and_show_plot(str(savepath),
+                            file_extension=ext,
+                            figure=fig,
+                            transparent=True,
+                            keep_open=True,
+                            **{'dpi':600}
+                        )
     
 if __name__ == '__main__':
     # set the details
-    # dft0 = run_validation_and_plot(120,track=84619,colony='medium',RESOLUTION_LEVEL=1,plot_everything=True)
-    # dft1 = run_validation_and_plot(0,track=87172,colony='medium',RESOLUTION_LEVEL=1,plot_everything=False)
-    # dft1 = run_validation_and_plot(48,track=87099,colony='medium',RESOLUTION_LEVEL=1,plot_everything=False)
     dft1 = run_validation_and_plot(88,track=81463,colony='medium',RESOLUTION_LEVEL=1,plot_everything=False)
 

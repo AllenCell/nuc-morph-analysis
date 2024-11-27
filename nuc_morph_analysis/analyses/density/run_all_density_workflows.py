@@ -1,9 +1,0 @@
-# this code runs all workflows in the density folder (not all of these are in the paper)
-from nuc_morph_analysis.analyses.density import visually_validate_watershed_psuedo_cell_seg_workflow
-visually_validate_watershed_psuedo_cell_seg_workflow.run_validation_and_plot(plot_everything=False)
-from nuc_morph_analysis.analyses.density import confirm_identical_density_at_different_zarr_resolutions
-from nuc_morph_analysis.analyses.density import figure_watershed_based_density_schematic
-figure_watershed_based_density_schematic.run_validation_and_plot()
-from nuc_morph_analysis.analyses.density import confirm_no_corr_btn_density_and_nuclear_area
-
-print('done')

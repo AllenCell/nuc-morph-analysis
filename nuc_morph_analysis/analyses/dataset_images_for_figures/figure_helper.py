@@ -109,6 +109,7 @@ def return_glasbey_on_dark(N=255, cell_id=None, cell_color=None, from_list=False
     N: int, the number of colors to return
     cell_id: int, the cell id to change the color of
     cell_color: array, the RGB color to change the cell to
+    from_list: bool, whether colormap should be returned from ListedColormap or not
     """
     from matplotlib.colors import LinearSegmentedColormap, ListedColormap
     from nuc_morph_analysis.analyses.dataset_images_for_figures.glasbey_on_dark import (

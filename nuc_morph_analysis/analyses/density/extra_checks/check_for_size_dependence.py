@@ -1,4 +1,5 @@
 #%%
+# this code is not used in the final analysis, but was used to confirm that there is no correlation between density and nuclear area
 from nuc_morph_analysis.lib.visualization.reference_points import COLONY_COLORS, COLONY_LABELS
 import matplotlib.pyplot as plt
 import numpy as np
@@ -9,6 +10,8 @@ from nuc_morph_analysis.lib.preprocessing import filter_data
 from pathlib import Path
 from sklearn.linear_model import LinearRegression
 from matplotlib.ticker import MaxNLocator
+import matplotlib
+
 
 #%%
 # set figure directory
@@ -22,7 +25,6 @@ df = global_dataset_filtering.load_dataset_with_features(dataset='all_baseline')
 dfm = filter_data.all_timepoints_minimal_filtering(df)
 
 #%% # plot density over time for each colony  along colony time 
-import matplotlib
 matplotlib.rcParams.update({'font.size': 8})
 matplotlib.rcParams.update({'axes.titlesize': 8})
 matplotlib.rcParams.update({'axes.labelsize': 8})
@@ -36,10 +38,10 @@ matplotlib.rcParams.update({'axes.linewidth': 0.5})
 
 
 #%%
-# plot density as a function of nucleus size (and compare to old density metric)
+# plot density as a function of nucleus size 
 colony='medium'
 x_col = '2d_area_nucleus'
-for yi,y_col in enumerate(['2d_area_nuc_cell_ratio','density','inv_cyto_density']):
+for yi,y_col in enumerate(['2d_area_nuc_cell_ratio']):
 
     dfsub = dfm[dfm['colony']==colony].copy()
     dfsub.dropna(subset=[y_col],inplace=True)
