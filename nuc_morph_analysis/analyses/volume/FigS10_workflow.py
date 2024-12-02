@@ -20,6 +20,8 @@ from nuc_morph_analysis.lib.visualization.plotting_tools import get_plot_labels_
 from nuc_morph_analysis.lib.visualization import plotting_tools
 from nuc_morph_analysis.analyses.volume_variation import plot_features
 
+from nuc_morph_analysis.lib.visualization.example_tracks import EXAMPLE_TRACKS
+
 #%%
 # now load data with growth outliers
 df_outliers = load_dataset_with_features('all_baseline', remove_growth_outliers=False)
@@ -36,7 +38,7 @@ save_dir = Path(__file__).parent / 'figures' / 'volume_dip_figures'
 # %%
 # S10 panel A, left
 # choose one track and its neighbors (at a given time) to plot over time
-MAIN_TRACK_ID = 75725
+MAIN_TRACK_ID = EXAMPLE_TRACKS['volume_dip_example']
 TIMEPOINT = 239
 track_id_list = get_a_cells_neighbors_as_track_id_list(df_outliers,MAIN_TRACK_ID,TIMEPOINT)
 fig,axlist = plot_neighbors_volume_over_time(df_outliers,track_id_list)
@@ -57,16 +59,6 @@ for ext in ['.png','.pdf']:
     save_and_show_plot(save_path,ext,fig,transparent=False,keep_open=True)
 plt.show()
 
-#%%
-# S10 panel A, right
-# view data in timelapse feature explorer (TFE) with the following link 
-# TODO: update data path to be the final TFE url
-datapath = "https%3A%2F%2Fdev-aics-dtp-001.int.allencell.org%2Fassay-dev%2Fusers%2FFrick%2FPythonProjects%2Frepos%2Flocal_storage%2Ftimelapse_feature_explorer_datasets%2FTFE_new%2Fexploratory_dataset%2Fsmall%2Fmanifest.json"
-url = f"https://timelapse.allencell.org/viewer?dataset={datapath}&feature=change_in_volume_in_25_minute_window&t=239&filters=growth_outlier_filter%3A%3A3%2Cbaseline_colonies_dataset_filter%3A%3A3%2Cfullinterphase_dataset_filter%3A%3A3%2Clineageannotated_dataset_filter%3A%3A3%2Cvolume_jumps_right_magnitude_mask%3A%3A43.916%3A254.426&range=-200%2C200&color=matplotlib-purple_orange&palette-key=adobe&bg-sat=100&bg-brightness=100&fg-alpha=100&outlier-color=c0c0c0&outlier-mode=1&filter-color=dddddd&filter-mode=1&tab=scatter_plot&scalebar=1&timestamp=1&path=1&keep-range=1&scatter-range=all&scatter-x=scatterplot_time&scatter-y=volume"
-print(url)
-# save url as text file in figure folder
-with open(save_dir / 'S10_A_right_url.txt','w') as f:
-    f.write(url)
 # %%
 # S10 panel B, illustrate the effect of volume dip on transient growth rate
     
@@ -79,7 +71,7 @@ assert type(ax) == np.ndarray # for mypy
 # add_time_point_lines=False,timepoint=None
 volume_dip_example_track = 86570
 
-main_track_list = [(volume_dip_example_track, 263)] #[(86570, 263),(75725, 239), (71532,131)]
+main_track_list = [(volume_dip_example_track, 263)]
 for main_track_id, timepoint in main_track_list:
     ax = axlist[0]
     ax = plot_track_with_volume_dip(ax,df_full,main_track_id,add_time_point_lines=True,timepoint=timepoint)
@@ -173,8 +165,6 @@ for threshold in [-50,0]:
         yn = df_all['number_of_nuclei']
         y = yd / yn *100
 
-        print(np.where(df_all['number_of_dips'] > 5))
-
         zorderval = 1 if threshold !=0 else -1 # to ensure large colony is in front when it has fewer peaks
         ax.plot(x,y,label=colony,color=plotting_tools.COLONY_COLORS[colony],zorder=ci*1000*zorderval)
     ax.set_xlabel(f"{xlabel} {xunit}")
@@ -193,9 +183,6 @@ for threshold in [-50,0]:
                 markerscale=1,handlelength=1,
                 labelspacing=0,
                 )
-    # if threshold == -50:
-    #     ax.set_yticks(np.arange(0,110,10))
-    #     ax.set_ylim(0,30)
     if threshold != -100:
         curr_ylim = ax.get_ylim()
 
@@ -228,7 +215,6 @@ for colony in colony_list:
     fig,ax = adjust_axis_positions(fig,ax,curr_pos=None,width=0.9,height=0.6,space=0.075)
 
     plt.suptitle(f"{ycol}")
-    # savepath = figdir / f"cell_cycle_bins_{ycol}_{xcol1}_{plot_type}.png"
     for ext in ['.png','.pdf']:
         savepath = save_dir / f"S10_E-cell_cycle_bins_for_only_{colony}_{ycol}_{ext}"
         save_and_show_plot(str(savepath),ext,fig,transparent=False,keep_open=True)
@@ -237,7 +223,6 @@ for colony in colony_list:
 #%%
 # S10 panel F and G
 colony='all_baseline'
-# color = "colony" if colony != "all_baseline" else "#808080"
 
 dfc = df_full[df_full["colony"] == colony] if colony != "all_baseline" else df_full
 for local_radius_str in ["90um", "whole_colony"]:
