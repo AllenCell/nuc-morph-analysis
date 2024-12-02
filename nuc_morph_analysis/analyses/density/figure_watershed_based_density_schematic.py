@@ -17,6 +17,8 @@ from nuc_morph_analysis.analyses.dataset_images_for_figures.figure_helper import
 from nuc_morph_analysis.analyses.density.extra_checks.visually_validate_watershed_psuedo_cell_seg_workflow import get_contours_from_pair_of_2d_seg_image, draw_contours_on_image
 from nuc_morph_analysis.analyses.dataset_images_for_figures.figure_helper import INTENSITIES_DICT
 
+from nuc_morph_analysis.lib.visualization.example_tracks import EXAMPLE_TRACKS
+
 import matplotlib
 matplotlib.rcParams['pdf.fonttype'] = 42
 matplotlib.rcParams['ps.fonttype'] = 42
@@ -61,7 +63,7 @@ def determine_colormaps(img,key,crop_exp):
     return cmap, vmin, vmax
 
 
-def run_validation_and_plot(TIMEPOINT=88,track=81463,colony='medium',RESOLUTION_LEVEL=1,plot_everything=False, testing=False):
+def run_validation_and_plot(TIMEPOINT=88,track=EXAMPLE_TRACKS["pseudocell_density_example"],colony='medium',RESOLUTION_LEVEL=1,plot_everything=False, testing=False):
     """
     run an image through the watershed based pseudo cell segmentation and examine the outputs (as full fov and crop within that fov)
     optionally, run a test image through the same pipeline
