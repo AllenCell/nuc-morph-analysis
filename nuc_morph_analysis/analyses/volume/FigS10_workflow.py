@@ -103,7 +103,7 @@ for ext in ['.png','.pdf']:
 df_track = df_full[df_full.track_id == volume_dip_example_track]
 fig,axlist = plt.subplots(2,1,figsize=(fw,fh),sharey=False)
 axlist = np.asarray(axlist) if type(axlist) != np.ndarray else axlist # for mypy
-assert type(ax) == np.ndarray # for mypy
+assert type(axlist) == np.ndarray # for mypy
 
 _ = plot_track_with_fit_line(df_track,axlist[0],
                                 ycol1='volume',
