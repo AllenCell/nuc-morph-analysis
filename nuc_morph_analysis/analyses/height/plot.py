@@ -96,7 +96,7 @@ def height_colony_time_alignment(
     )
 
 
-def calculate_mean_density(df, scale, use_old_density=False):
+def calculate_mean_density(df, scale):
     """
     Calculate the mean height for a given index_sequence (i.e. timepoint) and the standard deviation of the mean.
 
@@ -106,8 +106,6 @@ def calculate_mean_density(df, scale, use_old_density=False):
         DataFrame containing the data.
     pixel_size : float
         Pixel size in microns.
-    use_old_density : bool
-        Whether to use the old density calculation method ('density') or the new method ('2d_area_nuc_cell_ratio')
 
     Returns
     -------
@@ -118,7 +116,7 @@ def calculate_mean_density(df, scale, use_old_density=False):
     """
     mean = []
     standard_dev = []
-    feature_col = "density" if use_old_density else "2d_area_nuc_cell_ratio"
+    feature_col = "2d_area_nuc_cell_ratio"
     for _, df_frame in df.groupby("index_sequence"):
         density = df_frame[feature_col].values * scale
         mean.append(np.nanmean(density))
@@ -134,7 +132,6 @@ def density_colony_time_alignment(
     show_legend=False,
     error="percentile",
     figdir="height/figures",
-    use_old_density=False,
 ):
     """
     Plot the mean nuclear height across the colony over time for each colony. This is done in real time and colony time.
@@ -159,9 +156,6 @@ def density_colony_time_alignment(
     error: str
         "std" or percentile
 
-    use_old_density: bool
-        Whether to use the old density calculation method ('density') or the new method ('2d_area_nuc_cell_ratio')
-
     Returns
     -------
     Plot of mean nuclear height across the colony over time for each colony.
@@ -169,7 +163,7 @@ def density_colony_time_alignment(
     plt.close()
     fig, ax = plt.subplots(1, 1, figsize=(5, 4))
 
-    feature_col = "density" if use_old_density else "2d_area_nuc_cell_ratio"
+    feature_col = "2d_area_nuc_cell_ratio"
     scale, label, units, _ = get_plot_labels_for_metric(feature_col)
 
     for colony, df_colony in df.groupby("colony"):
@@ -212,7 +206,6 @@ def density_colony_time_alignment(
             time, mean_density, linewidth=1.2, color=color, label=COLONY_LABELS[colony], zorder=20
         )
 
-    # ax.set_ylim(0.0005, 0.0065)
     ax.set_ylabel(f"Average Density \n Across Colony {units}")
     ax.set_xlabel(x_label)
     if show_legend is True:
