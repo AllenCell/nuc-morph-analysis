@@ -20,7 +20,6 @@ from nuc_morph_analysis.analyses.colony_context.colony_context_analysis import (
 from nuc_morph_analysis.analyses.height.add_colony_time import add_colony_time_all_datasets
 from nuc_morph_analysis.lib.visualization.plotting_tools import get_plot_labels_for_metric
 from nuc_morph_analysis.lib.preprocessing import labeling_neighbors_helper
-from nuc_morph_analysis.lib.preprocessing.compute_change_over_time import add_dvdt_over_V
 from nuc_morph_analysis.analyses.volume import filter_out_dips
 
 
@@ -206,9 +205,8 @@ def process_all_tracks(df, dataset, remove_growth_outliers, num_workers):
     df = add_fov_touch_timepoint_for_colonies(df)
     df = add_features.add_non_interphase_size_shape_flag(df)
     df = add_change_over_time(df)
-    df = add_volume_change_over_25_minute_window(df)
+    df = add_features.add_volume_change_over_25_minute_window(df)
 
-    df = add_dvdt_over_V(df)
     df = add_neighborhood_avg_features.run_script(df, num_workers=num_workers)
     df = add_neighborhood_avg_features_lrm.run_script(df, num_workers=num_workers, 
                                                 feature_list=["volume", "height", "xy_aspect", "mesh_sa", "2d_area_nuc_cell_ratio"],
@@ -389,45 +387,6 @@ def add_change_over_time(df, dxdt_feature_list=None, bin_interval_list=None):
         )
     return dfm
 
-def add_volume_change_over_25_minute_window(df, bin_interval=5):
-    """
-    Adds a new column to the dataframe that quantifies how much the volume has changed relative to 
-    25 minutes in the past (units are pixels^3)
-    this is useful for identifying volume dips in all tracks (see Fig S10)
-
-    Parameters
-    ----------
-    df : pandas.DataFrame
-        The input dataframe.
-    bin_interval : int
-        represents the number of frames to compute change in volume over
-        default is 5 frames, which is 25 minutes
-
-    Returns
-    -------
-    df : pandas.DataFrame
-        The dataframe with the new column 'volume_change_over_25_minutes' added.
-        (units are pixels^3)
-    """
-    dfm = df.copy()
-    dfm = compute_change_over_time.run_script(dfm,
-                                               ['volume'],
-                                                 [bin_interval],
-                                                   time_location='end')
-    dfm['volume_change_over_25_minutes'] = dfm['dxdt_5_volume_end']*5
-    
-    # now check that all columns in df have the same dtype as columns in dfm
-    for col in df.columns:
-        if dfm[col].dtype != df[col].dtype:
-            print(f"column {col} has dtype {dfm[col].dtype} in dfm and {df[col].dtype} in df")
-
-    if dfm.shape[0] != df.shape[0]:
-        raise Exception(
-            f"The loaded manifest has {df.shape[0]} rows and your \
-            final manifest has {dfm.shape[0]} rows.\
-            Please revise code to leave manifest rows unchanged."
-        )
-    return dfm
 
 # %%
 if __name__ == "__main__":
