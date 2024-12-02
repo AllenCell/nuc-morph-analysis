@@ -1,5 +1,6 @@
 from nuc_morph_analysis.analyses.lineage.get_features import lineage_trees
 from nuc_morph_analysis.lib.visualization.plotting_tools import get_plot_labels_for_metric
+from nuc_morph_analysis.lib.features import compute_change_over_time
 import numpy as np
 
 FRAME_COL = {"Ff": "A", "frame_transition": "B", "Fb": "C"}
