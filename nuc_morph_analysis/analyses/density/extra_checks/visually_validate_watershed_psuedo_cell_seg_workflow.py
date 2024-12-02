@@ -20,7 +20,6 @@ def get_contours_from_pair_of_2d_seg_image(nuc_mip,cell_mip,dft=None):
                 #ask if the label_img is in the dataframe
                 if label_img not in dft['label_img'].values:
                     continue
-            # color = np.float64(rgb_array0_255[label_img % len(rgb_array0_255)])
             color = np.float64(cmapper(label_img))
 
             # get the nucleus boundary
@@ -96,8 +95,6 @@ def plot_colorized_image_with_contours(img_dict,dft,feature,cmapstr,colony='test
         cmap = cm.get_cmap(cmapstr)
         if categorical:
             cimg = np.round(cimg).astype('uint16')
-
-        # rgb = np.take(np.uint16(cmaparr*255),cimg.astype('uint16'),axis=0)
     
         # create the figure
         fig, axlist = plt.subplots(1, 1, figsize=(6, 4))
@@ -246,5 +243,3 @@ if __name__ == '__main__':
     # set the details
     dft_test = run_validation_and_plot(testing=True,plot_everything=False)
     dft0 = run_validation_and_plot(testing=False,plot_everything=False)
-    # dft0 = run_validation_and_plot(247,colony='small',RESOLUTION_LEVEL=1,plot_everything=True)
-    # dft0 = run_validation_and_plot(110,colony='medium',RESOLUTION_LEVEL=1,plot_everything=True)
