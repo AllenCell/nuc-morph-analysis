@@ -59,11 +59,6 @@ def get_a_cells_neighbors_as_track_id_list(df0,main_track_id,TIMEPOINT,return_se
     # find all neighbors that are immediate neighbors (and have passed the transition point)
     immediate_neighbor_track_ids = find_immediate_neighbors(df_after_transition_only,main_track_id,TIMEPOINT)
 
-    # # compute distances between nuclei and sort them by distance to main track
-    # dftime = dfcolony[dfcolony["index_sequence"] == TIMEPOINT]
-    # dist = compute_distances_between_nuclei(dftime,MAIN_TRACK_ID)
-    # sorted_dist,sorted_cell_ids,sorted_track_ids,sorted_index = get_ordered_list_of_nuclei_by_distance_to_track(dist,dftime)
-
     # combine the main track with the immediate neighbors into a list
     track_id_list = list(immediate_neighbor_track_ids)
     if return_self:
