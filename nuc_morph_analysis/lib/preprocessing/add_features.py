@@ -1,6 +1,6 @@
 from nuc_morph_analysis.analyses.lineage.get_features import lineage_trees
 from nuc_morph_analysis.lib.visualization.plotting_tools import get_plot_labels_for_metric
-from nuc_morph_analysis.lib.features import compute_change_over_time
+from nuc_morph_analysis.lib.preprocessing.compute_change_over_time import run_script
 import numpy as np
 
 FRAME_COL = {"Ff": "A", "frame_transition": "B", "Fb": "C"}
@@ -706,10 +706,8 @@ def add_volume_change_over_25_minute_window(df, bin_interval=5):
         (units are pixels^3)
     """
     dfm = df.copy()
-    dfm = compute_change_over_time.run_script(dfm,
-                                               ['volume'],
-                                                 [bin_interval],
-                                                   time_location='end')
+    # run the compute_change_over_time workflow for a given bin_interval
+    dfm = run_script(dfm,['volume'], [bin_interval], time_location='end')
     dfm['volume_change_over_25_minutes'] = dfm['dxdt_5_volume_end']*5
     
     # now check that all columns in df have the same dtype as columns in dfm
