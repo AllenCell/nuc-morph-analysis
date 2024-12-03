@@ -118,7 +118,6 @@ def plot_dfg(dfcc,xcol,ycol,labelstr,curr_ax,plot_type='mean',colorby=None,requi
     # remove rows with less than 10 counts
     dfg = group_and_extract(dfcc,xcol,ycol)
     dfgindex = dfg['count']<required_N
-    print(f" timepoints with less than {required_N} counts: {dfg[dfgindex].index.values}")
     dfg= dfg[dfg['count'] >= required_N]    
 
     xscale,xlabel,xunit,_ = get_plot_labels_for_metric(xcol)
