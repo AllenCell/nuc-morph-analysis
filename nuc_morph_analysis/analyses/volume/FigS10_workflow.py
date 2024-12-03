@@ -53,8 +53,8 @@ plt.show()
 # S10 panel A, middle
 fig,_ = plot_tracks_aligned_at_volume_drop_onset(df_outliers,track_id_list,MAIN_TRACK_ID,TIMEPOINT)
 
-save_name = f"S10_A_middle-dip_shape_{MAIN_TRACK_ID}"
-save_path = str(save_dir / save_name)
+save_name: str = f"S10_A_middle-dip_shape_{MAIN_TRACK_ID}"
+save_path: Path = save_dir / save_name
 for ext in ['.png','.pdf']:
     save_and_show_plot(save_path,ext,fig,transparent=False,keep_open=True)
 plt.show()
