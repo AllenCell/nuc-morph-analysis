@@ -43,8 +43,8 @@ TIMEPOINT = 239
 track_id_list = get_a_cells_neighbors_as_track_id_list(df_outliers,MAIN_TRACK_ID,TIMEPOINT)
 fig,_ = plot_neighbors_volume_over_time(df_outliers,track_id_list)
 
-save_name = f"S10_A_left-immediate_neighbors_of_main_track_{MAIN_TRACK_ID}"
-save_path = str(save_dir / save_name)
+save_name: str = f"S10_A_left-immediate_neighbors_of_main_track_{MAIN_TRACK_ID}"
+save_path: Path = save_dir / save_name
 for ext in ['.png','.pdf']:
     save_and_show_plot(save_path,ext,fig,transparent=False,keep_open=True)
 plt.show()
@@ -130,9 +130,9 @@ axlist[0].legend(loc='lower left',bbox_to_anchor=(1.05,0.0),
                     )
 
 # now save
-savename = f"S10C_right-volume_fit_volume_fit_track{volume_dip_example_track}"
+savename: str = f"S10C_right-volume_fit_volume_fit_track{volume_dip_example_track}"
 for ext in ['.png','.pdf']:
-    save_path = str(save_dir / savename)
+    save_path = save_dir / savename
     save_and_show_plot(str(save_path),ext,fig,transparent=False,keep_open=True)
 plt.show()
 
@@ -195,9 +195,9 @@ for threshold in [-50,0]:
     ax.set_xlabel('Movie time (hr)')
 
 
-    savename = save_dir / f"S10_D-volume_dips_over_time_all_colonies-{ycol}-{threshold}"
+    savename = f"S10_D-volume_dips_over_time_all_colonies-{ycol}-{threshold}"
     for ext in ['.png','.pdf']:
-        savepath = str(save_dir / f"{savename}")
+        savepath = save_dir / savename
         save_and_show_plot(str(savepath),ext,fig,transparent=False,keep_open=True)
 
 
