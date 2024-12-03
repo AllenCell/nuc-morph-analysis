@@ -12,6 +12,7 @@ from nuc_morph_analysis.analyses.volume.plot_help import (
     plot_dip_detection_validation, plot_dxdt_over_time_by_cell_cycle
 )
 from nuc_morph_analysis.lib.preprocessing import filter_data, compute_change_over_time, add_times
+from nuc_morph_analysis.lib.visualization.matplotlib_to_axlist import type_axlist
 from nuc_morph_analysis.lib.visualization.notebook_tools import save_and_show_plot 
 from nuc_morph_analysis.analyses.volume import filter_out_dips
 from nuc_morph_analysis.analyses.neighbor_of_X.misc_neighbor_helper_functions import get_a_cells_neighbors_as_track_id_list
@@ -41,7 +42,7 @@ save_dir = Path(__file__).parent / 'figures' / 'volume_dip_figures'
 MAIN_TRACK_ID = EXAMPLE_TRACKS['volume_dip_example']
 TIMEPOINT = 239
 track_id_list = get_a_cells_neighbors_as_track_id_list(df_outliers,MAIN_TRACK_ID,TIMEPOINT)
-fig,axlist = plot_neighbors_volume_over_time(df_outliers,track_id_list)
+fig,_ = plot_neighbors_volume_over_time(df_outliers,track_id_list)
 
 save_name = f"S10_A_left-immediate_neighbors_of_main_track_{MAIN_TRACK_ID}"
 save_path = str(save_dir / save_name)
@@ -51,7 +52,7 @@ plt.show()
 
 #%%
 # S10 panel A, middle
-fig,axlist = plot_tracks_aligned_at_volume_drop_onset(df_outliers,track_id_list,MAIN_TRACK_ID,TIMEPOINT)
+fig,_ = plot_tracks_aligned_at_volume_drop_onset(df_outliers,track_id_list,MAIN_TRACK_ID,TIMEPOINT)
 
 save_name = f"S10_A_middle-dip_shape_{MAIN_TRACK_ID}"
 save_path = str(save_dir / save_name)
@@ -64,9 +65,8 @@ plt.show()
     
 df_full = filter_data.all_timepoints_full_tracks(df) # filter to only full tracks
 
-fig,ax = plt.subplots(nrows=2,ncols=1,figsize=(6.5,8))
-axlist = np.asarray([ax]) if type(ax) != np.ndarray else ax
-assert type(ax) == np.ndarray # for mypy
+fig,axlist_untyped = plt.subplots(nrows=2,ncols=1,figsize=(6.5,8))
+axlist = type_axlist(axlist_untyped)
 
 # add_time_point_lines=False,timepoint=None
 volume_dip_example_track = 86570
@@ -77,7 +77,7 @@ for main_track_id, timepoint in main_track_list:
     ax = plot_track_with_volume_dip(ax,df_full,main_track_id,add_time_point_lines=True,timepoint=timepoint)
     ax = axlist[1]
     ax = plot_track_with_volume_dip(ax,df_full,main_track_id,xcol='index_sequence',ycol='dxdt_48_volume')
-    fig,axlist = adjust_axis_positions(fig,axlist,curr_pos=None,width=0.6,height=0.6,space=0.2,horizontal=False)
+    fig,axlist_untyped = adjust_axis_positions(fig,axlist,curr_pos=None,width=0.6,height=0.6,space=0.2,horizontal=False)
     for ext in ['.png','.pdf']:
         savepath = save_dir / f"S10B_track_{main_track_id}_volume_dip{ext}"
         save_and_show_plot(str(savepath),ext,fig,transparent=False,keep_open=True)
@@ -101,9 +101,8 @@ for ext in ['.png','.pdf']:
 #%%
 # S10 panel C step3
 df_track = df_full[df_full.track_id == volume_dip_example_track]
-fig,axlist = plt.subplots(2,1,figsize=(fw,fh),sharey=False)
-axlist = np.asarray(axlist) if type(axlist) != np.ndarray else axlist # for mypy
-assert type(axlist) == np.ndarray # for mypy
+fig,axlist_untyped = plt.subplots(2,1,figsize=(fw,fh),sharey=False)
+axlist = type_axlist(axlist_untyped)
 
 _ = plot_track_with_fit_line(df_track,axlist[0],
                                 ycol1='volume',
@@ -121,7 +120,8 @@ for ax in axlist:
     ax.set_xticks(np.arange(0,20,4))
     ax.set_xlim(-2,xlimmax)
 
-fig,axlist = adjust_axis_positions(fig,axlist,curr_pos=None,width=0.6,height=0.6,space=0.2,horizontal=False)
+fig,axlist_untyped = adjust_axis_positions(fig,axlist,curr_pos=None,width=0.6,height=0.6,space=0.2,horizontal=False)
+axlist = type_axlist(axlist_untyped)
 axlist[0].text(0.05,0.99,f"track {volume_dip_example_track}",transform=axlist[0].transAxes,
         ha = 'left',va='top',fontsize=fs)
 axlist[0].legend(loc='lower left',bbox_to_anchor=(1.05,0.0),
@@ -144,9 +144,8 @@ ycol = 'volume_dips_peak_mask_at_center'
 colony_list = ['small','medium','large']
 
 for threshold in [-50,0]:
-    fig,axlist = plt.subplots(1,1,figsize=(fw,fh))
-    axlist = np.asarray([axlist]) if type(axlist) != np.ndarray else axlist # for mypy
-    assert type(axlist) == np.ndarray # for mypy
+    fig,axlist_untyped = plt.subplots(1,1,figsize=(fw,fh))
+    axlist = type_axlist(axlist_untyped)
     ax = axlist[0]
     for ci,colony in enumerate(colony_list):
         dfcolony = df[df['colony'] == colony]
@@ -178,7 +177,7 @@ for threshold in [-50,0]:
     ax.text(0.05,0.99,text_str,transform=ax.transAxes,
             ha = 'left',va='top',fontsize=fs)
 
-    fig,axlist = adjust_axis_positions(fig,axlist,curr_pos=None,width=0.9,height=0.5,space=0.075)
+    fig,axlist_untyped = adjust_axis_positions(fig,axlist,curr_pos=None,width=0.9,height=0.5,space=0.075)
     ax.legend(loc='center left', bbox_to_anchor=(1.05, 0.5),
                 fontsize=fs,frameon=False,
                 markerscale=1,handlelength=1,
