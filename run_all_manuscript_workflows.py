@@ -38,7 +38,6 @@ class Workflows:
         
     def figure_5_s9_s10_local_growth():
         import nuc_morph_analysis.analyses.volume.figure_5_s9_workflow
-        #s10 coming soon
         import nuc_morph_analysis.analyses.volume.FigS10_workflow
 
 
