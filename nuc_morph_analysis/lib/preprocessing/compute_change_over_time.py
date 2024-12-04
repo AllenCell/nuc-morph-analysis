@@ -9,6 +9,30 @@ DXDT_PREFIX = "dxdt_"
 
 
 def compute_change_over_time_on_dataframe(dfpi,bin_interval,time_cols,prefix,time_location='center'):
+    """
+    compute ∆V/∆t for all tracks in the dataframe, dfpi, with a bin_interval of bin_interval
+
+    Parameters
+    ----------
+    dfpi : pd.DataFrame
+        dataframe with columns ['track_id',time_cols]
+    bin_interval : int
+        number of frames to compute growth over
+    time_cols : list
+        list of columns on which to compute ∆V/∆t
+    prefix : str
+        prefix to add to the new columns
+    time_location : str
+        'center' or 'end', determines where the change over time value is returned in the bin_interval
+        default is 'center' (e.g. for bin_interval=48, the change over time value is returned at middle timepoint (t=24))
+        when 'end', the change over time value is returned at the last timepoint (t=48 for bin_interval=48)
+        this is important for the new feature `dxdt_5_volume_end` which gets renamed into dfm['volume_change_over_25_minutes'] = dfm['dxdt_5_volume_end']*5
+
+    Returns
+    -------
+    pd.DataFrame
+        dataframe with columns ['track_id','index_sequence'] + [f"{prefix}{feature}{suffix}" for feature in time_cols]
+    """
     # now we want to compute the difference
     # the difference is the value at timepoint t+bin_interval - the value at timepoint t
     
