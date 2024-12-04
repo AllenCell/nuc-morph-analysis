@@ -13,8 +13,6 @@ import pandas as pd
 from pandas.core.groupby.generic import DataFrameGroupBy
 import time
 from pathlib import Path
-from nuc_morph_analysis.lib.preprocessing import filter_data
-from nuc_morph_analysis.analyses.volume import filter_out_dips
 
 from nuc_morph_analysis.lib.preprocessing.load_data import (
     get_dataset_pixel_size,
@@ -47,8 +45,6 @@ from colorizer_data.utils import (
     remap_segmented_image,
     update_bounding_box_data,
 )
-
-from nuc_morph_analysis.lib.preprocessing import compute_change_over_time
 
 @dataclass
 class NucMorphFeatureSpec:
@@ -298,55 +294,13 @@ FEATURE_COLUMNS = {
         NucMorphFeatureSpec('label_pseudo_cell'),
 
 
-        # extra old columns
+        # volume dip columns
         NucMorphFeatureSpec('colony_depth', type=FeatureType.DISCRETE),
-        NucMorphFeatureSpec('exiting_mitosis'),
-        NucMorphFeatureSpec('exiting_mitosis_short'),
-        NucMorphFeatureSpec('dxdt_5_volume_start'),
-        NucMorphFeatureSpec('dxdt_48_fit_volume'),
-        NucMorphFeatureSpec('dxdt_48_fit_volume_per_V'),
-
-        NucMorphFeatureSpec('power_fit_volume'),
-
-        NucMorphFeatureSpec('volume_dips_removed_um'), 
-        NucMorphFeatureSpec('smooth_volume_dips_removed_um'),
-        NucMorphFeatureSpec('dxdt_48_smooth_volume_dips_removed_um'),
-        NucMorphFeatureSpec('dxdt_48_volume_dips_removed_um'),
-        NucMorphFeatureSpec('dxdt_48_smooth_volume_dips_removed_um_per_V'),
-        NucMorphFeatureSpec('dxdt_48_volume_dips_removed_um_per_V'),
-
-        NucMorphFeatureSpec('volume_jumps_removed_um'), 
-        NucMorphFeatureSpec('smooth_volume_jumps_removed_um'),
-        NucMorphFeatureSpec('dxdt_48_smooth_volume_jumps_removed_um'),
-        NucMorphFeatureSpec('dxdt_48_volume_jumps_removed_um'),
-        NucMorphFeatureSpec('dxdt_48_smooth_volume_jumps_removed_um_per_V'),
-        NucMorphFeatureSpec('dxdt_48_volume_jumps_removed_um_per_V'),
-
-        NucMorphFeatureSpec('has_volume_drop'),
-        NucMorphFeatureSpec('has_volume_jump'),
-
-        NucMorphFeatureSpec('volume_dips_left_magnitude'),
-        NucMorphFeatureSpec('volume_jumps_right_magnitude'),
-
+        NucMorphFeatureSpec('volume_dips_removed_um_unfilled'), 
+        NucMorphFeatureSpec('dxdt_48_volume_dips_removed_um_unfilled'),
+        NucMorphFeatureSpec('volume_dips_has_peak'),
         NucMorphFeatureSpec('volume_dips_max_volume_change'),
-        NucMorphFeatureSpec('volume_jumps_max_volume_change'),
-
-        NucMorphFeatureSpec('volume_dips_left_magnitude_mask'),
-        NucMorphFeatureSpec('volume_jumps_right_magnitude_mask'),
-
-        NucMorphFeatureSpec('nondt_volume_dips_left_magnitude'),
-        NucMorphFeatureSpec('nondt_volume_jumps_right_magnitude'),
-
-
-        NucMorphFeatureSpec('nondt_volume_dips_left_magnitude_mask'),
-        NucMorphFeatureSpec('nondt_volume_jumps_right_magnitude_mask'),
-
-        NucMorphFeatureSpec('volume_jumps_max_prominence'), #_max_prominence
-        NucMorphFeatureSpec('volume_dips_max_prominence'), #_max_prominence
-        NucMorphFeatureSpec('nondt_volume_jumps_max_prominence'), #_max_prominence
-        NucMorphFeatureSpec('nondt_volume_dips_max_prominence'), #_max_prominence
-
-
+        NucMorphFeatureSpec('volume_dips_volume_change_at_region'),
         NucMorphFeatureSpec('volume_change_over_25_minutes')
     ],
 }
