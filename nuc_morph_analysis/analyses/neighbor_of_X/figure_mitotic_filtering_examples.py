@@ -1,22 +1,20 @@
 #%%
 #SuppFigS4 panel D, this code takes ~6 min to run
-from nuc_morph_analysis.lib.preprocessing.twoD_zMIP_area import watershed_workflow, pseudo_cell_helper, pseudo_cell_testing_helper
+from nuc_morph_analysis.lib.preprocessing.twoD_zMIP_area import watershed_workflow
 from pathlib import Path
-import pandas as pd
 from nuc_morph_analysis.lib.preprocessing import global_dataset_filtering
-from nuc_morph_analysis.lib.preprocessing import filter_data, load_data
+from nuc_morph_analysis.lib.preprocessing import load_data
 from matplotlib.colors import ListedColormap
 
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
-from nuc_morph_analysis.lib.visualization.plotting_tools import colorize_image, get_plot_labels_for_metric
 from nuc_morph_analysis.lib.visualization.notebook_tools import save_and_show_plot
 
 from nuc_morph_analysis.analyses.dataset_images_for_figures.figure_helper import return_glasbey_on_dark
+from nuc_morph_analysis.lib.visualization.example_tracks import EXAMPLE_TRACKS
 
-
-from nuc_morph_analysis.analyses.density.visually_validate_watershed_psuedo_cell_seg_workflow import get_contours_from_pair_of_2d_seg_image, draw_contours_on_image
+from nuc_morph_analysis.analyses.density.extra_checks.visually_validate_watershed_psuedo_cell_seg_workflow import get_contours_from_pair_of_2d_seg_image, draw_contours_on_image
 from nuc_morph_analysis.analyses.dataset_images_for_figures.figure_helper import INTENSITIES_DICT
 from tqdm import tqdm
 
@@ -64,7 +62,7 @@ def determine_colormaps(img,key,crop_exp):
         vmax= INTENSITIES_DICT['egfp_max'][1]
     return cmap, vmin, vmax
 
-def run_validation_and_plot(track_id=87135,RESOLUTION_LEVEL=1,frames_before=0,frames_after=7,w=300,plot_everything=False):
+def run_validation_and_plot(track_id=EXAMPLE_TRACKS['pseudocell_mitoticfilter_example'],RESOLUTION_LEVEL=1,frames_before=0,frames_after=7,w=300,plot_everything=False):
     """
     run an image through the watershed based pseudo cell segmentation and examine the outputs
     optionally, run a test image through the same pipeline
@@ -92,7 +90,6 @@ def run_validation_and_plot(track_id=87135,RESOLUTION_LEVEL=1,frames_before=0,fr
 
    # load the tracking dataframe and apply appropriate filters
     df = global_dataset_filtering.load_dataset_with_features(dataset='all_baseline')
-    # df = filter_data.all_timepoints_minimal_filtering(df)
     
     dftrack = df.loc[df['track_id']==track_id].copy()
     timepoint = int(dftrack['predicted_breakdown'].values[0])
@@ -101,10 +98,6 @@ def run_validation_and_plot(track_id=87135,RESOLUTION_LEVEL=1,frames_before=0,fr
     colony = dftrack['colony'].values[0]
     dfc = df.loc[df['colony']==colony].copy()
     dfm = dfc.loc[(dfc['index_sequence'].isin(time_list))].copy()
-
-    # set figure directory
-    figdir = Path(__file__).parent / "figures" / "SuppFigS4_mitotic_filtering"
-    figdir.mkdir(exist_ok=True,parents=True)
 
     # artificially set all nuclei to have predicted_breakdown and predicted_formation to -1
     dft = dfm[dfm['index_sequence']==timepoint]
@@ -177,9 +170,6 @@ def run_validation_and_plot(track_id=87135,RESOLUTION_LEVEL=1,frames_before=0,fr
                 colormap_dict.update({'track':('track_id',track_id,2,(0.0,1.0,0.0),f"cell that will divide")}) #type:ignore
                 colormap_dict.update({'frame_of_breakdown':('frame_of_breakdown',True,8,(1.0,1.0,0.0),f"breakdown event")})
                 colormap_dict.update({'frame_of_formation':('frame_of_formation',True,9,(0.0,1.0,1.0),f"formation event")})
-
-                # now update colors in contour_list based on colormap_dict
-                # contour_list.append((label_img,nuc_contours,cell_contours,color))
 
                 new_colors = np.zeros((np.max([x[2] for x in colormap_dict.values()])+1,3))
                 for col in colormap_dict.keys():

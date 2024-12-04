@@ -19,7 +19,7 @@ matplotlib.rcParams["pdf.fonttype"] = 42
 plt.rcParams["font.family"] = "Arial"
 
 
-def toymodel(nc_ratio=0.29, cvol=0.5e6, cell_H_mod=0, num_workers=1, old_unfiltered_method=False):
+def toymodel(nc_ratio=0.29, cvol=0.5e6, cell_H_mod=0, num_workers=1):
     """
     main function to run
 
@@ -29,12 +29,11 @@ def toymodel(nc_ratio=0.29, cvol=0.5e6, cell_H_mod=0, num_workers=1, old_unfilte
     cvol: target volume of nuclei to fit toy model to, default is 0.5e6 pixels^3 ~ 630 um^3
     cell_H_mod: height difference between top of nucleus and top of cell to use for toy model. default is 0
     num_workers: how many workers to use for multiprocessing
-    old_unfiltered_method: whether to use the old (unfiltered) method that does not remove bad pseudo cells
     """
     save_path = Path(__file__).parent / "figures"
     save_path.mkdir(parents=True, exist_ok=True)
     pix_size = load_data.get_dataset_pixel_size("all_baseline")
-    data, cvol = get_data(cvol, save_path, num_workers, old_unfiltered_method)
+    data, cvol = get_data(cvol, save_path, num_workers)
     cvol_um = cvol * pix_size**3
     cvol_um_cell = cvol_um * 1 / nc_ratio
     # rescale features
@@ -43,8 +42,8 @@ def toymodel(nc_ratio=0.29, cvol=0.5e6, cell_H_mod=0, num_workers=1, old_unfilte
 
     stats = get_toy_model(data, cvol_um_cell, cell_H_mod)
 
-    plot_toy_model(data, stats, save_path, old_unfiltered_method)
-    plot_growth_rate(data, save_path, old_unfiltered_method)
+    plot_toy_model(data, stats, save_path)
+    plot_growth_rate(data, save_path)
 
 
 def get_toy_model(data, cvol_um_cell, cell_H_mod=0):
@@ -63,7 +62,6 @@ def get_toy_model(data, cvol_um_cell, cell_H_mod=0):
     cell_H_mod: height difference between top of nucleus and top of cell to use for toy model. default is 0
     """
     H = np.linspace(data["height"].min(), data["height"].max(), 100)
-    # cell_H = H + 2
     cell_H = H + cell_H_mod
     # Volume of cylinder is pi r^2 H
     # distance = np.sqrt(cvol/(np.pi * H))*2 for cylinder
@@ -89,7 +87,7 @@ def get_toy_model(data, cvol_um_cell, cell_H_mod=0):
     return stats
 
 
-def plot_toy_model(data, toy_stats, save_path=Path("./"), old_unfiltered_method=False):
+def plot_toy_model(data, toy_stats, save_path=Path("./")):
     """
     Plot real data and toy model curves
     For the real data, plot a gaussian weighted moving average
@@ -99,7 +97,6 @@ def plot_toy_model(data, toy_stats, save_path=Path("./"), old_unfiltered_method=
     data: dataframe with real data
     toy_stats: dataframe with toy model fits
     save_path: path to save pdf
-    old_unfiltered_method: whether to use the old (unfiltered) method that does not remove bad pseudo cells
     """
     data = data.sort_values(by="height")
     x = data["height"]
@@ -130,16 +127,14 @@ def plot_toy_model(data, toy_stats, save_path=Path("./"), old_unfiltered_method=
     )
     axes.set_ylim(10, 40)
     axes.legend()
-    suffix = "unfiltered.pdf" if old_unfiltered_method else ".pdf"
-    savename = f"toymodel{suffix}"
+    savename = f"toymodel.pdf"
     fig.savefig(save_path / savename, bbox_inches="tight")
 
 
-def plot_growth_rate(data, save_path=Path("./"), old_unfiltered_method=False):
+def plot_growth_rate(data, save_path=Path("./")):
     """
     Plot growth rate vs crowding
     crowding is calculated as a mean distance to neighbors
-    old_unfiltered_method: whether to use the old (unfiltered) method that does not remove bad pseudo cells
     """
     data = data.sort_values(by="growth_rate")
     y = data["growth_rate"]
@@ -157,8 +152,7 @@ def plot_growth_rate(data, save_path=Path("./"), old_unfiltered_method=False):
     axes.plot(bins, average, label=f"gaussian weighted moving average", c="tab:blue")
     axes.fill_between(bins, lower_bound, upper_bound, alpha=0.3, edgecolor="none")
     axes.legend()
-    savename = "growthrate_vs_crowding_unfiltered.pdf" if old_unfiltered_method else "growthrate_vs_crowding.pdf"
-    fig.savefig(save_path / savename, bbox_inches="tight")
+    fig.savefig(save_path / "growthrate_vs_crowding.pdf", bbox_inches="tight")
 
 
 def weighted_moving_average(x, y, step_size=0.05, width=1):
@@ -183,7 +177,7 @@ def weighted_moving_average(x, y, step_size=0.05, width=1):
     return (bin_centers, bin_avg, bin_std)
 
 
-def get_data(cvol, save_path=Path("./"), num_workers=1, old_unfiltered_method=False):
+def get_data(cvol, save_path=Path("./"), num_workers=1):
     """
     Load all datasets, remove outliers and edge cells, fitler to tracks > 120
     frames, select all nuclei that are close to a set volume (cvol), and compute
@@ -198,7 +192,6 @@ def get_data(cvol, save_path=Path("./"), num_workers=1, old_unfiltered_method=Fa
     
     df = global_dataset_filtering.load_dataset_with_features(remove_growth_outliers=False)
     df = filter_data.filter_all_outliers(df)
-    # df = filter_data.filter_out_cells_entering_or_exiting_mitosis(df)
 
     df_full = filter_data.all_timepoints_full_tracks(df)
     df_ft = df_full[df_full["colony"].isin(["small", "medium", "large"])].reset_index()
@@ -226,7 +219,7 @@ def get_data(cvol, save_path=Path("./"), num_workers=1, old_unfiltered_method=Fa
     df_all = df.loc[df.index.isin(neighbor_ids)].reset_index()
 
     # compute distance/density metric
-    neigh_stats = compute_density(df_cvol, df_all, num_workers, old_unfiltered_method)
+    neigh_stats = compute_density(df_cvol, df_all, num_workers)
     neigh_stats = neigh_stats.reset_index()
 
     return neigh_stats, cvol
@@ -247,6 +240,4 @@ def determine_volume_at_middle_of_cell_cycle():
 
 
 if __name__ == "__main__":
-    for cell_H_mod in [0, 1.5, 2]:
-        toymodel(cell_H_mod=cell_H_mod)
-        toymodel(cell_H_mod=cell_H_mod,old_unfiltered_method=True)
+    toymodel()

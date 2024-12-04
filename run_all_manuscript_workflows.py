@@ -22,11 +22,6 @@ class Workflows:
     def figure_3_s4_height_density():
         # figure 3 images generated using timelapse feauture explorer
         import nuc_morph_analysis.analyses.height.figure_3_s4_workflow
-        from nuc_morph_analysis.analyses.density import figure_watershed_based_density_schematic
-        from nuc_morph_analysis.analyses.neighbor_of_X import figure_mitotic_filtering_examples
-
-        figure_watershed_based_density_schematic.run_validation_and_plot() #SuppFigS4 panel C
-        figure_mitotic_filtering_examples.run_validation_and_plot() #SuppFigS4 panel D, this code takes ~6 min to run
         
     # figure s5 image data can be found on quilt
     
