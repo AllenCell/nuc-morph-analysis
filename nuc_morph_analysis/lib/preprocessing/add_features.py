@@ -1,5 +1,6 @@
 from nuc_morph_analysis.analyses.lineage.get_features import lineage_trees
 from nuc_morph_analysis.lib.visualization.plotting_tools import get_plot_labels_for_metric
+from nuc_morph_analysis.lib.preprocessing.compute_change_over_time import run_script
 import numpy as np
 
 FRAME_COL = {"Ff": "A", "frame_transition": "B", "Fb": "C"}
@@ -683,3 +684,41 @@ def add_mean_features(df,
     multiplier_list = [get_plot_labels_for_metric(x)[0] for x in feature_list]
     df = add_mean_feature_over_trajectory(df, feature_list, multiplier_list)
     return df
+
+def add_volume_change_over_25_minute_window(df, bin_interval=5):
+    """
+    Adds a new column to the dataframe that quantifies how much the volume has changed relative to 
+    25 minutes in the past (units are pixels^3)
+    this is useful for identifying volume dips in all tracks (see Fig S10)
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        The input dataframe.
+    bin_interval : int
+        represents the number of frames to compute change in volume over
+        default is 5 frames, which is 25 minutes
+
+    Returns
+    -------
+    df : pandas.DataFrame
+        The dataframe with the new column 'volume_change_over_25_minutes' added.
+        (units are pixels^3)
+    """
+    dfm = df.copy()
+    # run the compute_change_over_time workflow for a given bin_interval
+    dfm = run_script(dfm,['volume'], [bin_interval], time_location='end')
+    dfm['volume_change_over_25_minutes'] = dfm['dxdt_5_volume_end']*5
+    
+    # now check that all columns in df have the same dtype as columns in dfm
+    for col in df.columns:
+        if dfm[col].dtype != df[col].dtype:
+            print(f"column {col} has dtype {dfm[col].dtype} in dfm and {df[col].dtype} in df")
+
+    if dfm.shape[0] != df.shape[0]:
+        raise Exception(
+            f"The loaded manifest has {df.shape[0]} rows and your \
+            final manifest has {dfm.shape[0]} rows.\
+            Please revise code to leave manifest rows unchanged."
+        )
+    return dfm

@@ -30,11 +30,4 @@ To overwrite an existing segmented version of the dataset (for example to add/re
 
 ```
 pdm run nuc_morph_analysis/lib/visualization/write_data_for_colorizer.py --output_dir {existing_output_dir_name} --noframes
-pdm run nuc_morph_analysis/lib/visualization/write_data_for_colorizer.py --output_dir //allen/aics/assay-dev/users/Frick/PythonProjects/repos/local_storage/timelapse_feature_explorer_datasets/TFE_new/ --noframes
-
-
-
-pdm run nuc_morph_analysis/lib/visualization/write_data_for_colorizer.py --output_dir //allen/aics/assay-dev/users/Frick/PythonProjects/repos/local_storage/timelapse_feature_explorer_datasets/TFE_full/ --parallel
-
-
 ```

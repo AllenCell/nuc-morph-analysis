@@ -61,7 +61,7 @@ for colony, dfallc in dfall.groupby('colony'):
         dfcat = pd.merge(df1,df2,on='index_sequence',suffixes=('_1','_2'),how='inner')
         dfcat.dropna(subset=[f'nanmean_1',f'nanmean_2'],inplace=True)
 
-        x = dfcat[f'nanmean_1']
+        x = dfcat[f'nanmean_1'].astype('array')
         y = dfcat[f'nanmean_2']
 
         reg = LinearRegression().fit(x.values.reshape(-1,1),y)

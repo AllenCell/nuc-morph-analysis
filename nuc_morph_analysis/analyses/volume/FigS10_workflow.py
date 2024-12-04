@@ -4,14 +4,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
 from nuc_morph_analysis.lib.preprocessing.global_dataset_filtering import load_dataset_with_features
-from nuc_morph_analysis.analyses.volume import plot_help
 
 from nuc_morph_analysis.analyses.volume.plot_help import (
     plot_neighbors_volume_over_time, plot_tracks_aligned_at_volume_drop_onset,update_plotting_params,
     adjust_axis_positions, plot_track_with_fit_line, plot_track_with_volume_dip,
     plot_dip_detection_validation, plot_dxdt_over_time_by_cell_cycle
 )
-from nuc_morph_analysis.lib.preprocessing import filter_data, compute_change_over_time, add_times
+from nuc_morph_analysis.lib.preprocessing import filter_data, add_times
+from nuc_morph_analysis.lib.visualization.matplotlib_to_axlist import type_axlist
 from nuc_morph_analysis.lib.visualization.notebook_tools import save_and_show_plot 
 from nuc_morph_analysis.analyses.volume import filter_out_dips
 from nuc_morph_analysis.analyses.neighbor_of_X.misc_neighbor_helper_functions import get_a_cells_neighbors_as_track_id_list
@@ -19,6 +19,8 @@ from nuc_morph_analysis.analyses.neighbor_of_X.misc_neighbor_helper_functions im
 from nuc_morph_analysis.lib.visualization.plotting_tools import get_plot_labels_for_metric
 from nuc_morph_analysis.lib.visualization import plotting_tools
 from nuc_morph_analysis.analyses.volume_variation import plot_features
+
+from nuc_morph_analysis.lib.visualization.example_tracks import EXAMPLE_TRACKS
 
 #%%
 # now load data with growth outliers
@@ -36,56 +38,45 @@ save_dir = Path(__file__).parent / 'figures' / 'volume_dip_figures'
 # %%
 # S10 panel A, left
 # choose one track and its neighbors (at a given time) to plot over time
-MAIN_TRACK_ID = 75725
+MAIN_TRACK_ID = EXAMPLE_TRACKS['volume_dip_example']
 TIMEPOINT = 239
 track_id_list = get_a_cells_neighbors_as_track_id_list(df_outliers,MAIN_TRACK_ID,TIMEPOINT)
-fig,axlist = plot_neighbors_volume_over_time(df_outliers,track_id_list)
+fig,_ = plot_neighbors_volume_over_time(df_outliers,track_id_list)
 
-save_name = f"S10_A_left-immediate_neighbors_of_main_track_{MAIN_TRACK_ID}"
-save_path = str(save_dir / save_name)
+save_name: str = f"S10_A_left-immediate_neighbors_of_main_track_{MAIN_TRACK_ID}"
+save_path: Path = save_dir / save_name
 for ext in ['.png','.pdf']:
     save_and_show_plot(save_path,ext,fig,transparent=False,keep_open=True)
 plt.show()
 
 #%%
 # S10 panel A, middle
-fig,axlist = plot_tracks_aligned_at_volume_drop_onset(df_outliers,track_id_list,MAIN_TRACK_ID,TIMEPOINT)
+fig,_ = plot_tracks_aligned_at_volume_drop_onset(df_outliers,track_id_list,MAIN_TRACK_ID,TIMEPOINT)
 
 save_name = f"S10_A_middle-dip_shape_{MAIN_TRACK_ID}"
-save_path = str(save_dir / save_name)
+save_path = Path( save_dir / save_name )
 for ext in ['.png','.pdf']:
     save_and_show_plot(save_path,ext,fig,transparent=False,keep_open=True)
 plt.show()
 
-#%%
-# S10 panel A, right
-# view data in timelapse feature explorer (TFE) with the following link 
-# TODO: update data path to be the final TFE url
-datapath = "https%3A%2F%2Fdev-aics-dtp-001.int.allencell.org%2Fassay-dev%2Fusers%2FFrick%2FPythonProjects%2Frepos%2Flocal_storage%2Ftimelapse_feature_explorer_datasets%2FTFE_new%2Fexploratory_dataset%2Fsmall%2Fmanifest.json"
-url = f"https://timelapse.allencell.org/viewer?dataset={datapath}&feature=change_in_volume_in_25_minute_window&t=239&filters=growth_outlier_filter%3A%3A3%2Cbaseline_colonies_dataset_filter%3A%3A3%2Cfullinterphase_dataset_filter%3A%3A3%2Clineageannotated_dataset_filter%3A%3A3%2Cvolume_jumps_right_magnitude_mask%3A%3A43.916%3A254.426&range=-200%2C200&color=matplotlib-purple_orange&palette-key=adobe&bg-sat=100&bg-brightness=100&fg-alpha=100&outlier-color=c0c0c0&outlier-mode=1&filter-color=dddddd&filter-mode=1&tab=scatter_plot&scalebar=1&timestamp=1&path=1&keep-range=1&scatter-range=all&scatter-x=scatterplot_time&scatter-y=volume"
-print(url)
-# save url as text file in figure folder
-with open(save_dir / 'S10_A_right_url.txt','w') as f:
-    f.write(url)
 # %%
 # S10 panel B, illustrate the effect of volume dip on transient growth rate
     
 df_full = filter_data.all_timepoints_full_tracks(df) # filter to only full tracks
 
-fig,ax = plt.subplots(nrows=2,ncols=1,figsize=(6.5,8))
-axlist = np.asarray([ax]) if type(ax) != np.ndarray else ax
-assert type(ax) == np.ndarray # for mypy
+fig,axlist_untyped = plt.subplots(nrows=2,ncols=1,figsize=(6.5,8))
+axlist = type_axlist(axlist_untyped)
 
 # add_time_point_lines=False,timepoint=None
 volume_dip_example_track = 86570
 
-main_track_list = [(volume_dip_example_track, 263)] #[(86570, 263),(75725, 239), (71532,131)]
+main_track_list = [(volume_dip_example_track, 263)]
 for main_track_id, timepoint in main_track_list:
     ax = axlist[0]
     ax = plot_track_with_volume_dip(ax,df_full,main_track_id,add_time_point_lines=True,timepoint=timepoint)
     ax = axlist[1]
     ax = plot_track_with_volume_dip(ax,df_full,main_track_id,xcol='index_sequence',ycol='dxdt_48_volume')
-    fig,axlist = adjust_axis_positions(fig,axlist,curr_pos=None,width=0.6,height=0.6,space=0.2,horizontal=False)
+    fig,axlist_untyped = adjust_axis_positions(fig,axlist,curr_pos=None,width=0.6,height=0.6,space=0.2,horizontal=False)
     for ext in ['.png','.pdf']:
         savepath = save_dir / f"S10B_track_{main_track_id}_volume_dip{ext}"
         save_and_show_plot(str(savepath),ext,fig,transparent=False,keep_open=True)
@@ -109,8 +100,8 @@ for ext in ['.png','.pdf']:
 #%%
 # S10 panel C step3
 df_track = df_full[df_full.track_id == volume_dip_example_track]
-fig,axlist = plt.subplots(2,1,figsize=(fw,fh),sharey=False)
-axlist = np.asarray([axlist]) if type(axlist) != np.ndarray else axlist
+fig,axlist_untyped = plt.subplots(2,1,figsize=(fw,fh),sharey=False)
+axlist = type_axlist(axlist_untyped)
 
 _ = plot_track_with_fit_line(df_track,axlist[0],
                                 ycol1='volume',
@@ -128,7 +119,8 @@ for ax in axlist:
     ax.set_xticks(np.arange(0,20,4))
     ax.set_xlim(-2,xlimmax)
 
-fig,axlist = adjust_axis_positions(fig,axlist,curr_pos=None,width=0.6,height=0.6,space=0.2,horizontal=False)
+fig,axlist_untyped = adjust_axis_positions(fig,axlist,curr_pos=None,width=0.6,height=0.6,space=0.2,horizontal=False)
+axlist = type_axlist(axlist_untyped)
 axlist[0].text(0.05,0.99,f"track {volume_dip_example_track}",transform=axlist[0].transAxes,
         ha = 'left',va='top',fontsize=fs)
 axlist[0].legend(loc='lower left',bbox_to_anchor=(1.05,0.0),
@@ -138,9 +130,9 @@ axlist[0].legend(loc='lower left',bbox_to_anchor=(1.05,0.0),
                     )
 
 # now save
-savename = f"S10C_right-volume_fit_volume_fit_track{volume_dip_example_track}"
+savename: str = f"S10C_right-volume_fit_volume_fit_track{volume_dip_example_track}"
 for ext in ['.png','.pdf']:
-    save_path = str(save_dir / savename)
+    save_path = save_dir / savename
     save_and_show_plot(str(save_path),ext,fig,transparent=False,keep_open=True)
 plt.show()
 
@@ -151,9 +143,8 @@ ycol = 'volume_dips_peak_mask_at_center'
 colony_list = ['small','medium','large']
 
 for threshold in [-50,0]:
-    fig,axlist = plt.subplots(1,1,figsize=(fw,fh))
-    axlist = np.asarray([axlist]) if type(axlist) != np.ndarray else axlist # for mypy
-    assert type(axlist) == np.ndarray # for mypy
+    fig,axlist_untyped = plt.subplots(1,1,figsize=(fw,fh))
+    axlist = type_axlist(axlist_untyped)
     ax = axlist[0]
     for ci,colony in enumerate(colony_list):
         dfcolony = df[df['colony'] == colony]
@@ -173,8 +164,6 @@ for threshold in [-50,0]:
         yn = df_all['number_of_nuclei']
         y = yd / yn *100
 
-        print(np.where(df_all['number_of_dips'] > 5))
-
         zorderval = 1 if threshold !=0 else -1 # to ensure large colony is in front when it has fewer peaks
         ax.plot(x,y,label=colony,color=plotting_tools.COLONY_COLORS[colony],zorder=ci*1000*zorderval)
     ax.set_xlabel(f"{xlabel} {xunit}")
@@ -187,15 +176,12 @@ for threshold in [-50,0]:
     ax.text(0.05,0.99,text_str,transform=ax.transAxes,
             ha = 'left',va='top',fontsize=fs)
 
-    fig,axlist = adjust_axis_positions(fig,axlist,curr_pos=None,width=0.9,height=0.5,space=0.075)
+    fig,axlist_untyped = adjust_axis_positions(fig,axlist,curr_pos=None,width=0.9,height=0.5,space=0.075)
     ax.legend(loc='center left', bbox_to_anchor=(1.05, 0.5),
                 fontsize=fs,frameon=False,
                 markerscale=1,handlelength=1,
                 labelspacing=0,
                 )
-    # if threshold == -50:
-    #     ax.set_yticks(np.arange(0,110,10))
-    #     ax.set_ylim(0,30)
     if threshold != -100:
         curr_ylim = ax.get_ylim()
 
@@ -209,9 +195,9 @@ for threshold in [-50,0]:
     ax.set_xlabel('Movie time (hr)')
 
 
-    savename = save_dir / f"S10_D-volume_dips_over_time_all_colonies-{ycol}-{threshold}"
+    savename = f"S10_D-volume_dips_over_time_all_colonies-{ycol}-{threshold}"
     for ext in ['.png','.pdf']:
-        savepath = str(save_dir / f"{savename}")
+        savepath = save_dir / savename
         save_and_show_plot(str(savepath),ext,fig,transparent=False,keep_open=True)
 
 
@@ -228,7 +214,6 @@ for colony in colony_list:
     fig,ax = adjust_axis_positions(fig,ax,curr_pos=None,width=0.9,height=0.6,space=0.075)
 
     plt.suptitle(f"{ycol}")
-    # savepath = figdir / f"cell_cycle_bins_{ycol}_{xcol1}_{plot_type}.png"
     for ext in ['.png','.pdf']:
         savepath = save_dir / f"S10_E-cell_cycle_bins_for_only_{colony}_{ycol}_{ext}"
         save_and_show_plot(str(savepath),ext,fig,transparent=False,keep_open=True)
@@ -237,7 +222,6 @@ for colony in colony_list:
 #%%
 # S10 panel F and G
 colony='all_baseline'
-# color = "colony" if colony != "all_baseline" else "#808080"
 
 dfc = df_full[df_full["colony"] == colony] if colony != "all_baseline" else df_full
 for local_radius_str in ["90um", "whole_colony"]:

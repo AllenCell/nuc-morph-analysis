@@ -34,7 +34,6 @@ def adjust_axis_positions(fig,ax,curr_pos=None,width=1,height=0.7,space=0.075,ke
     fw,fh = fig.get_size_inches()
     for ci,cax in enumerate(ax):
         # make the axis = 1.0" wide x 0.7" tall
-        print(width,height,fw,fh)
         if curr_pos is None:
             curr_pos = [1,1 +  height,width,height]
         else:
@@ -119,10 +118,7 @@ def plot_dfg(dfcc,xcol,ycol,labelstr,curr_ax,plot_type='mean',colorby=None,requi
     # remove rows with less than 10 counts
     dfg = group_and_extract(dfcc,xcol,ycol)
     dfgindex = dfg['count']<required_N
-    print(f" timepoints with less than {required_N} counts: {dfg[dfgindex].index.values}")
-    dfg= dfg[dfg['count'] >= required_N]
-    print(labelstr,dfg['count'].min(),dfg['count'].max(),dfg['count'].mean(),dfg['count'].sum(), "t=",dfg.shape[0])
-    
+    dfg= dfg[dfg['count'] >= required_N]    
 
     xscale,xlabel,xunit,_ = get_plot_labels_for_metric(xcol)
     yscale,ylabel,yunit,_ = get_plot_labels_for_metric(ycol)

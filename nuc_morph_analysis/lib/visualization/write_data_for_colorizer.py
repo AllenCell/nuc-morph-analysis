@@ -517,13 +517,6 @@ def make_dataset(
     # load the dataset once
     df_all = load_dataset_with_features("all_baseline", remove_growth_outliers=False)
 
-    # df_all2 = df_all.copy()
-    # df_all2.drop(columns=["exiting_mitosis"], inplace=True)
-    # df_all2 = add_features.add_division_entry_and_exit_annotations(df_all2,formation_threshold=12)
-    # df_all2.rename(columns={"exiting_mitosis": "exiting_mitosis_short"}, inplace=True)
-    
-    # df_all = df_all.join(df_all2[['exiting_mitosis_short']])
-
     for filter in filters:
         output_dir_subset = Path(output_dir) / filter
         output_dir_subset.mkdir(parents=True, exist_ok=True)

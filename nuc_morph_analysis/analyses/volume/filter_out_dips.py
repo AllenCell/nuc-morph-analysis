@@ -159,7 +159,6 @@ def find_peaks_and_collect_features(vol_det_array, vol_array, index_sequence_vec
     # convert the output to a dataframe
     dfout_list = [pd.DataFrame(x.values(),columns = index_sequence_vec, index=x.keys()).T for x in out]
     dfout_list = [x.reset_index().rename(columns={'index':'index_sequence'}).set_index('index_sequence') for x in dfout_list]
-    # keys = ['volume_dips_peak_mask_at_region','volume_dips_centers','volume_dips_has_peak','volume_dips_prom','volume_dips_left_base','volume_dips_right_base','volume_dips_y2_magnitude']
     dfout = pd.concat(dfout_list,axis=0,keys=track_id_vec, names=['track_id']).reset_index()
     
     return dfout
@@ -335,7 +334,6 @@ def filter_out_volume_dips(dfd, volume_cols, find_dips=True, use_detrended=True,
     # they are added during the pivot operation
     # we will drop these rows
     not_in_dfdi = dfmi.index.difference(dfdi.index)
-    # print(f"dropping {len(not_in_dfdi)} rows")
     dfmi.drop(not_in_dfdi, inplace=True)
 
     dfmi.loc[dfmi.index.values, "CellId"] = dfdi.loc[dfmi.index.values, "CellId"]

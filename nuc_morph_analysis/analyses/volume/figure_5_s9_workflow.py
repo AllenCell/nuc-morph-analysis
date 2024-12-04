@@ -248,7 +248,6 @@ for colony in colony_list:
     fig,ax = adjust_axis_positions(fig,ax,curr_pos=None,width=0.9,height=0.6,space=0.075)
 
     plt.suptitle(f"{ycol}")
-    # savepath = figdir / f"cell_cycle_bins_{ycol}_{xcol1}_{plot_type}.png"
     for ext in ['.png','.pdf']:
         savepath = Path(figdir) / f"S5_E-cell_cycle_bins_for_only_{colony}_{ycol}_{ext}"
         save_and_show_plot(str(savepath),ext,fig,transparent=False,keep_open=True)

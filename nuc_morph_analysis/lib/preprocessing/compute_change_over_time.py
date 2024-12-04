@@ -131,28 +131,3 @@ def run_script(df=None, dxdt_feature_list = None, bin_interval_list=None, exclud
     assert dforig.index.name == "CellId"
     return dforig
 
-
-def add_dvdt_over_V(df,columns=None,volume_col = 'volume'):
-    """
-    adds dvdt over V for all timepoints if dxdt_{time}_volume columns exist
-
-    Parameters
-    ----------
-    df : pd.DataFrame
-        dataframe with columns  columns + ['volume']
-    columns : list
-        list of columns to compute change normalized by volume
-    volume_col : str
-        name of the volume column, default is 'volume'
-
-    Returns
-    -------
-    df : pd.DataFrame
-        dataframe with columns ['{column}_per_V'] added
-    """
-    if columns is None:
-        columns = [f"{DXDT_PREFIX}{bin_interval}_{feature}" for bin_interval in BIN_INTERVAL_LIST for feature in DXDT_FEATURE_LIST]
-
-    for col in columns:
-        df[f"{col}_per_V"] = df[col] / df[volume_col]
-    return df
