@@ -15,3 +15,5 @@ def run_inhibitor_work():
 _ = global_dataset_filtering.load_dataset_with_features("all_drug_perturbation", save_local=True)
 
 run_inhibitor_work()
+
+# %%

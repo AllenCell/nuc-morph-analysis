@@ -9,7 +9,7 @@ from nuc_morph_analysis.lib.preprocessing.filter_data import all_timepoints_mini
 
 LOCAL_RADIUS_LIST = [90, -1]
 LOCAL_RADIUS_STR_LIST = ["90um", "whole_colony"]
-NEIGHBOR_FEATURE_LIST = ["volume"]
+NEIGHBOR_FEATURE_LIST = ["volume","dxdt_48_volume"]
 NEIGHBOR_PREFIX = "neighbor_avg_"
 
 
@@ -104,6 +104,7 @@ def run_script(
     feature_list=NEIGHBOR_FEATURE_LIST,
     local_radius_list=LOCAL_RADIUS_LIST,
     exclude_outliers=True,
+    include_all_dxdt=False,
 ):
     """
     Determine average values of features within neighborhoods of defined radius around each cell
@@ -122,6 +123,8 @@ def run_script(
         -1 signifies the whole colony
     exclude_outliers : bool, optional
         whether to exclude outliers. The default is False.
+    include_all_dxdt : bool, optional
+        whether to include all dxdt columns in the dataframe. The default is False.
 
     Returns
     -------
@@ -144,7 +147,10 @@ def run_script(
         dfi = df[df["colony"] == colony]
         pass_cols = ["index_sequence", "colony", "track_id", "centroid_x", "centroid_y"]
 
-        columns = feature_list + [x for x in dfi.columns if "dxdt" in x]
+        if include_all_dxdt:
+            columns = feature_list + [x for x in dfi.columns if "dxdt" in x]
+        else:
+            columns = feature_list
 
         # first find the unique index_sequence values
         index_sequences = dfi["index_sequence"].unique()

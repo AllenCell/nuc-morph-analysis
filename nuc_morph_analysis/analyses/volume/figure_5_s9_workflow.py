@@ -1,6 +1,6 @@
 # %%
 from pathlib import Path
-from nuc_morph_analysis.lib.preprocessing import global_dataset_filtering, load_data, filter_data
+from nuc_morph_analysis.lib.preprocessing import global_dataset_filtering, load_data, filter_data, add_times
 from nuc_morph_analysis.analyses.volume_variation import plot_features
 from nuc_morph_analysis.lib.visualization.notebook_tools import save_and_show_plot
 from nuc_morph_analysis.analyses.volume.add_growth_features import plot_fit_parameter_distribution
@@ -11,6 +11,7 @@ from nuc_morph_analysis.lib.preprocessing.add_times import (
 from nuc_morph_analysis.lib.visualization.plotting_tools import get_plot_labels_for_metric
 from nuc_morph_analysis.lib.visualization.example_tracks import EXAMPLE_TRACKS
 
+from nuc_morph_analysis.analyses.volume.plot_help import plot_dxdt_over_time_by_cell_cycle, adjust_axis_positions
 import matplotlib
 import matplotlib.pyplot as plt
 
@@ -83,17 +84,27 @@ save_and_show_plot(f"{figdir}/sample_extreme_tracks_{track_ids[0]}_{track_ids[1]
 plt.close()
 
 
-# %% Plot distribution of tscale fitted values and root mean squared error
+# %% Plot distribution of tscale fitted values
 # both pooled for all baseline colonies and separated by colony
-for feature in ["tscale_linearityfit_volume", "RMSE_linearityfit_volume"]:
-    for by_colony_flag in [True, False]:
-        plot_fit_parameter_distribution(
-            df_track_level_features,
-            figdir,
-            feature,
-            by_colony_flag=by_colony_flag,
-            density_flag=True,
-        )
+for by_colony_flag in [True, False]:
+    plot_fit_parameter_distribution(
+        df_track_level_features,
+        figdir,
+        "tscale_linearityfit_volume",
+        by_colony_flag=by_colony_flag,
+        density_flag=True,
+        allmodels_flag=False,
+    )
+
+# Plot distribution of RMSE values for all fits
+plot_fit_parameter_distribution(
+    df_track_level_features,
+    figdir,
+    "RMSE",
+    by_colony_flag=by_colony_flag,
+    density_flag=True,
+    allmodels_flag=True,
+)
 
 # %% plot relationships of alpha to fold change and colony time for all data pooled
 for feature in ["volume_fold_change_BC", "colony_time_at_B"]:
@@ -224,3 +235,20 @@ for local_radius_str in ["90um", "whole_colony"]:
             add_unity_line=True,
             remove_all_points_in_pdf=pngflag,
         )
+
+# %%
+# S5 panel F and S9 panel E
+df_full = add_times.digitize_time_column(df_full,0,1,step_size=0.02,time_col='normalized_time',new_col='dig_time')
+ycol = 'dxdt_48_volume'
+colony_list = ['small','medium','large']
+for colony in colony_list:
+    dfc = df_full[df_full['colony']==colony]
+    fig,ax = plot_dxdt_over_time_by_cell_cycle(dfc,ycol)
+
+    fig,ax = adjust_axis_positions(fig,ax,curr_pos=None,width=0.9,height=0.6,space=0.075)
+
+    plt.suptitle(f"{ycol}")
+    for ext in ['.png','.pdf']:
+        savepath = Path(figdir) / f"S5_E-cell_cycle_bins_for_only_{colony}_{ycol}_{ext}"
+        save_and_show_plot(str(savepath),ext,fig,transparent=False,keep_open=True)
+    plt.show()

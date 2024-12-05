@@ -23,4 +23,5 @@ EXAMPLE_TRACKS = {
     "delta_v_BC_low": 86418,
     "transition_point_supplement": 82210,
     "sample_full_trajectories": [97942, 85296, 9808, 77656, 83322],
+    "volume_dip_example": 75725,
 }
