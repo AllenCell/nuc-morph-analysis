@@ -209,6 +209,22 @@ keep_list = [
     '2d_area_nuc_cell_ratio',
 
 
+    # neighbor_of_X features 
+    'frame_of_breakdown', # used in figure_mitotic_filtering_examples.py
+    'frame_of_formation',# used in figure_mitotic_filtering_examples.py
+    'has_mitotic_neighbor_breakdown',  # used in validation/illustration code, useful to keep
+    'number_of_frame_of_breakdown_neighbors',  # used in neighbor_of_X/example_timepoint_numbers_of_mitotic.py
+    'has_mitotic_neighbor_formation', # used in validation/illustration code, useful to keep
+    'number_of_frame_of_formation_neighbors', # used in neighbor_of_X/example_timepoint_numbers_of_mitotic.py
+    'has_mitotic_neighbor_breakdown_forward_dilated',  # used in neighbor_of_X/example
+    'has_mitotic_neighbor_formation_backward_dilated', # used in neighbor_of_X/example
+    'has_mitotic_neighbor_dilated', # used in figure_mitotic_filtering_examples.py
+    'identified_death', # used in neighbor_of_X/example
+    'frame_of_death', # used in neighbor_of_X/example
+    'number_of_frame_of_death_neighbors', #  used
+    'has_dying_neighbor_forward_dilated', #used 
+
+
     ]
 
 drop_list = [
@@ -222,12 +238,12 @@ drop_list = [
     '2d_total_area_true_nucleus',
     '2d_label_nucleus',
     # '2d_area_nucleus', #KEEPING
-    '2d_bbox',-0_nucleus
-    '2d_bbox',-1_nucleus
-    '2d_bbox',-2_nucleus
-    '2d_bbox',-3_nucleus
-    '2d_centroid',-0_nucleus
-    '2d_centroid',-1_nucleus
+    '2d_bbox-0_nucleus',
+    '2d_bbox-1_nucleus',
+    '2d_bbox-2_nucleus',
+    '2d_bbox-3_nucleus',
+    '2d_centroid-0_nucleus',
+    '2d_centroid-1_nucleus',
     '2d_convex_area_nucleus',
     '2d_eccentricity_nucleus',
     '2d_equivalent_diameter_nucleus',
@@ -245,12 +261,12 @@ drop_list = [
     '2d_total_area_true_pseudo_cell',
     '2d_label_pseudo_cell',
     # '2d_area_pseudo_cell', # KEEPING
-    '2d_bbox',-0_pseudo_cell
-    '2d_bbox',-1_pseudo_cell
-    '2d_bbox',-2_pseudo_cell
-    '2d_bbox',-3_pseudo_cell
-    '2d_centroid',-0_pseudo_cell
-    '2d_centroid',-1_pseudo_cell
+    '2d_bbox-0_pseudo_cell',
+    '2d_bbox-1_pseudo_cell',
+    '2d_bbox-2_pseudo_cell',
+    '2d_bbox-3_pseudo_cell',
+    '2d_centroid-0_pseudo_cell',
+    '2d_centroid-1_pseudo_cell',
     '2d_convex_area_pseudo_cell',
     '2d_eccentricity_pseudo_cell',
     '2d_equivalent_diameter_pseudo_cell',
@@ -275,19 +291,10 @@ drop_list = [
     # '2d_area_nuc_cell_ratio', # KEEPING
     '2d_area_cyto',
     'inv_cyto_density',
-    # 'frame_of_breakdown',
-    # 'frame_of_formation',
-    # 'has_mitotic_neighbor_breakdown',
-    # 'number_of_frame_of_breakdown_neighbors',
-    # 'has_mitotic_neighbor_formation',
-    # 'number_of_frame_of_formation_neighbors',
-    # 'has_mitotic_neighbor_breakdown_forward_dilated',
-    # 'has_mitotic_neighbor_formation_backward_dilated',
-    # 'has_mitotic_neighbor_dilated',
-    # 'identified_death',
-    # 'frame_of_death',
-    # 'number_of_frame_of_death_neighbors',
-    # 'has_dying_neighbor_forward_dilated',
+
+
+    
+    
     # 'dxdt_5_volume_end',
     # 'volume_change_over_25_minutes',
     # 'neighbor_avg_lrm_dxdt_5_volume_end_90um',
