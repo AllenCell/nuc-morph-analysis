@@ -219,16 +219,15 @@ keep_list = [
     'frame_of_breakdown', # used in figure_mitotic_filtering_examples.py
     'frame_of_formation',# used in figure_mitotic_filtering_examples.py
     'has_mitotic_neighbor_breakdown',  # used in validation/illustration code, useful to keep
-    'number_of_frame_of_breakdown_neighbors',  # used in neighbor_of_X/example_timepoint_numbers_of_mitotic.py
     'has_mitotic_neighbor_formation', # used in validation/illustration code, useful to keep
-    'number_of_frame_of_formation_neighbors', # used in neighbor_of_X/example_timepoint_numbers_of_mitotic.py
     'has_mitotic_neighbor_breakdown_forward_dilated',  # used in neighbor_of_X/example
     'has_mitotic_neighbor_formation_backward_dilated', # used in neighbor_of_X/example
     'has_mitotic_neighbor_dilated', # used in figure_mitotic_filtering_examples.py
     'identified_death', # used in neighbor_of_X/example
     'frame_of_death', # used in neighbor_of_X/example
-    'number_of_frame_of_death_neighbors', #  used
-    'has_dying_neighbor_forward_dilated', #used 
+
+
+    'has_dying_neighbor_forward_dilated', #used, must keep
     
     # volume_dips features
     'volume_change_over_25_minutes', #used
@@ -346,6 +345,11 @@ drop_list = [
     'sum_has_dying_neighbor_forward_dilated',
     'sum_number_of_frame_of_death_neighbors',
 
+    # created in labeling_neighbors_helper.find_neighbors_of_cells()
+    # remove in global_dataset_filtering (DONE)
+    'number_of_frame_of_breakdown_neighbors',  #  CAN BE DROPPED, not used
+    'number_of_frame_of_death_neighbors', #  CAN BE DROPPED, not used
+    'number_of_frame_of_formation_neighbors',  #  CAN BE DROPPED, not used
     ]
 
 unnacounted_cols = [col for col in new_cols if col not in keep_list and col not in drop_list]
