@@ -209,7 +209,9 @@ keep_list = [
     '2d_area_nuc_cell_ratio',
     '2d_perimeter_nucleus', #can be dropped at end of global dataset filterig, only used in load_dataset_with_features. 
     '2d_perimeter_pseudo_cell', # can be dropped at end of global dataset filtering, only used in load_dataset_with_features
-
+    '2d_perimeter_nuc_cell_ratio', # used within filter data
+    'bad_pseudo_cells_segmentation',
+    'uncaught_pseudo_cell_artifact',
 
 
 
@@ -230,9 +232,6 @@ keep_list = [
     
     # volume_dips features
     'volume_change_over_25_minutes', #used
-    '2d_perimeter_nuc_cell_ratio', # used within filter data
-    'bad_pseudo_cells_segmentation',
-    'uncaught_pseudo_cell_artifact',
     'power_fit_volume', #used and could go to tfe
     'volume_dips_peak_mask_at_region', #u sed for S10 C right and nice for TFE
     'volume_dips_peak_mask_at_center', # used for S10C right
@@ -250,15 +249,19 @@ keep_list = [
     ]
 
 drop_list = [
+    # not sure where these come from
+    # dropping in global_dataset_filtering (DONE)
     'level_0', 
     'index', 
     'source_manifest_x',
     'source_manifest_y',
 
-    '2d_label_true_nucleus',
-    '2d_area_true_nucleus',
-    '2d_total_area_true_nucleus',
-    '2d_label_nucleus',
+    # this set is defined in psuedo_cell_helper, not used after. Remove in gloabl_dataset_filtering (DONE)
+    # could be removed in pseudo_cell_helper.choose_columns() but that would require rerunning generate_main_manifest
+    '2d_label_true_nucleus', 
+    '2d_area_true_nucleus', 
+    '2d_total_area_true_nucleus', 
+    '2d_label_nucleus', 
     '2d_bbox-0_nucleus',
     '2d_bbox-1_nucleus',
     '2d_bbox-2_nucleus',
@@ -308,7 +311,11 @@ drop_list = [
     'resolution_level',
     '2d_area_cyto',
     'inv_cyto_density',
-    'dxdt_5_volume_end', # can be dropped using code, duplicate column 
+
+    # can be dropped using code, duplicate column  (DONE)
+    'dxdt_5_volume_end', 
+    
+    # drop in global_dataset_filtering (DONE)
     'tscale_exponentialfit_volume',
     'atB_exponentialfit_volume',
     'rate_exponentialfit_volume',
@@ -316,6 +323,8 @@ drop_list = [
     'atB_linearfit_volume',
     'rate_linearfit_volume',
 
+     # created in volume/filter_out_dips.find_and_remove_from_pivot() and not used after. 
+    #  Remove in global_dataset_filtering (DONE) 
     'volume_dips_has_peak', 
     'volume_dips_volume_change_at_region', 
     'volume_dips_width_at_center',
@@ -325,6 +334,8 @@ drop_list = [
     'volume_dips_peak_id_at_region',
     'volume_dips_total_number',
 
+    # created in add_features.sum_mitotic_events_along_full_track()
+    # can remove in code (DONE)
     'sum_number_of_frame_of_breakdown_neighbors',
     'sum_number_of_frame_of_formation_neighbors',
     'sum_has_mitotic_neighbor_breakdown',

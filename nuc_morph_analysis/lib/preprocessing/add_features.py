@@ -574,17 +574,18 @@ def sum_mitotic_events_along_full_track(df0, feature_list=[]):
     """
 
     mitotic_event_features = [
-        'number_of_frame_of_breakdown_neighbors',
-        'number_of_frame_of_formation_neighbors',
-        'has_mitotic_neighbor_breakdown',
-        'has_mitotic_neighbor_formation',
-        'has_mitotic_neighbor_breakdown_forward_dilated',
-        'has_mitotic_neighbor_formation_backward_dilated',
         'has_mitotic_neighbor',
-        'has_mitotic_neighbor_dilated',
         'has_dying_neighbor',
-        'has_dying_neighbor_forward_dilated',
-        'number_of_frame_of_death_neighbors'
+        
+        # 'number_of_frame_of_breakdown_neighbors',
+        # 'number_of_frame_of_formation_neighbors',
+        # 'has_mitotic_neighbor_breakdown',
+        # 'has_mitotic_neighbor_formation',
+        # 'has_mitotic_neighbor_breakdown_forward_dilated',
+        # 'has_mitotic_neighbor_formation_backward_dilated',
+        # 'has_mitotic_neighbor_dilated',
+        # 'has_dying_neighbor_forward_dilated',
+        # 'number_of_frame_of_death_neighbors'
     ]
 
     if len(feature_list) == 0:
@@ -712,6 +713,8 @@ def add_volume_change_over_25_minute_window(df, bin_interval=5):
     # run the compute_change_over_time workflow for a given bin_interval
     dfm = run_script(dfm,['volume'], [bin_interval], time_location='end')
     dfm['volume_change_over_25_minutes'] = dfm['dxdt_5_volume_end']*5
+    # drop the dxdt_5_volume_end column
+    dfm = dfm.drop(columns=['dxdt_5_volume_end'])
     
     # now check that all columns in df have the same dtype as columns in dfm
     for col in df.columns:

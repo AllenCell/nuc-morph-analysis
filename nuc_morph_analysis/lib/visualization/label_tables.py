@@ -272,12 +272,6 @@ LABEL_TABLE = {
     "2d_area_nuc_cell_ratio": "Nucleus area/(Pseudo)cell area",
     "2d_area_nucleus": "Nuclear area",
     "2d_area_pseudo_cell": "(Pseudo)cell area",
-    "2d_area_cyto": "Cytoplasmic area",
-    "inv_cyto_density": "1 / Cytoplasmic area",
-    "2d_eccentricity_nucleus": "Nuclear eccentricity (2d)",
-    "2d_intensity_min_edge" : "Min distance to (pseudo)cell edge",
-    "2d_intensity_mean_edge" : "Average distance to (pseudo)cell edge",
-    "2d_intensity_max_edge" : "Max distance to (pseudo)cell edge",
 
     # dip event features
     "volume_change_over_25_minutes": "Change in volume in 25 minute window",
@@ -418,12 +412,6 @@ COLORIZER_LABEL_TABLE = {
     "2d_area_nuc_cell_ratio": "Nuclear area to (pseudo)cell area ratio",
     "2d_area_nucleus": "Nuclear area",
     "2d_area_pseudo_cell": "(Pseudo)cell area",
-    "2d_area_cyto": "Cytoplasmic area",
-    "inv_cyto_density": "Cytoplasmic density",
-    "2d_eccentricity_nucleus": "Nuclear eccentricity (2d)",
-    "2d_intensity_min_edge" : "Min distance to (pseudo)cell edge",
-    "2d_intensity_mean_edge" : "Average distance to (pseudo)cell edge",
-    "2d_intensity_max_edge" : "Max distance to (pseudo)cell edge",
 
     # dip event features
      "volume_change_over_25_minutes": "Change in volume in 25 minute window",
