@@ -203,7 +203,12 @@ keep_list = [
     "normalized_sum_has_mitotic_neighbor",
     "normalized_sum_has_dying_neighbor",]
 
-new_cols = [col for col in new_cols if col not in keep_list]
+drop_list = [
+    'level_0', 
+    'index', 
+    ]
+
+new_cols = [col for col in new_cols if col not in keep_list and col not in drop_list]
 
 print(len(keep_list))    
 print(len(new_cols))
@@ -211,13 +216,6 @@ print(len(new_cols))
 for col in new_cols:
     print(col)
 
-#%% Suggest we remove      
-drop_list = [
-    'level_0', # there is code in global datasets filtering and lebeling neighbors helper that is checking for this and there is now warning printed??
-    'index', # cell id should be the index column.. why is this here?
-    
-    # Loads of 2d columns are unused... work with chris to identify which ones we actually need. 
-    ]
 
 
 # %% Filter baseline colonies
