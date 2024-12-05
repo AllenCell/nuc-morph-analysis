@@ -57,6 +57,7 @@ def fit_tracks_to_model(
     interval,
     model="power",
     plot=False,
+    add_fit_volume=False,
 ):
     """
     This function fits the volume of each track to either a power law, exponential or
@@ -72,6 +73,8 @@ def fit_tracks_to_model(
         The model to fit to. The default is "power". Other options are "exponential" and "linear".
     plot : bool, optional
         If True, a plot of the volume vs time for each track and its exponential fit is displayed. The default is False.
+    add_fit_volume : bool, optional
+        If True, the fit volume is added to the dataframe. The default is False.
 
     Returns
     -------
@@ -120,7 +123,7 @@ def fit_tracks_to_model(
             df_track = df_track.sort_values("index_sequence")
             df_track_trim = df_track[
                 (df_track.index_sequence > transition) & (df_track.index_sequence <= fb)
-            ]
+            ].copy()
 
             # get trimmed track times and volumes
             x = df_track_trim["index_sequence"].values * interval / 60
@@ -166,6 +169,12 @@ def fit_tracks_to_model(
             df.loc[df_track.index, f"atB_{model_name}fit_volume"] = atB
             df.loc[df_track.index, f"rate_{model_name}fit_volume"] = rate
             df.loc[df_track.index, f"RMSE_{model_name}fit_volume"] = rmse
+
+            # add fit volumes to manifest (using index_sequence and track_id to match and add Z)
+            # will be named "power_fit_volume"
+            if add_fit_volume:
+                df_track_trim[f"{model}_fit_volume"] = z
+                df.loc[df_track_trim.index, f"{model}_fit_volume"] = df_track_trim.loc[df_track_trim.index, f"{model}_fit_volume"]
 
         except Exception:
             fail_count += 1

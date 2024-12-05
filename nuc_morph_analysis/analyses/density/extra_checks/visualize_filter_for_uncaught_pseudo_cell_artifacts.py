@@ -1,4 +1,7 @@
 #%%
+# this code visualizes cells identified in this workflow `remove_uncaught_pseudo_cell_artifacts(df, apply_to_nucleus_too, verbose)`
+# and highlights the cells that were removed
+
 from nuc_morph_analysis.lib.preprocessing.twoD_zMIP_area import watershed_workflow
 from pathlib import Path
 from nuc_morph_analysis.lib.preprocessing import global_dataset_filtering
