@@ -56,7 +56,8 @@ def get_scale_factor_table(dataset="all_baseline"):
         ): pix_size,
        
         ("mesh_sa"): pix_size**2,
-        ("volume", "volume_sub"): pix_size**3,
+        ("volume", "volume_sub",  "volume_change_over_25_minutes"): pix_size**3,
+        ("fit_volume"): 1, #already scaled in code
         ("density", "avg_density", "avg_early_density", "avg_late_density"): 1 / pix_size**2,
         
         (
@@ -89,9 +90,19 @@ def get_scale_factor_table(dataset="all_baseline"):
         ("2d_area_nuc_cell_ratio"): 1,
     }
 
+    # add a couple of dxdt columns
+    dict1.update({'dxdt_48_volume': 1/(time_interval_minutes/60)})
+    dict1.update({'dxdt_48_volume_dips_removed_um_unfilled': 1/(time_interval_minutes/60)})
+    dict1.update({'neighbor_avg_dxdt_48_volume_dips_removed_um_unfilled_90um': 1/(time_interval_minutes/60)})
+    dict1.update({'neighbor_avg_dxdt_48_volume_dips_removed_um_unfilled_whole_colony': 1/(time_interval_minutes/60)})
+
+
+
+    dict1.update({'dxdt_48_fit_volume_per_V': (1)/(time_interval_minutes/60)})
+    
     # add non dxdt columns and other non-traditional columns
-    temp_dict = get_one_to_one_dict(dict1)
     hours_per_frame = time_interval_minutes / 60
+    temp_dict = get_one_to_one_dict(dict1)
     for feature in DXDT_FEATURE_LIST:
         dict1.update(
             {
@@ -134,6 +145,8 @@ def get_scale_factor_table(dataset="all_baseline"):
             dict1.update({f"dvdt_t2-dvdt_t1_neighbors_{bin_interval}_{local_radius_str}": 1})
             dict1.update({f"dvdt_t2-dvdt_t1_self_{bin_interval}_{local_radius_str}": 1})
 
+    # important for figure 5 supp: do NOT REMOVE
+    dict1.update({"dxdt_t2-dxdt_t1": temp_dict['volume'] / (hours_per_frame)})
     return dict1
 
 
@@ -174,6 +187,7 @@ LABEL_TABLE = {
     "tscale_linearityfit_volume": "Fitted time scaling factor (\u03B1)",
     "RMSE_linearityfit_volume": "Root mean squared error",
     "late_growth_rate_by_endpoints": "Growth rate",
+    "dxdt_48_volume": "Transient Growth Rate",
     "dxdt_t2-dxdt_t1": "Late average transient growth rate - early average transient growth rate",
     # Height
     "height": "Height",
@@ -271,6 +285,9 @@ LABEL_TABLE = {
     "2d_intensity_min_edge" : "Min distance to (pseudo)cell edge",
     "2d_intensity_mean_edge" : "Average distance to (pseudo)cell edge",
     "2d_intensity_max_edge" : "Max distance to (pseudo)cell edge",
+
+    # dip event features
+    "volume_change_over_25_minutes": "Change in volume in 25 minute window",
 }
 
 
@@ -414,6 +431,9 @@ COLORIZER_LABEL_TABLE = {
     "2d_intensity_min_edge" : "Min distance to (pseudo)cell edge",
     "2d_intensity_mean_edge" : "Average distance to (pseudo)cell edge",
     "2d_intensity_max_edge" : "Max distance to (pseudo)cell edge",
+
+    # dip event features
+     "volume_change_over_25_minutes": "Change in volume in 25 minute window",
 }
 
 # units for quantities
@@ -457,6 +477,7 @@ UNIT_TABLE = {
         "difference_volume_at_B",
         "difference_half_vol_at_C_and_B" "avg_sister_volume_at_B",
         "volume_sub",
+         "volume_change_over_25_minutes",
     ): "(μm\u00B3)",
     "SA_vol_ratio": "(μm⁻¹)",
     (
@@ -500,6 +521,7 @@ for bin_interval in BIN_INTERVAL_LIST:
     for feature in DXDT_FEATURE_LIST:
         UNIT_TABLE.update({f"dxdt_{bin_interval}_{feature}": f"({temp_dict[feature][1:-1]}/hr)"})
 
+temp_dict = get_one_to_one_dict(UNIT_TABLE)
 # now add the neighborhood columns
 for local_radius_str in LOCAL_RADIUS_STR_LIST:
     for feature in NEIGHBOR_FEATURE_LIST:

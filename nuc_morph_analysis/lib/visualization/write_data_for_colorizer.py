@@ -21,6 +21,7 @@ from nuc_morph_analysis.lib.preprocessing.load_data import (
 )
 from nuc_morph_analysis.lib.preprocessing.global_dataset_filtering import (
     load_dataset_with_features,
+    add_features,
 )
 from nuc_morph_analysis.lib.visualization.write_mips_for_colorizer import (
     save_colony_backdrop_mips,
@@ -48,7 +49,6 @@ from colorizer_data.utils import (
     remap_segmented_image,
     update_bounding_box_data,
 )
-
 
 @dataclass
 class NucMorphFeatureSpec:
@@ -335,12 +335,20 @@ FEATURE_COLUMNS = {
         NucMorphFeatureSpec("2d_perimeter_pseudo_cell"),
         NucMorphFeatureSpec("2d_solidity_pseudo_cell"),
         # extra
-        NucMorphFeatureSpec("inv_cyto_density"),
-        NucMorphFeatureSpec("2d_perimeter_nuc_cell_ratio"),
-        NucMorphFeatureSpec("2d_eccentricity_nuc_cell_ratio"),
-        NucMorphFeatureSpec("label_pseudo_cell"),
-        # extra old columns
-        NucMorphFeatureSpec("colony_depth", type=FeatureType.DISCRETE),
+        NucMorphFeatureSpec('inv_cyto_density'),
+        NucMorphFeatureSpec('2d_perimeter_nuc_cell_ratio'),
+        NucMorphFeatureSpec('2d_eccentricity_nuc_cell_ratio'),
+        NucMorphFeatureSpec('label_pseudo_cell'),
+
+
+        # volume dip columns
+        NucMorphFeatureSpec('colony_depth', type=FeatureType.DISCRETE),
+        NucMorphFeatureSpec('volume_dips_removed_um_unfilled'), 
+        NucMorphFeatureSpec('dxdt_48_volume_dips_removed_um_unfilled'),
+        NucMorphFeatureSpec('volume_dips_has_peak'),
+        NucMorphFeatureSpec('volume_dips_max_volume_change'),
+        NucMorphFeatureSpec('volume_dips_volume_change_at_region'),
+        NucMorphFeatureSpec('volume_change_over_25_minutes')
     ],
 }
 
@@ -421,6 +429,7 @@ def make_features(
     features: List[NucMorphFeatureSpec],
     dataset_name: str,
     writer: ColorizerDatasetWriter,
+    make_glossary: bool = False,
 ):
     """
     Generate the outlier, track, time, centroid, and feature data files.

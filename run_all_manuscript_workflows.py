@@ -16,7 +16,7 @@ class Workflows:
     def figure_s2_s3_s18_segmentation_model_validation():
         seg_model_validation_figure_workflow.save_out_specified_image_pairs_with_overlays()
         import nuc_morph_analysis.analyses.segmentation_model_validation.quantitative_validation_workflow
-        
+    
     # figure 2 images generated using timelapse feature exploroer   
             
     def figure_3_s4_height_density():
@@ -36,9 +36,10 @@ class Workflows:
     def figure_4_s8_volume_trajectories():
         import nuc_morph_analysis.analyses.volume.figure_4_s8_workflow
         
-    def figure_5_s9_local_growth():
+    def figure_5_s9_s10_local_growth():
         import nuc_morph_analysis.analyses.volume.figure_5_s9_workflow
-        #s10 coming soon
+        import nuc_morph_analysis.analyses.volume.FigS10_workflow
+
 
     def figure_6_s11_compensation():
         import nuc_morph_analysis.analyses.volume_variation.figure_6_s11_workflow

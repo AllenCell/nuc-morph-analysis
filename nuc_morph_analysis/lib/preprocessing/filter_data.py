@@ -1041,8 +1041,7 @@ def remove_uncaught_pseudo_cell_artifacts(df, apply_to_nucleus_too=False, verbos
 
     The signature of these cells is that the area of the pseudo cell is much larger than the area of the nucleus OR
     The perimeter of the pseudo cell is larger than 500 pixels OR
-    The perimeter of the pseudo cell is much larger than the perimeter of the nucleus OR
-    AND they tend to be close to the colony edge (colony depth <= 3)
+    The perimeter of the pseudo cell is much larger than the perimeter of the nucleus
 
     This workflow marks the features that depend on pseudo cell segmentation as NaN for these cells
     This workflow also adds a column called `uncaught_pseudo_cell_artifact` to the dataframe to mark these cells
@@ -1061,9 +1060,8 @@ def remove_uncaught_pseudo_cell_artifacts(df, apply_to_nucleus_too=False, verbos
     log1 = df['2d_perimeter_nuc_cell_ratio'] < 0.4
     log2 = df['2d_perimeter_pseudo_cell'] > 500
     log3 = df['2d_area_nuc_cell_ratio'] < 0.2
-    log4 = df['colony_depth'] <= 3
 
-    compiled_log = (log1 | log2 | log3) & log4
+    compiled_log = log1 | log2 | log3
 
     # define the columns to apply the filter to
     extra_cols = ['inv_cyto_density','density']
