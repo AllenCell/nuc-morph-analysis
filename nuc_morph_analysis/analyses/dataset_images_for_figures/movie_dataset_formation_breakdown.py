@@ -15,7 +15,7 @@ import matplotlib
 matplotlib.rcParams["pdf.fonttype"] = 42
 matplotlib.rcParams["font.family"] = "Arial"
 
-load_local = True
+load_local = False
 make_frames = True
 
 # set figure, panel to get save directory info
