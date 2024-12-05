@@ -20,6 +20,9 @@ from nuc_morph_analysis.analyses.colony_context.colony_context_analysis import (
 from nuc_morph_analysis.analyses.height.add_colony_time import add_colony_time_all_datasets
 from nuc_morph_analysis.lib.visualization.plotting_tools import get_plot_labels_for_metric
 from nuc_morph_analysis.lib.preprocessing import labeling_neighbors_helper
+from nuc_morph_analysis.analyses.volume import filter_out_dips
+
+
 
 def load_dataset_with_features(
     dataset="all_baseline",
@@ -202,6 +205,8 @@ def process_all_tracks(df, dataset, remove_growth_outliers, num_workers):
     df = add_fov_touch_timepoint_for_colonies(df)
     df = add_features.add_non_interphase_size_shape_flag(df)
     df = add_change_over_time(df)
+    df = add_features.add_volume_change_over_25_minute_window(df)
+
     df = add_neighborhood_avg_features.run_script(df, num_workers=num_workers)
     df = add_neighborhood_avg_features_lrm.run_script(df, num_workers=num_workers, 
                                                 feature_list=["volume", "height", "xy_aspect", "mesh_sa", "2d_area_nuc_cell_ratio"],
@@ -263,7 +268,7 @@ def process_full_tracks(df_all, thresh, pix_size, interval):
     df_full = add_features.add_fold_change_track_fromB(df_full, "SA", "mesh_sa", pix_size**2)
     df_full = add_growth_features.add_early_growth_rate(df_full, interval)
     df_full = add_growth_features.add_late_growth_rate_by_endpoints(df_full)
-    df_full = add_growth_features.fit_tracks_to_model(df_full, interval, "power")
+    df_full = add_growth_features.fit_tracks_to_model(df_full, interval, "power",add_fit_volume=True) #add_fit_volume=True, used for volume dip detection
     df_full = add_growth_features.fit_tracks_to_model(df_full, interval, "exponential")
     df_full = add_growth_features.fit_tracks_to_model(df_full, interval, "linear")
     
@@ -272,6 +277,11 @@ def process_full_tracks(df_all, thresh, pix_size, interval):
     df_full = add_features.add_feature_at(df_full, "frame_transition", 'height', 'height_percentile', pix_size) 
     df_full = add_features.add_features_at_transition(df_full)
     df_full = add_features.get_early_transient_gr_of_neighborhood(df_full, scale=get_plot_labels_for_metric('neighbor_avg_dxdt_48_volume_90um')[0])
+
+    df_full = filter_out_dips.run_script(df_full)
+    df_full = compute_change_over_time.run_script(df_full, dxdt_feature_list=['volume_dips_removed_um_unfilled'], bin_interval_list=[48])
+    df_full = add_neighborhood_avg_features.run_script(df_full, feature_list=['dxdt_48_volume_dips_removed_um_unfilled'])
+
     df_full = add_features.sum_mitotic_events_along_full_track(df_full)
     df_full = add_features.normalize_sum_events(df_full)
     df_full = add_features.add_mean_features(df_full)
@@ -316,9 +326,6 @@ COLUMNS_TO_DROP = [
     "colony_non_circularity",
     "colony_non_circularity_scaled",
     "max_colony_depth",
-    "dxdt_48_volume_per_V",
-    "neighbor_avg_dxdt_48_volume_per_V_90um",
-    "neighbor_avg_dxdt_48_volume_per_V_whole_colony",
     "dataset",
     "height_percentile",
     "raw_full_zstack_path",
@@ -346,7 +353,7 @@ def remove_columns(df, column_list=COLUMNS_TO_DROP):
     return df
 
 
-def add_change_over_time(df):
+def add_change_over_time(df, dxdt_feature_list=None, bin_interval_list=None):
     """
     Adds new columns to the dataframe with the local rate of change for a given feature for a nucleus
 
@@ -354,6 +361,10 @@ def add_change_over_time(df):
     ----------
     df : pandas.DataFrame
         The input dataframe.
+    dxdt_feature_list : list
+        List of columns to compute growth rates for
+    bin_interval_list : list
+        List of integers, which represents the number of frames to compute growth over
 
     Returns
     -------
@@ -361,8 +372,7 @@ def add_change_over_time(df):
         The dataframe with the new column added.
     """
     dfm = df.copy()
-    for bin_interval in compute_change_over_time.BIN_INTERVAL_LIST:
-        dfm = compute_change_over_time.run_script(dfm, bin_interval=bin_interval)
+    dfm = compute_change_over_time.run_script(dfm, dxdt_feature_list, bin_interval_list,)
 
     # now check that all columns in df have the same dtype as columns in dfm
     for col in df.columns:
