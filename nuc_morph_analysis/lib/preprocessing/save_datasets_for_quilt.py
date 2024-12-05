@@ -223,7 +223,18 @@ keep_list = [
     'frame_of_death', # used in neighbor_of_X/example
     'number_of_frame_of_death_neighbors', #  used
     'has_dying_neighbor_forward_dilated', #used 
-
+    
+    # volume_dips features
+    'volume_change_over_25_minutes', #used
+    '2d_perimeter_nuc_cell_ratio', # used within filter data
+    'bad_pseudo_cells_segmentation',
+    'uncaught_pseudo_cell_artifact',
+    'power_fit_volume', #used and could go to tfe
+    
+     
+    # new fitting paramaters features
+    'RMSE_exponentialfit_volume', #used
+    'RMSE_linearfit_volume', #used
 
     ]
 
@@ -291,66 +302,16 @@ drop_list = [
     # '2d_area_nuc_cell_ratio', # KEEPING
     '2d_area_cyto',
     'inv_cyto_density',
-
-
-    
-    
-    # 'dxdt_5_volume_end',
-    # 'volume_change_over_25_minutes',
-    # 'neighbor_avg_lrm_dxdt_5_volume_end_90um',
-    # 'neighbor_avg_lrm_neighbor_avg_dxdt_48_volume_90um_90um',
-    # 'neighbor_avg_lrm_neighbor_avg_dxdt_48_volume_whole_colony_90um',
-    # 'neighbor_avg_lrm_volume_whole_colony',
-    # 'neighbor_avg_lrm_height_whole_colony',
-    # 'neighbor_avg_lrm_xy_aspect_whole_colony',
-    # 'neighbor_avg_lrm_mesh_sa_whole_colony',
-    # 'neighbor_avg_lrm_2d_area_nuc_cell_ratio_whole_colony',
-    # 'neighbor_avg_lrm_dxdt_48_volume_whole_colony',
-    # 'neighbor_avg_lrm_dxdt_5_volume_end_whole_colony',
-    # 'neighbor_avg_lrm_neighbor_avg_dxdt_48_volume_90um_whole_colony',
-    # 'neighbor_avg_lrm_neighbor_avg_dxdt_48_volume_whole_colony_whole_colony',
-    # '2d_perimeter_nuc_cell_ratio',
-    # 'bad_pseudo_cells_segmentation',
-    # 'uncaught_pseudo_cell_artifact',
-    # 'power_fit_volume',
-    # 'tscale_exponentialfit_volume',
-    # 'atB_exponentialfit_volume',
-    # 'rate_exponentialfit_volume',
-    # 'RMSE_exponentialfit_volume',
-    # 'tscale_linearfit_volume',
-    # 'atB_linearfit_volume',
-    # 'rate_linearfit_volume',
-    # 'RMSE_linearfit_volume',
-    # 'mothers_volume_at_B',
-    # 'mothers_duration_BC',
-    # 'mothers_volume_at_C',
-    # 'sisters_volume_at_C',
-    # 'mothers_delta_volume_BC',
-    # 'neighbor_avg_dxdt_48_volume_90um_at_B',
-    # 'volume_dips_peak_mask_at_region',
-    # 'volume_dips_peak_mask_at_center',
-    # 'volume_dips_has_peak',
-    # 'volume_dips_volume_change_at_center',
-    # 'volume_dips_volume_change_at_region',
-    # 'volume_dips_width_at_center',
-    # 'volume_dips_width_at_region',
-    # 'volume_dips_max_volume_change',
-    # 'volume_dips_peak_id_at_center',
-    # 'volume_dips_peak_id_at_region',
-    # 'volume_dips_total_number',
-    # 'volume_dips_removed_um_unfilled',
-    # 'dxdt_48_volume_dips_removed_um_unfilled',
-    # 'neighbor_avg_dxdt_48_volume_dips_removed_um_unfilled_90um',
-    # 'neighbor_avg_dxdt_48_volume_dips_removed_um_unfilled_whole_colony',
-    # 'sum_number_of_frame_of_breakdown_neighbors',
-    # 'sum_number_of_frame_of_formation_neighbors',
-    # 'sum_has_mitotic_neighbor_breakdown',
-    # 'sum_has_mitotic_neighbor_formation',
-    # 'sum_has_mitotic_neighbor_breakdown_forward_dilated',
-    # 'sum_has_mitotic_neighbor_formation_backward_dilated',
-    # 'sum_has_mitotic_neighbor_dilated',
-    # 'sum_has_dying_neighbor_forward_dilated',
-    # 'sum_number_of_frame_of_death_neighbors',
+    'dxdt_5_volume_end', # can be dropped using code, duplicate column 
+    # 'volume_change_over_25_minutes', # KEEPING
+    #  '2d_perimeter_nuc_cell_ratio', # KEEPING
+    # 'bad_pseudo_cells_segmentation', # KEEPing
+    'tscale_exponentialfit_volume',
+    'atB_exponentialfit_volume',
+    'rate_exponentialfit_volume',
+    'tscale_linearfit_volume',
+    'atB_linearfit_volume',
+    'rate_linearfit_volume',
 
     ]
 
