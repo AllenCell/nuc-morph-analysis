@@ -353,7 +353,8 @@ drop_list = [
     ]
 
 unnacounted_cols = [col for col in new_cols if col not in keep_list and col not in drop_list]
-
+still_needs_dropping = [col for col in new_cols  if col not in keep_list]
+print(len(still_needs_dropping), still_needs_dropping)
 print(len(keep_list))    
 print(len(unnacounted_cols))
 overlap = [x for x in keep_list if x in drop_list]

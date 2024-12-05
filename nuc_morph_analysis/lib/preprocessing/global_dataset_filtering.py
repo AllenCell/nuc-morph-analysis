@@ -411,6 +411,13 @@ COLUMNS_TO_DROP = [
     'volume_dips_peak_id_at_center',
     'volume_dips_peak_id_at_region',
     'volume_dips_total_number',
+
+    # created in labeling_neighbors_helper.find_neighbors_of_cells()
+    # not used
+    'number_of_frame_of_breakdown_neighbors',
+    'number_of_frame_of_death_neighbors',
+    'number_of_frame_of_formation_neighbors',
+
 ]
 
 
