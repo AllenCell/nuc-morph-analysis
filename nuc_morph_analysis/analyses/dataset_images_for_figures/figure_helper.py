@@ -455,7 +455,6 @@ def make_mp4(save_path, movie_name, files, fps=4):
     for im in files:
         if "png" in im:
             writer.append_data(imageio.imread(save_path / "movie" / im)) # add image to mp4
-            # os.remove(im) # remove image from directory
     writer.close()
 
 
