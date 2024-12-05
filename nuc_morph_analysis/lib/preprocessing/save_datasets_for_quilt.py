@@ -230,6 +230,13 @@ keep_list = [
     'bad_pseudo_cells_segmentation',
     'uncaught_pseudo_cell_artifact',
     'power_fit_volume', #used and could go to tfe
+    'volume_dips_peak_mask_at_region', #u sed for S10 C right and nice for TFE
+    'volume_dips_peak_mask_at_center', # used for S10C right
+    'volume_dips_volume_change_at_center', # used for S10D thresholding
+    'volume_dips_removed_um_unfilled', # used for S10E abd S10B
+    'dxdt_48_volume_dips_removed_um_unfilled', # used for S10E abd S10B
+    'neighbor_avg_dxdt_48_volume_dips_removed_um_unfilled_90um', # used for S10 G
+    'neighbor_avg_dxdt_48_volume_dips_removed_um_unfilled_whole_colony', # used for S10 F
     
      
     # new fitting paramaters features
@@ -312,6 +319,25 @@ drop_list = [
     'tscale_linearfit_volume',
     'atB_linearfit_volume',
     'rate_linearfit_volume',
+
+    'volume_dips_has_peak', 
+    'volume_dips_volume_change_at_region', 
+    'volume_dips_width_at_center',
+    'volume_dips_width_at_region',
+    'volume_dips_max_volume_change',
+    'volume_dips_peak_id_at_center',
+    'volume_dips_peak_id_at_region',
+    'volume_dips_total_number',
+
+    'sum_number_of_frame_of_breakdown_neighbors',
+    'sum_number_of_frame_of_formation_neighbors',
+    'sum_has_mitotic_neighbor_breakdown',
+    'sum_has_mitotic_neighbor_formation',
+    'sum_has_mitotic_neighbor_breakdown_forward_dilated',
+    'sum_has_mitotic_neighbor_formation_backward_dilated',
+    'sum_has_mitotic_neighbor_dilated',
+    'sum_has_dying_neighbor_forward_dilated',
+    'sum_number_of_frame_of_death_neighbors',
 
     ]
 
