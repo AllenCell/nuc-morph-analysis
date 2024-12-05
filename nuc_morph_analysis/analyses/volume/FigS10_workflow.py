@@ -76,7 +76,7 @@ for main_track_id, timepoint in main_track_list:
     ax = plot_track_with_volume_dip(ax,df_full,main_track_id,add_time_point_lines=True,timepoint=timepoint)
     ax = axlist[1]
     ax = plot_track_with_volume_dip(ax,df_full,main_track_id,xcol='index_sequence',ycol='dxdt_48_volume')
-    fig,axlist_untyped = adjust_axis_positions(fig,axlist,curr_pos=None,width=0.6,height=0.6,space=0.2,horizontal=False)
+    fig,axlist = adjust_axis_positions(fig,axlist,curr_pos=None,width=0.6,height=0.6,space=0.2,horizontal=False)
     for ext in ['.png','.pdf']:
         savepath = save_dir / f"S10B_track_{main_track_id}_volume_dip{ext}"
         save_and_show_plot(str(savepath),ext,fig,transparent=False,keep_open=True)
@@ -119,8 +119,7 @@ for ax in axlist:
     ax.set_xticks(np.arange(0,20,4))
     ax.set_xlim(-2,xlimmax)
 
-fig,axlist_untyped = adjust_axis_positions(fig,axlist,curr_pos=None,width=0.6,height=0.6,space=0.2,horizontal=False)
-axlist = type_axlist(axlist_untyped)
+fig,axlist = adjust_axis_positions(fig,axlist,curr_pos=None,width=0.6,height=0.6,space=0.2,horizontal=False)
 axlist[0].text(0.05,0.99,f"track {volume_dip_example_track}",transform=axlist[0].transAxes,
         ha = 'left',va='top',fontsize=fs)
 axlist[0].legend(loc='lower left',bbox_to_anchor=(1.05,0.0),
@@ -176,7 +175,7 @@ for threshold in [-50,0]:
     ax.text(0.05,0.99,text_str,transform=ax.transAxes,
             ha = 'left',va='top',fontsize=fs)
 
-    fig,axlist_untyped = adjust_axis_positions(fig,axlist,curr_pos=None,width=0.9,height=0.5,space=0.075)
+    fig,axlist = adjust_axis_positions(fig,axlist,curr_pos=None,width=0.9,height=0.5,space=0.075)
     ax.legend(loc='center left', bbox_to_anchor=(1.05, 0.5),
                 fontsize=fs,frameon=False,
                 markerscale=1,handlelength=1,
