@@ -1,15 +1,16 @@
 # %%
 from nuc_morph_analysis.analyses.colony_context.colony_context_analysis import plot_radial_profile
 from nuc_morph_analysis.lib.preprocessing.global_dataset_filtering import load_dataset_with_features
-from nuc_morph_analysis.lib.preprocessing import load_data, filter_data, global_dataset_filtering
+from nuc_morph_analysis.lib.preprocessing import load_data, filter_data
 from nuc_morph_analysis.lib.preprocessing.load_data import get_dataset_pixel_size
 from nuc_morph_analysis.analyses.height import plot
-from nuc_morph_analysis.analyses.height.plot_crowding import plot_density_schematic
 from nuc_morph_analysis.analyses.height.toymodel import toymodel
 from nuc_morph_analysis.analyses.height.centroid import (
     get_centroid,
     get_neighbor_centroids,
 )
+from nuc_morph_analysis.analyses.density import figure_watershed_based_density_schematic
+from nuc_morph_analysis.analyses.neighbor_of_X import figure_mitotic_filtering_examples
 from nuc_morph_analysis.lib.preprocessing.load_data import get_dataset_pixel_size
 from pathlib import Path
 import matplotlib.pyplot as plt
@@ -67,12 +68,12 @@ neighbor_centroids = get_neighbor_centroids(df_nuc, df_timepoint)
 
 # plot density schematic
 pix_size = get_dataset_pixel_size("medium")
-plot_density_schematic(
-    df_timepoint, track_centroid, neighbor_centroids, frame_centroids, pix_size, figdir
-)
 
 # plot colony-averaged density over aligned colony time
 plot.density_colony_time_alignment(df_all, pixel_size, interval, time_axis="colony_time")
+
+figure_watershed_based_density_schematic.run_validation_and_plot() #SuppFigS4 panel C
+figure_mitotic_filtering_examples.run_validation_and_plot() #SuppFigS4 panel D, this code takes ~6 min to run
 
 # %%
 # Run and plot toy model

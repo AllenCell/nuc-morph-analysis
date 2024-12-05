@@ -128,4 +128,12 @@ def compute_density(df, global_df, num_workers=1):
     neigh_stats = pd.concat(neigh_stats, axis=0)
     neigh_stats = neigh_stats.groupby(["CellId"]).mean()
 
+    # now remove CellIds that have bad pseudo cell segmentation (i.e. bad_pseudo_cells_segmentation)
+    # 'uncaught_pseudo_cell_artifact','bad_pseudo_cells_segmentation'
+    print("Removing bad pseudo cells")
+    print('Before removing bad pseudo cells: ', neigh_stats.shape[0])
+    cell_ids_to_remove = df[df['bad_pseudo_cells_segmentation'] == True]['CellId'].values
+    neigh_stats = neigh_stats[~neigh_stats.index.isin(cell_ids_to_remove)]
+    print('After removing bad pseudo cells: ', neigh_stats.shape[0])
+
     return neigh_stats

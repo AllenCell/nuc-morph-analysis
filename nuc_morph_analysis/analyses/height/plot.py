@@ -116,10 +116,11 @@ def calculate_mean_density(df, scale):
     """
     mean = []
     standard_dev = []
+    feature_col = "2d_area_nuc_cell_ratio"
     for _, df_frame in df.groupby("index_sequence"):
-        density = df_frame.density * scale
-        mean.append(np.mean(density))
-        standard_dev.append(np.std(density))
+        density = df_frame[feature_col].values * scale
+        mean.append(np.nanmean(density))
+        standard_dev.append(np.nanstd(density))
     return mean, standard_dev
 
 
@@ -159,35 +160,42 @@ def density_colony_time_alignment(
     -------
     Plot of mean nuclear height across the colony over time for each colony.
     """
-    scale, label, units, _ = get_plot_labels_for_metric("density")
     plt.close()
     fig, ax = plt.subplots(1, 1, figsize=(5, 4))
 
+    feature_col = "2d_area_nuc_cell_ratio"
+    scale, label, units, _ = get_plot_labels_for_metric(feature_col)
+
     for colony, df_colony in df.groupby("colony"):
         df_colony = df_colony.sort_values("index_sequence")
-        mean_density, std_density = calculate_mean_density(df_colony, scale)
         color = COLONY_COLORS[colony]
 
         if time_axis == "real_time":
-            time = df_colony.index_sequence.unique() * interval / 60
+            time_col = "index_sequence"
             x_label = "Real Time (hr)"
         if time_axis == "colony_time":
-            time = df_colony.colony_time.unique() * interval / 60
+            time_col = "colony_time"
             x_label = "Aligned Colony Time (hr)"
-        if error == "std":
-            upper = np.array(mean_density) + np.array(std_density)
-            lower = np.array(mean_density) - np.array(std_density)
-        if error == "percentile":
-            grouper = df_colony[["index_sequence"] + ["density"]].groupby("index_sequence")[
-                "density"
+        
+        grouper = df_colony[[time_col] + [feature_col]].groupby(time_col)[
+                feature_col
             ]
-            lower = grouper.quantile(0.05)
-            upper = grouper.quantile(0.95)
+        mean_density = grouper.mean() * scale    
+        if error == "std":
+            std_density = grouper.std() * scale
+            lower = mean_density - std_density
+            upper = mean_density + std_density
+        if error == "percentile":
+            lower = grouper.quantile(0.05) * scale
+            upper = grouper.quantile(0.95) * scale
+
+        time = mean_density.index.values * interval / 60
+        
 
         ax.fill_between(
             time,
-            lower * scale,
-            upper * scale,
+            lower,
+            upper,
             alpha=0.12,
             color=color,
             zorder=0,
@@ -198,14 +206,13 @@ def density_colony_time_alignment(
             time, mean_density, linewidth=1.2, color=color, label=COLONY_LABELS[colony], zorder=20
         )
 
-    ax.set_ylim(0.0005, 0.0065)
     ax.set_ylabel(f"Average Density \n Across Colony {units}")
     ax.set_xlabel(x_label)
     if show_legend is True:
         ax.legend(loc="upper right", handletextpad=0.7, frameon=False)
     plt.tight_layout()
     save_and_show_plot(
-        f"{figdir}/avg_density_colony_{time_axis}_alignment",
+        f"{figdir}/avg_density_colony_{time_axis}_alignment-{feature_col}",
         file_extension=".pdf",
         dpi=300,
         transparent=True,

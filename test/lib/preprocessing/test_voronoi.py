@@ -117,7 +117,6 @@ def test_voronoi_real_densities():
     df_colony_metrics["old_density"] = df_colony_metrics["density"].apply(lambda x: 4 * np.sqrt(x))
     assert np.allclose(df_colony_metrics["old_density"], df_colony_metrics.density_gt, rtol=0.2)
 
-
 def test_voronoi_synthetic_distance_density():
     """
     This test uses a set of cells laid out in the following pattern.
