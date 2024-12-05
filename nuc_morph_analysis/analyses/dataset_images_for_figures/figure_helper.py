@@ -17,6 +17,7 @@ from nuc_morph_analysis.lib.preprocessing.single_track_contact.export_code impor
 from tqdm import tqdm
 from matplotlib.patches import Polygon
 from skimage import measure
+import imageio
 
 INTENSITIES_DICT = {
     "egfp_max": (110, 140),
@@ -30,6 +31,57 @@ MAX_SUM_SLICE_DICT = {
     "bright": ("mid", "mid", "mid"),
     "seg": ("max", "mid", "mid"),
 }
+
+class AxesCreator:
+    def __init__(self, fig, img, zcrop_percentages):
+        self.fig = fig
+        self.img = img
+        self.zcrop_percentages = zcrop_percentages
+        fig_width, fig_height = fig.get_size_inches()
+        self.fig_width = fig_width
+        self.fig_height = fig_height
+
+    def define_axis_size(self, ax_width_inch, ax_x_inch, ax_y_inch, ax_gap_inch):
+        # determine axis height based on image aspect ratio
+        if self.zcrop_percentages is None:
+            ax_height_inch = ax_width_inch * (
+                self.img.shape[0] / self.img.shape[1]
+            )  # Height of the axes in inches
+        else:
+            self_height = self.img.shape[0] * (
+                self.zcrop_percentages[1] - self.zcrop_percentages[0]
+            )
+            self_width = self.img.shape[1]
+            ax_height_inch = ax_width_inch * (
+                self_height / self_width
+            )  # Height of the axes in inches
+
+        # convert to figure units
+        self.ax_width = ax_width_inch / self.fig_width  # Width of the axes in figure units
+        self.ax_height = ax_height_inch / self.fig_height  # Height of the axes in figure units
+        self.ax_x = ax_x_inch / self.fig_width  # x position of the axes in figure units
+        self.ax_y = ax_y_inch / self.fig_height  # y position of the axes in figure units
+        self.ax_gap = ax_gap_inch / self.fig_width  # gap between axes in figure units
+
+    def add_axes(
+        self,
+        ax_x=None,
+        ax_y=None,
+        ax_width=None,
+        ax_height=None,
+    ):
+        if ax_x is None:
+            ax_x = self.ax_x
+        if ax_y is None:
+            ax_y = self.ax_y
+        if ax_width is None:
+            ax_width = self.ax_width
+        if ax_height is None:
+            ax_height = self.ax_height
+
+        ax = self.fig.add_axes([ax_x, ax_y, ax_width, ax_height])
+        ax.axis("off")
+        return ax
 
 
 def process_channels_into_slices(img, channel, dtype="uint16"):
@@ -315,7 +367,7 @@ def draw_scale_bar_matplotlib(
 
     # the height is 5% of the axes height
 
-    ax.plot([x, x2], [y, y], color="w", linewidth=2)
+    ax.plot([x, x2], [y + 3, y + 3], color="w", linewidth=2)
     # y2 needs to define a location above the linewidth
     if add_text:
         unitsstr = r"μm"
@@ -328,6 +380,81 @@ def draw_scale_bar_matplotlib(
             ha=loc,
             va="bottom",
         )
+
+def draw_timestamp(ax, frame, fontsize=8):
+    """
+    Draw a timestep in the upper right hand corner of an image
+
+    Parameters
+    ----------
+    ax : matplotlib axis
+        The axis to draw the scale bar on
+    frame : int
+        frame number
+    fontsize : int
+        The fontsize of the text
+
+    Returns
+    -------
+    None
+    """
+
+    # define the X coordinates as fixed distance from left side of image
+    x = 5
+
+    # define the Y coordinate as 5% of the axes height
+    y_min_inches = 0.12  # inches from the bottom of the axes
+    ylim_width = np.abs(ax.get_ylim()[1] - ax.get_ylim()[0])
+    axis_height_inches = (
+        ax.get_position().height * ax.get_figure().get_figheight()
+    )  # convert axes height to inches
+    y = ylim_width * (
+        y_min_inches / axis_height_inches
+    )  # NOTE: the max of ylim is the bottom of an image in matplotlib
+
+    # get time of frame in hr and min and make hr always 2 digits
+    t_hr = str(int(np.floor(frame * 5/ 60)))
+    if len(t_hr) == 1:
+        t_hr = "0"+t_hr
+    t_min = str(int(frame * 5 % 60))
+    if len(t_min) == 1:
+        t_min = "0"+ t_min
+
+    ax.text(
+        x,
+        y,
+        f"{t_hr}:{t_min} hr:min",
+        color="w",
+        fontsize=fontsize,
+        ha="left",
+        va="bottom",
+    )
+
+def make_mp4(save_path, movie_name, files, fps=4):
+    """
+    Make an mp4 movie from a list of images
+    
+    Parameters
+    ----------
+    save_path : Path
+        The path to save the movie to
+    movie_name : str
+        The name of the movie file (without extension)
+    files : list
+        The list of paths to image filew to load and make movie from
+    fps : int
+        The frames per second of the movie
+    
+    Returns
+    -------
+    None
+    """
+    writer = imageio.get_writer(save_path / f"{movie_name}.mp4", fps=fps)
+    for im in files:
+        if "png" in im:
+            writer.append_data(imageio.imread(save_path / "movie" / im)) # add image to mp4
+            # os.remove(im) # remove image from directory
+    writer.close()
 
 
 def get_list_of_tail_lines(
@@ -671,6 +798,72 @@ def assemble_formation_middle_breakdown_dataframe(df):
         df_fmb.loc[specified_t, "title_str"] = column_label
     df_fmb.loc[middle_of_track, "title_str"] = "middle"
     return df_fmb
+
+# %%
+def assemble_formation_breakdown_movie_dataframe(df):
+    """
+    Assemble the dataframe for example movie of lamin shell formation and breakdown. This movie
+    includes timepoints from 2 frames before formation to 2 frames after breakdown for a specific nucleus
+    This dataframe specifies the coordinates of that nucleus at each timepoint along with the time
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        The tracking dataframe
+
+    Returns
+    -------
+    df_fb : pd.DataFrame
+        The dataframe for the timepoints two before frames before formation
+        through two frames after breakdown
+    """
+    csv_dir = Path(__file__).parent / "csvs"
+    dff = pd.read_csv(csv_dir / "F1P4_track_id_83322_formation_centroids.csv")
+    dfb = pd.read_csv(csv_dir / "F1P4_track_id_83322_breakdown_centroids.csv")
+    dfman = pd.concat([dff, dfb])
+    dfman.set_index("index_sequence", inplace=True)
+    # %%
+    # now use the tracking dataframe to retrieve the tracking centroids throughout the track
+    # combine the information from the CSVs and the tracking dataframe into a small dataframe specific to the track of interest
+    track_id = EXAMPLE_TRACKS["figure_dataset_formation_and_breakdown"]
+    dfi = df[df["track_id"] == track_id].set_index("index_sequence")
+
+    # get list of all timepoints to include the movie
+    predicted_formation = dfi["predicted_formation"].values[0]
+    predicted_breakdown = dfi["predicted_breakdown"].values[0]
+    timepoints = np.arange(
+        predicted_formation-2, predicted_breakdown+2+1, 1
+    ).astype(int)
+
+    dflist = []
+
+    # iterate through all timepoints and add the coordinates to the dataframe
+    for ti, timepoint in enumerate(timepoints):
+        # use tracking centroid if segmentation present
+        if timepoint in dfi.index:
+            y = dfi.loc[timepoint, "centroid_y"]
+            x = dfi.loc[timepoint, "centroid_x"]
+        else:
+            # otherwise use manual tracking centroid
+            x = dfman.loc[timepoint, "x"]
+            y = dfman.loc[timepoint, "y"]
+
+        feats = {}
+        feats["index_sequence"] = np.uint16(timepoint)
+        feats["t"] = np.uint16(ti)
+        feats["x"] = np.uint16(x)
+        feats["y"] = np.uint16(y)
+        feats["track_id"] = np.uint16(track_id)
+        dflist.append(pd.DataFrame(data=feats.values(), index=feats.keys()).T)
+    df_fb = pd.concat(dflist)
+    df_fb.set_index("index_sequence", inplace=True)
+
+    df_fb = df_fb.groupby("index_sequence").agg("first")
+    df_fb["ival"] = [x for x in range(df_fb.shape[0])]
+    df_fb["x"] = df_fb["x"].astype("uint16")
+    df_fb["y"] = df_fb["y"].astype("uint16")
+
+    return df_fb
 
 
 def load_images_for_formation_middle_breakdown(df_fmb, df, colony):
