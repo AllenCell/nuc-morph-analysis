@@ -9,6 +9,8 @@ import pandas as pd
 
 from nuc_morph_analysis.lib.preprocessing import global_dataset_filtering, load_data, filter_data
 from nuc_morph_analysis.lib.preprocessing.neighbor_analysis import compute_density
+from nuc_morph_analysis.lib.preprocessing import add_times
+from nuc_morph_analysis.lib.visualization.plotting_tools import get_plot_labels_for_metric
 
 # make plot text editable in Illustrator
 import matplotlib
@@ -17,14 +19,15 @@ matplotlib.rcParams["pdf.fonttype"] = 42
 plt.rcParams["font.family"] = "Arial"
 
 
-def toymodel(nc_ratio=0.29, cvol=0.5e6, num_workers=1):
+def toymodel(nc_ratio=0.29, cvol=0.5e6, cell_H_mod=0, num_workers=1):
     """
     main function to run
 
     args
     --------
     nc_ratio: ratio of nuclear to cytoplastic volumes - default is 0.3
-    cvol: target volume of nuclei to fit toy model to
+    cvol: target volume of nuclei to fit toy model to, default is 0.5e6 pixels^3 ~ 630 um^3
+    cell_H_mod: height difference between top of nucleus and top of cell to use for toy model. default is 0
     num_workers: how many workers to use for multiprocessing
     """
     save_path = Path(__file__).parent / "figures"
@@ -37,13 +40,13 @@ def toymodel(nc_ratio=0.29, cvol=0.5e6, num_workers=1):
     data["height"] = data["height"] * pix_size
     data["dist"] = data["dist"] * pix_size
 
-    stats = get_toy_model(data, cvol_um_cell)
+    stats = get_toy_model(data, cvol_um_cell, cell_H_mod)
 
     plot_toy_model(data, stats, save_path)
     plot_growth_rate(data, save_path)
 
 
-def get_toy_model(data, cvol_um_cell):
+def get_toy_model(data, cvol_um_cell, cell_H_mod=0):
     """
     Fit toy model to set of nuclei that all have similar volumes
     do this by interpolating height values, and then for
@@ -51,15 +54,22 @@ def get_toy_model(data, cvol_um_cell):
     1. radius of a cylinder as R = sqrt(V/(2 pi H))
     2. radius of a hexagon as R = sqrt(2V/3sqrt(3)H)
     Return this information as distance = 2*R via a dataframe
+
+    arguments
+    -----
+    data: dataframe with real data
+    cvol_um_cell: volume of a single cell
+    cell_H_mod: height difference between top of nucleus and top of cell to use for toy model. default is 0
     """
     H = np.linspace(data["height"].min(), data["height"].max(), 100)
+    cell_H = H + cell_H_mod
     # Volume of cylinder is pi r^2 H
     # distance = np.sqrt(cvol/(np.pi * H))*2 for cylinder
-    dist_cylindrical = 2 * np.sqrt(cvol_um_cell / (np.pi * H))  # assuming cylindrical toy model
+    dist_cylindrical = 2 * np.sqrt(cvol_um_cell / (np.pi * cell_H))  # assuming cylindrical toy model
 
     # Volume of hexagon is (3√3/2)s^2 × h
     # s = sqrt(2V/3sqrt(3)H)
-    S = np.sqrt(cvol_um_cell * 2 / (H * 3 * np.sqrt(3)))
+    S = np.sqrt(cvol_um_cell * 2 / (cell_H * 3 * np.sqrt(3)))
     # normal to hexagon side is S *sqrt(3)/2
     # distance is 2 * S * sqrt(3)/2
     dist_hexagonal = 2 * S * np.sqrt(3) / 2
@@ -67,8 +77,11 @@ def get_toy_model(data, cvol_um_cell):
     stats = pd.DataFrame(
         {
             "height": H,
+            "cell_height": cell_H,
             "dist_cylindrical": dist_cylindrical,
             "dist_hexagonal": dist_hexagonal,
+            "cell_vol": cvol_um_cell,
+            "cell_height_diff": cell_H_mod,
         }
     )
     return stats
@@ -114,7 +127,8 @@ def plot_toy_model(data, toy_stats, save_path=Path("./")):
     )
     axes.set_ylim(10, 40)
     axes.legend()
-    fig.savefig(save_path / "toymodel.pdf", bbox_inches="tight")
+    savename = f"toymodel.pdf"
+    fig.savefig(save_path / savename, bbox_inches="tight")
 
 
 def plot_growth_rate(data, save_path=Path("./")):
@@ -182,11 +196,12 @@ def get_data(cvol, save_path=Path("./"), num_workers=1):
     df_full = filter_data.all_timepoints_full_tracks(df)
     df_ft = df_full[df_full["colony"].isin(["small", "medium", "large"])].reset_index()
 
+    scale, _, _, _ = get_plot_labels_for_metric("volume")
     # plot chosen volume
     fig, ax = plt.subplots(1, 1, figsize=(10, 4))
     for track, df_track in df_ft.groupby("track_id"):
-        ax.plot(df_track.index_sequence, df_track.volume, alpha=0.5, lw=0.3)
-    ax.axhline(y=cvol)
+        ax.plot(df_track.index_sequence, df_track.volume * scale, alpha=0.5, lw=0.3)
+    ax.axhline(y=cvol * scale)
     fig.savefig(save_path / "chosen_volume.pdf")
 
     # get similar volumes to chosen volume
@@ -208,6 +223,20 @@ def get_data(cvol, save_path=Path("./"), num_workers=1):
     neigh_stats = neigh_stats.reset_index()
 
     return neigh_stats, cvol
+
+def determine_volume_at_middle_of_cell_cycle():
+
+    df = global_dataset_filtering.load_dataset_with_features(remove_growth_outliers=True)
+    df = filter_data.filter_all_outliers(df)
+    df_full = filter_data.all_timepoints_full_tracks(df)
+    df_full = add_times.digitize_time_column(df_full,minval=0,maxval=1,step_size=0.05,time_col='normalized_time',new_col='dig_time')
+    grouper = df_full[['volume','dig_time']].groupby('dig_time')
+    dfg = grouper.mean()
+    scale,_,_,_ = get_plot_labels_for_metric('volume')
+    mean_vol = dfg.loc[0.5,'volume'].mean()*scale
+    print(mean_vol)
+    plt.plot(dfg.index,dfg['volume']*scale)
+    plt.show()
 
 
 if __name__ == "__main__":
