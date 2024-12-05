@@ -52,7 +52,6 @@ def get_scale_factor_table(dataset="all_baseline"):
             "width",
             "length",
             "distance_from_centroid",
-            "max_distance_from_centroid",
         ): pix_size,
        
         ("mesh_sa"): pix_size**2,
@@ -78,8 +77,8 @@ def get_scale_factor_table(dataset="all_baseline"):
         (
             "2d_area_nucleus",
             "2d_area_pseudo_cell",
-            ): (pix_size/2.5)**2, # resolution_level 1 is 2.5x downsampled
-        ("2d_area_pseudo_cell"): (pix_size/2.5)**2, # resolution_level 1 is 2.5x downsampled
+            ): (pix_size/2.5)**2,
+        ("2d_area_pseudo_cell"): (pix_size/2.5)**2,
         ("2d_area_nuc_cell_ratio"): 1,
     }
 
@@ -213,14 +212,10 @@ LABEL_TABLE = {
     "distance": "Distance",
     "distance_from_centroid": "Distance from centroid",
     "normalized_distance_from_centroid": "Normalized distance from centroid",
-    "max_distance_from_centroid": "Max distance from centroid",
     "colony_depth": "Colony depth",
     "normalized_colony_depth": "Normalized colony depth",
-    "max_colony_depth": "Max colony depth",
     "avg_colony_depth": "Average colony depth",
     # Density
-    "colony_non_circularity": "Colony non-circularity",
-    "colony_non_circularity_scaled": "Scaled colony non-circularity",
     "avg_early_density": "Early density",
     "avg_late_density": "Late density",
     "density": "Density",
@@ -263,9 +258,6 @@ LABEL_TABLE = {
     'mean_neighbor_avg_lrm_2d_area_nuc_cell_ratio_90um': "Neighborhood avg. mean density",
     
     # mitotic and apoptotic neighbor columns
-    "number_of_frame_of_breakdown_neighbors": "# of neighboring cells undergoing breakdown",
-    "number_of_frame_of_formation_neighbors": "# of neighboring cells undergoing formation",
-    "number_of_frame_of_death_neighbors": "# of neighboring cells undergoing death",
     "normalized_sum_has_mitotic_neighbor": "Frequency of mitotic adjacent neighbors",
     "normalized_sum_has_dying_neighbor": "Frequency of dying adjacent neighbors",  
     # 2D area features
@@ -424,15 +416,11 @@ UNIT_TABLE = {
         "width",
         "length",
         "distance_from_centroid",
-        "max_distance_from_centroid",
         "height",
         "height_at_B",
         "height_at_C",
         "avg_height",
         "distance",
-        "2d_intensity_min_edge",
-        "2d_intensity_mean_edge",
-        "2d_intensity_max_edge",
     ): "(μm)",
     (
         "RMSE_linearityfit_SA",
@@ -445,7 +433,6 @@ UNIT_TABLE = {
         "seg_twoD_zMIP_area",
         "2d_area_nucleus",
         "2d_area_pseudo_cell",
-        "2d_area_cyto",
     ): "(μm²)",
     (
         "volume",
@@ -466,7 +453,6 @@ UNIT_TABLE = {
         "avg_early_density",
         "avg_late_density",
         "avg_density",
-        "inv_cyto_density",
     ): "(μm⁻²)",
     # Temporal
     (
