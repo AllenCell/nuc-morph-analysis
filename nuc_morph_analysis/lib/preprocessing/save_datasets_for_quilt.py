@@ -179,7 +179,7 @@ keep_list = [
     "neighbor_avg_lrm_xy_aspect_90um",
     "neighbor_avg_lrm_mesh_sa_90um",
     "neighbor_avg_lrm_2d_area_nuc_cell_ratio_90um",
-    "neighbor_avg_lrm_dxdt_48_volume_90um",        
+    # "neighbor_avg_lrm_dxdt_48_volume_90um",
     
     #used in lrm
     "sisters_volume_at_B",
@@ -348,16 +348,16 @@ drop_list = [
 
     ]
 
-new_cols = [col for col in new_cols if col not in keep_list and col not in drop_list]
+unnacounted_cols = [col for col in new_cols if col not in keep_list and col not in drop_list]
 
 print(len(keep_list))    
-print(len(new_cols))
+print(len(unnacounted_cols))
 overlap = [x for x in keep_list if x in drop_list]
 overlap2 = [x for x in drop_list if x in keep_list]
 
 print(len(overlap),len(overlap2))
 #%%
-for col in new_cols:
+for col in unnacounted_cols:
     print(col)
 
 
