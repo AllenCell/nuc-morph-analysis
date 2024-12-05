@@ -207,6 +207,10 @@ keep_list = [
     '2d_area_nucleus', 
     '2d_area_pseudo_cell',
     '2d_area_nuc_cell_ratio',
+    '2d_perimeter_nucleus', #can be dropped at end of global dataset filterig, only used in load_dataset_with_features. 
+    '2d_perimeter_pseudo_cell', # can be dropped at end of global dataset filtering, only used in load_dataset_with_features
+
+
 
 
     # neighbor_of_X features 
@@ -255,7 +259,6 @@ drop_list = [
     '2d_area_true_nucleus',
     '2d_total_area_true_nucleus',
     '2d_label_nucleus',
-    # '2d_area_nucleus', #KEEPING
     '2d_bbox-0_nucleus',
     '2d_bbox-1_nucleus',
     '2d_bbox-2_nucleus',
@@ -270,7 +273,6 @@ drop_list = [
     '2d_major_axis_length_nucleus',
     '2d_minor_axis_length_nucleus',
     '2d_orientation_nucleus',
-    '2d_perimeter_nucleus', #can be dropped at end of global dataset filterig, only used in load_dataset_with_features. 
     '2d_solidity_nucleus',
     '2d_img_shape_nucleus',
     'resolution_level_dup1',
@@ -278,7 +280,6 @@ drop_list = [
     '2d_area_true_pseudo_cell',
     '2d_total_area_true_pseudo_cell',
     '2d_label_pseudo_cell',
-    # '2d_area_pseudo_cell', # KEEPING
     '2d_bbox-0_pseudo_cell',
     '2d_bbox-1_pseudo_cell',
     '2d_bbox-2_pseudo_cell',
@@ -293,7 +294,6 @@ drop_list = [
     '2d_major_axis_length_pseudo_cell',
     '2d_minor_axis_length_pseudo_cell',
     '2d_orientation_pseudo_cell',
-    '2d_perimeter_pseudo_cell', # can be dropped at end of global dataset filtering, only used in load_dataset_with_features
     '2d_solidity_pseudo_cell',
     '2d_img_shape_pseudo_cell',
     'resolution_level_dup2',
@@ -306,13 +306,9 @@ drop_list = [
     '2d_intensity_min_edge', # this one is fun, its distance to nearest nucleus edge (different than centroid distance)
     '2d_img_shape_edge',
     'resolution_level',
-    # '2d_area_nuc_cell_ratio', # KEEPING
     '2d_area_cyto',
     'inv_cyto_density',
     'dxdt_5_volume_end', # can be dropped using code, duplicate column 
-    # 'volume_change_over_25_minutes', # KEEPING
-    #  '2d_perimeter_nuc_cell_ratio', # KEEPING
-    # 'bad_pseudo_cells_segmentation', # KEEPing
     'tscale_exponentialfit_volume',
     'atB_exponentialfit_volume',
     'rate_exponentialfit_volume',
@@ -345,6 +341,10 @@ new_cols = [col for col in new_cols if col not in keep_list and col not in drop_
 
 print(len(keep_list))    
 print(len(new_cols))
+overlap = [x for x in keep_list if x in drop_list]
+overlap2 = [x for x in drop_list if x in keep_list]
+
+print(len(overlap),len(overlap2))
 #%%
 for col in new_cols:
     print(col)
