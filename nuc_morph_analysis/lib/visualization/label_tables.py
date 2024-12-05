@@ -78,15 +78,8 @@ def get_scale_factor_table(dataset="all_baseline"):
         (
             "2d_area_nucleus",
             "2d_area_pseudo_cell",
-            "2d_area_cyto",
             ): (pix_size/2.5)**2, # resolution_level 1 is 2.5x downsampled
         ("2d_area_pseudo_cell"): (pix_size/2.5)**2, # resolution_level 1 is 2.5x downsampled
-        ("inv_cyto_density"): 1 / (pix_size/2.5)**2, # resolution level =1 is 2.5x downsampled
-         (
-            "2d_intensity_min_edge",
-            "2d_intensity_mean_edge",
-            "2d_intensity_max_edge",
-        ): pix_size/2.5, # resolution level =1 is 2.5x downsampled
         ("2d_area_nuc_cell_ratio"): 1,
     }
 

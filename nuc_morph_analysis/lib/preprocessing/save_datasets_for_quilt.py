@@ -201,11 +201,150 @@ keep_list = [
     "mean_neighbor_avg_lrm_mesh_sa_90um",
     "mean_neighbor_avg_lrm_2d_area_nuc_cell_ratio_90um", 
     "normalized_sum_has_mitotic_neighbor",
-    "normalized_sum_has_dying_neighbor",]
+    "normalized_sum_has_dying_neighbor",
+    
+    # density features
+    '2d_area_nucleus', 
+    '2d_area_pseudo_cell',
+    '2d_area_nuc_cell_ratio',
+
+
+    ]
 
 drop_list = [
     'level_0', 
     'index', 
+    'source_manifest_x',
+    'source_manifest_y',
+
+    '2d_label_true_nucleus',
+    '2d_area_true_nucleus',
+    '2d_total_area_true_nucleus',
+    '2d_label_nucleus',
+    # '2d_area_nucleus', #KEEPING
+    '2d_bbox',-0_nucleus
+    '2d_bbox',-1_nucleus
+    '2d_bbox',-2_nucleus
+    '2d_bbox',-3_nucleus
+    '2d_centroid',-0_nucleus
+    '2d_centroid',-1_nucleus
+    '2d_convex_area_nucleus',
+    '2d_eccentricity_nucleus',
+    '2d_equivalent_diameter_nucleus',
+    '2d_extent_nucleus',
+    '2d_filled_area_nucleus',
+    '2d_major_axis_length_nucleus',
+    '2d_minor_axis_length_nucleus',
+    '2d_orientation_nucleus',
+    '2d_perimeter_nucleus', #can be dropped at end of global dataset filterig, only used in load_dataset_with_features. 
+    '2d_solidity_nucleus',
+    '2d_img_shape_nucleus',
+    'resolution_level_dup1',
+    '2d_label_true_pseudo_cell',
+    '2d_area_true_pseudo_cell',
+    '2d_total_area_true_pseudo_cell',
+    '2d_label_pseudo_cell',
+    # '2d_area_pseudo_cell', # KEEPING
+    '2d_bbox',-0_pseudo_cell
+    '2d_bbox',-1_pseudo_cell
+    '2d_bbox',-2_pseudo_cell
+    '2d_bbox',-3_pseudo_cell
+    '2d_centroid',-0_pseudo_cell
+    '2d_centroid',-1_pseudo_cell
+    '2d_convex_area_pseudo_cell',
+    '2d_eccentricity_pseudo_cell',
+    '2d_equivalent_diameter_pseudo_cell',
+    '2d_extent_pseudo_cell',
+    '2d_filled_area_pseudo_cell',
+    '2d_major_axis_length_pseudo_cell',
+    '2d_minor_axis_length_pseudo_cell',
+    '2d_orientation_pseudo_cell',
+    '2d_perimeter_pseudo_cell', # can be dropped at end of global dataset filtering, only used in load_dataset_with_features
+    '2d_solidity_pseudo_cell',
+    '2d_img_shape_pseudo_cell',
+    'resolution_level_dup2',
+    '2d_label_true_edge',
+    '2d_area_true_edge',
+    '2d_total_area_true_edge',
+    '2d_label_edge',
+    '2d_intensity_max_edge',
+    '2d_intensity_mean_edge',
+    '2d_intensity_min_edge', # this one is fun, its distance to nearest nucleus edge (different than centroid distance)
+    '2d_img_shape_edge',
+    'resolution_level',
+    # '2d_area_nuc_cell_ratio', # KEEPING
+    '2d_area_cyto',
+    'inv_cyto_density',
+    # 'frame_of_breakdown',
+    # 'frame_of_formation',
+    # 'has_mitotic_neighbor_breakdown',
+    # 'number_of_frame_of_breakdown_neighbors',
+    # 'has_mitotic_neighbor_formation',
+    # 'number_of_frame_of_formation_neighbors',
+    # 'has_mitotic_neighbor_breakdown_forward_dilated',
+    # 'has_mitotic_neighbor_formation_backward_dilated',
+    # 'has_mitotic_neighbor_dilated',
+    # 'identified_death',
+    # 'frame_of_death',
+    # 'number_of_frame_of_death_neighbors',
+    # 'has_dying_neighbor_forward_dilated',
+    # 'dxdt_5_volume_end',
+    # 'volume_change_over_25_minutes',
+    # 'neighbor_avg_lrm_dxdt_5_volume_end_90um',
+    # 'neighbor_avg_lrm_neighbor_avg_dxdt_48_volume_90um_90um',
+    # 'neighbor_avg_lrm_neighbor_avg_dxdt_48_volume_whole_colony_90um',
+    # 'neighbor_avg_lrm_volume_whole_colony',
+    # 'neighbor_avg_lrm_height_whole_colony',
+    # 'neighbor_avg_lrm_xy_aspect_whole_colony',
+    # 'neighbor_avg_lrm_mesh_sa_whole_colony',
+    # 'neighbor_avg_lrm_2d_area_nuc_cell_ratio_whole_colony',
+    # 'neighbor_avg_lrm_dxdt_48_volume_whole_colony',
+    # 'neighbor_avg_lrm_dxdt_5_volume_end_whole_colony',
+    # 'neighbor_avg_lrm_neighbor_avg_dxdt_48_volume_90um_whole_colony',
+    # 'neighbor_avg_lrm_neighbor_avg_dxdt_48_volume_whole_colony_whole_colony',
+    # '2d_perimeter_nuc_cell_ratio',
+    # 'bad_pseudo_cells_segmentation',
+    # 'uncaught_pseudo_cell_artifact',
+    # 'power_fit_volume',
+    # 'tscale_exponentialfit_volume',
+    # 'atB_exponentialfit_volume',
+    # 'rate_exponentialfit_volume',
+    # 'RMSE_exponentialfit_volume',
+    # 'tscale_linearfit_volume',
+    # 'atB_linearfit_volume',
+    # 'rate_linearfit_volume',
+    # 'RMSE_linearfit_volume',
+    # 'mothers_volume_at_B',
+    # 'mothers_duration_BC',
+    # 'mothers_volume_at_C',
+    # 'sisters_volume_at_C',
+    # 'mothers_delta_volume_BC',
+    # 'neighbor_avg_dxdt_48_volume_90um_at_B',
+    # 'volume_dips_peak_mask_at_region',
+    # 'volume_dips_peak_mask_at_center',
+    # 'volume_dips_has_peak',
+    # 'volume_dips_volume_change_at_center',
+    # 'volume_dips_volume_change_at_region',
+    # 'volume_dips_width_at_center',
+    # 'volume_dips_width_at_region',
+    # 'volume_dips_max_volume_change',
+    # 'volume_dips_peak_id_at_center',
+    # 'volume_dips_peak_id_at_region',
+    # 'volume_dips_total_number',
+    # 'volume_dips_removed_um_unfilled',
+    # 'dxdt_48_volume_dips_removed_um_unfilled',
+    # 'neighbor_avg_dxdt_48_volume_dips_removed_um_unfilled_90um',
+    # 'neighbor_avg_dxdt_48_volume_dips_removed_um_unfilled_whole_colony',
+    # 'sum_number_of_frame_of_breakdown_neighbors',
+    # 'sum_number_of_frame_of_formation_neighbors',
+    # 'sum_has_mitotic_neighbor_breakdown',
+    # 'sum_has_mitotic_neighbor_formation',
+    # 'sum_has_mitotic_neighbor_breakdown_forward_dilated',
+    # 'sum_has_mitotic_neighbor_formation_backward_dilated',
+    # 'sum_has_mitotic_neighbor_dilated',
+    # 'sum_has_dying_neighbor_forward_dilated',
+    # 'sum_number_of_frame_of_death_neighbors',
+
     ]
 
 new_cols = [col for col in new_cols if col not in keep_list and col not in drop_list]
