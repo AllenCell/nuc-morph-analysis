@@ -46,7 +46,7 @@ fig,_ = plot_neighbors_volume_over_time(df_outliers,track_id_list)
 save_name: str = f"S10_A_left-immediate_neighbors_of_main_track_{MAIN_TRACK_ID}"
 save_path: Path = save_dir / save_name
 for ext in ['.png','.pdf']:
-    save_and_show_plot(save_path,ext,fig,transparent=False,keep_open=True)
+    save_and_show_plot(str(save_path),ext,fig,transparent=False,keep_open=True)
 plt.show()
 
 #%%
@@ -56,7 +56,7 @@ fig,_ = plot_tracks_aligned_at_volume_drop_onset(df_outliers,track_id_list,MAIN_
 save_name = f"S10_A_middle-dip_shape_{MAIN_TRACK_ID}"
 save_path = Path( save_dir / save_name )
 for ext in ['.png','.pdf']:
-    save_and_show_plot(save_path,ext,fig,transparent=False,keep_open=True)
+    save_and_show_plot(str(save_path),ext,fig,transparent=False,keep_open=True)
 plt.show()
 
 # %%
