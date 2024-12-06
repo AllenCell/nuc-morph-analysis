@@ -56,9 +56,7 @@ def get_scale_factor_table(dataset="all_baseline"):
        
         ("mesh_sa"): pix_size**2,
         ("volume", "volume_sub",  "volume_change_over_25_minutes"): pix_size**3,
-        ("fit_volume"): 1, #already scaled in code
-        ("density", "avg_density", "avg_early_density", "avg_late_density"): 1 / pix_size**2,
-        
+        ("fit_volume"): 1, #already scaled in code        
         (
             "colony_time",
             "sync_time_Ff",
@@ -215,11 +213,6 @@ LABEL_TABLE = {
     "colony_depth": "Colony depth",
     "normalized_colony_depth": "Normalized colony depth",
     "avg_colony_depth": "Average colony depth",
-    # Density
-    "avg_early_density": "Early density",
-    "avg_late_density": "Late density",
-    "density": "Density",
-    "avg_density": "Average density",
     # Lineage
     "parent_id": "Parent ID",
     "family_id": "Family ID",
@@ -240,7 +233,6 @@ LABEL_TABLE = {
     "seg_twoD_zMIP_area": "total projected nuclear area",
     # LRM feats
     "height_at_B": "Starting height",
-    "density_at_B": "Starting density",
     "xy_aspect_at_B": "Starting XY aspect ratio",
     "SA_vol_ratio_at_B": "Starting surface area/volume ratio",
     "early_neighbor_avg_dxdt_48_volume_90um": "Neighborhood avg. ~starting transient growth rate",
@@ -389,7 +381,6 @@ COLORIZER_LABEL_TABLE = {
     "zy_aspect": "YZ aspect ratio",
     "distance_from_centroid": "Distance from colony center",
     "normalized_colony_depth": "Normalized distance from colony center",
-    "density": "Density",
     "family_id": "Family ID",
     "is_growth_outlier": "Growth outlier filter",
     "termination": "Trajectory termination annotation",
@@ -448,12 +439,6 @@ UNIT_TABLE = {
          "volume_change_over_25_minutes",
     ): "(μm\u00B3)",
     "SA_vol_ratio": "(μm⁻¹)",
-    (
-        "density",
-        "avg_early_density",
-        "avg_late_density",
-        "avg_density",
-    ): "(μm⁻²)",
     # Temporal
     (
         "colony_time",
@@ -576,8 +561,6 @@ LIMIT_TABLE = {
     "xz_aspect_fold_change_BC": (0, 3.25),
     # Colony Position
     "avg_colony_depth": (0, 9),
-    # Density
-    "avg_density": (6.1e-4, 4.6e-3),
 }
 
 # limits when growth outliers are left in the dataset
@@ -633,8 +616,6 @@ LIMIT_TABLE_WITH_GROWTH_OUTLIERS = {
     "xz_aspect_fold_change_BC": (0, 3.25),
     # Colony Position
     "avg_colony_depth": (0, 9),
-    # Density
-    "avg_density": (4e-6, 6e-5),
     # colony area
     "colony_area": (0, 200000),  # max area of 20 FOV i 170,000 µm^2
     "nucleus_colony_area_ratio": (0.3, 0.55),
@@ -648,7 +629,6 @@ AVG_LIMIT_TABLE = {
     "volume": (400, 1200),
     "exiting_mitosis": (0, 0.4),
     "nucleus_colony_area_ratio": (2, 3),
-    "density": (0.0010, 0.0045),
     "dxdt_48_volume": (10, 80),
     "dxdt_24_volume": (10, 80),
     "tscale_linearityfit_volume": (0.2, 3),

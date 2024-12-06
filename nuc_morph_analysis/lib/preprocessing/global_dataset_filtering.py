@@ -393,6 +393,7 @@ COLUMNS_TO_DROP = [
     'resolution_level',
     '2d_area_cyto',
     'inv_cyto_density',
+    'density'
 
     # created in add_groth_features.fit_tracks_to_model()
     'tscale_exponentialfit_volume',

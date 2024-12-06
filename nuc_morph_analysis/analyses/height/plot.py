@@ -96,34 +96,6 @@ def height_colony_time_alignment(
     )
 
 
-def calculate_mean_density(df, scale):
-    """
-    Calculate the mean height for a given index_sequence (i.e. timepoint) and the standard deviation of the mean.
-
-    Parameters
-    ----------
-    df : pandas.DataFrame
-        DataFrame containing the data.
-    pixel_size : float
-        Pixel size in microns.
-
-    Returns
-    -------
-    mean_height : list
-        List of mean heights for each index_sequence.
-    standard_dev_height : list
-        List of standard deviations of the mean heights for each index_sequence.
-    """
-    mean = []
-    standard_dev = []
-    feature_col = "2d_area_nuc_cell_ratio"
-    for _, df_frame in df.groupby("index_sequence"):
-        density = df_frame[feature_col].values * scale
-        mean.append(np.nanmean(density))
-        standard_dev.append(np.nanstd(density))
-    return mean, standard_dev
-
-
 def density_colony_time_alignment(
     df,
     pixel_size,

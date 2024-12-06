@@ -84,7 +84,7 @@ def generate_manifest_one_colony(morflowgenesis_df, dataset, experiments=None):
     # --------------------------
     # STEP 5: Add colony metrics
     # --------------------------
-    # density and other add_colony_metrics features
+    # add_colony_metrics features
     logging.info("Calculating colony metrics")
     return add_colony_metrics(step5_df)
 

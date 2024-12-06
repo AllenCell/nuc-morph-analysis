@@ -90,7 +90,6 @@ previous_cols = [
     "entering_or_exiting_division",
     "neighbors",
     "neigh_distance",
-    "density",
     "is_tp_outlier",
     "track_length",
     "is_outlier_by_short_track",
@@ -247,110 +246,6 @@ keep_list = [
 
     ]
 
-drop_list = [
-    # not sure where these come from
-    # dropping in global_dataset_filtering (DONE)
-    'level_0', 
-    'index', 
-    'source_manifest_x',
-    'source_manifest_y',
-
-    # this set is defined in psuedo_cell_helper, not used after. Remove in gloabl_dataset_filtering (DONE)
-    # could be removed in pseudo_cell_helper.choose_columns() but that would require rerunning generate_main_manifest
-    '2d_label_true_nucleus', 
-    '2d_area_true_nucleus', 
-    '2d_total_area_true_nucleus', 
-    '2d_label_nucleus', 
-    '2d_bbox-0_nucleus',
-    '2d_bbox-1_nucleus',
-    '2d_bbox-2_nucleus',
-    '2d_bbox-3_nucleus',
-    '2d_centroid-0_nucleus',
-    '2d_centroid-1_nucleus',
-    '2d_convex_area_nucleus',
-    '2d_eccentricity_nucleus',
-    '2d_equivalent_diameter_nucleus',
-    '2d_extent_nucleus',
-    '2d_filled_area_nucleus',
-    '2d_major_axis_length_nucleus',
-    '2d_minor_axis_length_nucleus',
-    '2d_orientation_nucleus',
-    '2d_solidity_nucleus',
-    '2d_img_shape_nucleus',
-    'resolution_level_dup1',
-    '2d_label_true_pseudo_cell',
-    '2d_area_true_pseudo_cell',
-    '2d_total_area_true_pseudo_cell',
-    '2d_label_pseudo_cell',
-    '2d_bbox-0_pseudo_cell',
-    '2d_bbox-1_pseudo_cell',
-    '2d_bbox-2_pseudo_cell',
-    '2d_bbox-3_pseudo_cell',
-    '2d_centroid-0_pseudo_cell',
-    '2d_centroid-1_pseudo_cell',
-    '2d_convex_area_pseudo_cell',
-    '2d_eccentricity_pseudo_cell',
-    '2d_equivalent_diameter_pseudo_cell',
-    '2d_extent_pseudo_cell',
-    '2d_filled_area_pseudo_cell',
-    '2d_major_axis_length_pseudo_cell',
-    '2d_minor_axis_length_pseudo_cell',
-    '2d_orientation_pseudo_cell',
-    '2d_solidity_pseudo_cell',
-    '2d_img_shape_pseudo_cell',
-    'resolution_level_dup2',
-    '2d_label_true_edge',
-    '2d_area_true_edge',
-    '2d_total_area_true_edge',
-    '2d_label_edge',
-    '2d_intensity_max_edge',
-    '2d_intensity_mean_edge',
-    '2d_intensity_min_edge', # this one is fun, its distance to nearest nucleus edge (different than centroid distance)
-    '2d_img_shape_edge',
-    'resolution_level',
-    '2d_area_cyto',
-    'inv_cyto_density',
-
-    # can be dropped using code, duplicate column  (DONE)
-    'dxdt_5_volume_end', 
-    
-    # drop in global_dataset_filtering (DONE)
-    'tscale_exponentialfit_volume',
-    'atB_exponentialfit_volume',
-    'rate_exponentialfit_volume',
-    'tscale_linearfit_volume',
-    'atB_linearfit_volume',
-    'rate_linearfit_volume',
-
-     # created in volume/filter_out_dips.find_and_remove_from_pivot() and not used after. 
-    #  Remove in global_dataset_filtering (DONE) 
-    'volume_dips_has_peak', 
-    'volume_dips_volume_change_at_region', 
-    'volume_dips_width_at_center',
-    'volume_dips_width_at_region',
-    'volume_dips_max_volume_change',
-    'volume_dips_peak_id_at_center',
-    'volume_dips_peak_id_at_region',
-    'volume_dips_total_number',
-
-    # created in add_features.sum_mitotic_events_along_full_track()
-    # can remove in code (DONE)
-    'sum_number_of_frame_of_breakdown_neighbors',
-    'sum_number_of_frame_of_formation_neighbors',
-    'sum_has_mitotic_neighbor_breakdown',
-    'sum_has_mitotic_neighbor_formation',
-    'sum_has_mitotic_neighbor_breakdown_forward_dilated',
-    'sum_has_mitotic_neighbor_formation_backward_dilated',
-    'sum_has_mitotic_neighbor_dilated',
-    'sum_has_dying_neighbor_forward_dilated',
-    'sum_number_of_frame_of_death_neighbors',
-
-    # created in labeling_neighbors_helper.find_neighbors_of_cells()
-    # remove in global_dataset_filtering (DONE)
-    'number_of_frame_of_breakdown_neighbors',  #  CAN BE DROPPED, not used
-    'number_of_frame_of_death_neighbors', #  CAN BE DROPPED, not used
-    'number_of_frame_of_formation_neighbors',  #  CAN BE DROPPED, not used
-    ]
 
 unnacounted_cols = [col for col in new_cols if col not in keep_list and col not in drop_list]
 still_needs_dropping = [col for col in new_cols  if col not in keep_list]
