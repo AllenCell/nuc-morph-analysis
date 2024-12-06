@@ -15,8 +15,9 @@ import matplotlib
 matplotlib.rcParams["pdf.fonttype"] = 42
 matplotlib.rcParams["font.family"] = "Arial"
 
-load_local = False
-make_frames = True
+load_save_local = False
+make_frames = False
+make_movie = True
 
 # set figure, panel to get save directory info
 figure = "dataset"
@@ -27,26 +28,29 @@ savedir, fig_panel_str = figure_helper.get_save_dir_and_fig_panel_str(figure, pa
 colony = "medium"
 
 if make_frames:
-    if load_local:
-        if not os.path.exists(savedir/ "df_fmb.pkl"):
-            print("no saved df_fmb.pkl, processing images and saving")
-            #  load the tracking CSV for medium from FMS
-            # define dataset from which to collect images
-            # collect information for the dataset
-            df = global_dataset_filtering.load_dataset_with_features()
-            df = df[df["colony"] == colony]
-            df_fb = figure_helper.assemble_formation_breakdown_movie_dataframe(df)
-            # load the images for each timepoint and add them to the dataframe
-            seg_img_list, raw_img_list = figure_helper.load_images_for_formation_middle_breakdown(
-                df_fb, df, colony
-            )
-            df_fb = figure_helper.process_images_and_add_to_dataframe(df_fb, df, seg_img_list, raw_img_list)
+    # if you want to load locally and the file exists, load it
+    if load_save_local and os.path.exists(savedir/ "df_fmb.pkl"):
+        print("reading from saved df_fmb.pkl")
+        df_fb = pd.read_pickle(os.path.join(savedir, "df_fmb.pkl"))
+    # if you dont' want to load locally or the file doesn't exist, process from scratch
+    else:
+        print("processing images from scratch")
+        #  load the tracking CSV for medium from FMS
+        # define dataset from which to collect images
+        # collect information for the dataset
+        df = global_dataset_filtering.load_dataset_with_features()
+        df = df[df["colony"] == colony]
+        df_fb = figure_helper.assemble_formation_breakdown_movie_dataframe(df)
+        # load the images for each timepoint and add them to the dataframe
+        seg_img_list, raw_img_list = figure_helper.load_images_for_formation_middle_breakdown(
+            df_fb, df, colony
+        )
+        df_fb = figure_helper.process_images_and_add_to_dataframe(df_fb, df, seg_img_list, raw_img_list)
+        # if you wanted to load and save locally, save the dataframe
+        if load_save_local:
             df_fb.to_pickle(os.path.join(savedir, "df_fmb.pkl"))
             print("saved df_fmb.pkl")
-        else:
-            print("reading from saved df_fmb.pkl")
-            df_fb = pd.read_pickle(os.path.join(savedir, "df_fmb.pkl"))
-
+            
     # %%
     # determine line width for tails and contours and ROI drawn with matplotlib
     contour_linewidth = 0.3
@@ -160,7 +164,8 @@ if make_frames:
 
         # now save the figure as a png
         track_id = EXAMPLE_TRACKS["figure_dataset_formation_and_breakdown"]
-        savepath = os.path.join(savedir, "movie", f"frame_{i}.png")
+        frame = dfb.loc[i, "index_sequence"] - 2
+        savepath = os.path.join(savedir, "movie", f"frame_{frame}.png")
         fig.savefig(
             savepath,
             bbox_inches="tight",
@@ -169,9 +174,11 @@ if make_frames:
         )
         os.chmod(savepath, 0o777)
 
+
 print ("Making mp4")
 # get list of paths to all movie frames, make sure they are
 # sorted in timepoint order then save to an mp4 movie
 frame_list = os.listdir(savedir / "movie")
 sorted_frames = sorted(frame_list, key=lambda x: int(x.split("_")[1].split(".")[0]))
 figure_helper.make_mp4(savedir, "formation_breakdown_example_movie", sorted_frames)
+
