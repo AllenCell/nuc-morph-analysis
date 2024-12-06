@@ -324,7 +324,7 @@ def choose_columns(df_2d):
     """
     merge_cols = ['label_img','index_sequence','colony']
     feature_cols = ['2d_area_pseudo_cell','2d_area_nucleus','2d_area_nuc_cell_ratio',
-                    '2d_area_cyto','inv_cyto_density',
+                    '2d_area_cyto',
                     '2d_resolution_level_nucleus','2d_resolution_level_pseudo_cell']
     columns_to_keep = merge_cols + feature_cols
     df_2d = df_2d[columns_to_keep]

@@ -3,7 +3,6 @@ from nuc_morph_analysis.utilities.workflow_runner import get_jobs, execute
 from nuc_morph_analysis.analyses.colony_area import colony_area_workflow
 from nuc_morph_analysis.analyses.segmentation_model_validation import seg_model_validation_figure_workflow
 
-
 class Workflows:
     def figure_1_dataset():
         import nuc_morph_analysis.analyses.dataset_images_for_figures.figure_1_workflow

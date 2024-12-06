@@ -90,7 +90,6 @@ previous_cols = [
     "entering_or_exiting_division",
     "neighbors",
     "neigh_distance",
-    "density",
     "is_tp_outlier",
     "track_length",
     "is_outlier_by_short_track",
