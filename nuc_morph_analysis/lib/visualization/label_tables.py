@@ -396,18 +396,15 @@ COLORIZER_LABEL_TABLE = {
     "baseline_colonies_dataset": "Baseline colonies dataset filter",
     "full_interphase_dataset": "Full-interphase dataset filter",
     "lineage_annotated_dataset": "Lineage-annotated dataset filter",
-    
-    # mitotic and apoptotic neighbor columns
-    "number_of_frame_of_breakdown_neighbors": "# of neighboring cells undergoing breakdown",
-    "number_of_frame_of_formation_neighbors": "# of neighboring cells undergoing formation",
-    "number_of_frame_of_death_neighbors": "# of neighboring cells undergoing death",
-    "2d_area_nuc_cell_ratio": "Nuclear area to (pseudo)cell area ratio",
-    "2d_area_nucleus": "Nuclear area",
-    "2d_area_pseudo_cell": "(Pseudo)cell area",
-
-    # dip event features
-     "volume_change_over_25_minutes": "Change in volume in 25 minute window",
-}
+    "2d_area_nuc_cell_ratio": "Density",
+    "2d_area_nucleus": "2D nuclear area",
+    "2d_area_pseudo_cell": "Pseudo cell area",
+    "volume_change_over_25_minutes": "Change in volume in 25 minute window",
+    "power_fit_volume": "Power law fitted volume",
+    "volume_dips_peak_mask_at_region": "Volume dip flag",
+    "has_mitotic_neighbor_dilated": "Has mitotic neighbor flag",
+    "has_dying_neighbor_forward_dilated": "Has dying neighbor flag",
+} 
 
 # units for quantities
 UNIT_TABLE = {
@@ -445,7 +442,8 @@ UNIT_TABLE = {
         "difference_volume_at_B",
         "difference_half_vol_at_C_and_B" "avg_sister_volume_at_B",
         "volume_sub",
-         "volume_change_over_25_minutes",
+        "volume_change_over_25_minutes",
+        "power_fit_volume",
     ): "(μm\u00B3)",
     "SA_vol_ratio": "(μm⁻¹)",
     (
@@ -478,7 +476,12 @@ UNIT_TABLE = {
         "late_growth_rate_by_endpoints",
     ): "(μm\u00B3/hr)",
     "exp_growth_coeff_BC": "(hr⁻¹)",
-    "2d_area_nuc_cell_ratio": "", # no unit, since ratio
+    #unitless
+    (
+    "2d_area_nuc_cell_ratio",
+    "has_mitotic_neighbor_dilated",
+    "has_dying_neighbor_forward_dilated",
+    ): "",
 }
 
 # now add the dxdt columns
