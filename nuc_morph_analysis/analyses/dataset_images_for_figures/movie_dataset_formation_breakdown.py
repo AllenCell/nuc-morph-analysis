@@ -29,9 +29,9 @@ colony = "medium"
 
 if make_frames:
     # if you want to load locally and the file exists, load it
-    if load_save_local and os.path.exists(savedir/ "df_fmb.pkl"):
-        print("reading from saved df_fmb.pkl")
-        df_fb = pd.read_pickle(os.path.join(savedir, "df_fmb.pkl"))
+    if load_save_local and os.path.exists(savedir/ "df_.pkl"):
+        print("reading from saved df_fb.pkl")
+        df_fb = pd.read_pickle(os.path.join(savedir, "df_fb.pkl"))
     # if you dont' want to load locally or the file doesn't exist, process from scratch
     else:
         print("processing images from scratch")
@@ -48,8 +48,8 @@ if make_frames:
         df_fb = figure_helper.process_images_and_add_to_dataframe(df_fb, df, seg_img_list, raw_img_list)
         # if you wanted to load and save locally, save the dataframe
         if load_save_local:
-            df_fb.to_pickle(os.path.join(savedir, "df_fmb.pkl"))
-            print("saved df_fmb.pkl")
+            df_fb.to_pickle(os.path.join(savedir, "df_fb.pkl"))
+            print("saved df_fb.pkl")
             
     # %%
     # determine line width for tails and contours and ROI drawn with matplotlib
