@@ -174,4 +174,4 @@ print ("Making mp4")
 # sorted in timepoint order then save to an mp4 movie
 frame_list = os.listdir(savedir / "movie")
 sorted_frames = sorted(frame_list, key=lambda x: int(x.split("_")[1].split(".")[0]))
-figure_helper.make_mp4(savedir, "formation_breakdown_example_movie", frame_list)
+figure_helper.make_mp4(savedir, "formation_breakdown_example_movie", sorted_frames)
