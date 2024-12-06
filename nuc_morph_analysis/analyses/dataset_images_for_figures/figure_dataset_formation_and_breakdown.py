@@ -77,58 +77,6 @@ ax_y_gap_inch = 0.4  # gap between top middle and bottom axes in inches
 ax_y_small_gap_inch = 0.02  # gap between yx and zx axes in inches
 
 
-class AxesCreator:
-    def __init__(self, fig, img, zcrop_percentages):
-        self.fig = fig
-        self.img = img
-        self.zcrop_percentages = zcrop_percentages
-        fig_width, fig_height = fig.get_size_inches()
-        self.fig_width = fig_width
-        self.fig_height = fig_height
-
-    def define_axis_size(self, ax_width_inch, ax_x_inch, ax_y_inch, ax_gap_inch):
-        # determine axis height based on image aspect ratio
-        if self.zcrop_percentages is None:
-            ax_height_inch = ax_width_inch * (
-                self.img.shape[0] / self.img.shape[1]
-            )  # Height of the axes in inches
-        else:
-            self_height = self.img.shape[0] * (
-                self.zcrop_percentages[1] - self.zcrop_percentages[0]
-            )
-            self_width = self.img.shape[1]
-            ax_height_inch = ax_width_inch * (
-                self_height / self_width
-            )  # Height of the axes in inches
-
-        # convert to figure units
-        self.ax_width = ax_width_inch / self.fig_width  # Width of the axes in figure units
-        self.ax_height = ax_height_inch / self.fig_height  # Height of the axes in figure units
-        self.ax_x = ax_x_inch / self.fig_width  # x position of the axes in figure units
-        self.ax_y = ax_y_inch / self.fig_height  # y position of the axes in figure units
-        self.ax_gap = ax_gap_inch / self.fig_width  # gap between axes in figure units
-
-    def add_axes(
-        self,
-        ax_x=None,
-        ax_y=None,
-        ax_width=None,
-        ax_height=None,
-    ):
-        if ax_x is None:
-            ax_x = self.ax_x
-        if ax_y is None:
-            ax_y = self.ax_y
-        if ax_width is None:
-            ax_width = self.ax_width
-        if ax_height is None:
-            ax_height = self.ax_height
-
-        ax = self.fig.add_axes([ax_x, ax_y, ax_width, ax_height])
-        ax.axis("off")
-        return ax
-
-
 # for img_str in ['BOTTOM_LEFT_IMG','BOTTOM_CENTER_IMG','BOTTOM_RIGHT_IMG']:
 #     pass
 # Define the list of parameters
@@ -154,9 +102,9 @@ for i, (class_name, view, ti) in enumerate(params):
     seg_contours = dfb.loc[(class_name, ti), f"seg_{view}_contours"][0]
 
     if "zx" in img_name:
-        ac = AxesCreator(fig, img, zcrop_percentages=zx_crop)
+        ac = figure_helper.AxesCreator(fig, img, zcrop_percentages=zx_crop)
     else:
-        ac = AxesCreator(fig, img, zcrop_percentages=None)
+        ac = figure_helper.AxesCreator(fig, img, zcrop_percentages=None)
 
     if ("breakdown" in img_name) and ("zx" in img_name):
         ax_y_inch_input = ax_y_inch
