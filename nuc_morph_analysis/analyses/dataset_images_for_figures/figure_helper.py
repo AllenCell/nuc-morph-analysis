@@ -310,7 +310,7 @@ def get_matplotlib_contours_on_image(
 
 
 def draw_scale_bar_matplotlib(
-    ax, name, scalebarum=20, add_text=True, fontsize=8, is_seg=False, loc="left"
+    ax, name, scalebarum=20, add_text=True, fontsize=8, is_seg=False, loc="left", y_adjust=0
 ):
     """
     draw a scale bar on the axis for an image
@@ -331,6 +331,8 @@ def draw_scale_bar_matplotlib(
         Whether the image is a segmentation image (100x) or not (20x)
     loc : str
         The location of the scale bar on the image (either "left" or "right")
+    y_adjust : int
+        The adjustment to the scale bar y position (default is 0)
 
     Returns
     -------
@@ -369,7 +371,7 @@ def draw_scale_bar_matplotlib(
 
     # the height is 5% of the axes height
 
-    ax.plot([x, x2], [y + 3, y + 3], color="w", linewidth=2)
+    ax.plot([x, x2], [y + y_adjust, y + y_adjust], color="w", linewidth=2)
     # y2 needs to define a location above the linewidth
     if add_text:
         unitsstr = r"μm"

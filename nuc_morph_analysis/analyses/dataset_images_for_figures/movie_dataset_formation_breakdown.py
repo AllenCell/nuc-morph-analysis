@@ -150,7 +150,7 @@ if make_frames:
                 # for just the YX view, add a scale bar and timestamp
                 view = "YX"
                 figure_helper.draw_scale_bar_matplotlib(
-                    ax, colony, scalebarum=5, add_text=True, fontsize=fontsize, loc="right"
+                    ax, colony, scalebarum=5, add_text=True, fontsize=fontsize, loc="right", y_adjust=3,
                 )
                 frame = dfb.loc[i, "index_sequence"]
                 figure_helper.draw_timestamp(ax, frame, fontsize=fontsize)
