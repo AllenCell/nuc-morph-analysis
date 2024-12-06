@@ -18,6 +18,7 @@ from nuc_morph_analysis.analyses.feeding_control.fov_shift_track_matching import
     match_and_update_dataframe,
     FRAMES_TO_SHIFT,
 )
+from nuc_morph_analysis.lib.preprocessing.twoD_zMIP_area import watershed_workflow
 
 
 # %%
@@ -86,8 +87,23 @@ def generate_manifest_one_colony(morflowgenesis_df, dataset, experiments=None):
     # --------------------------
     # add_colony_metrics features
     logging.info("Calculating colony metrics")
-    return add_colony_metrics(step5_df)
+    step5_df = add_colony_metrics(step5_df)
 
+    # --------------------------
+    # STEP 6: calculate 2D object-based density
+    # --------------------------
+    logging.info("Calculating image-based density metrics")
+    step6_df = step5_df.copy()
+    density_df = watershed_workflow.get_pseudo_cell_boundaries_for_movie(dataset, parallel=True)
+    # now merge the density_df with the main dataframe
+    step6_df = pd.merge(step6_df,
+                            density_df,
+                            on=['colony','index_sequence','label_img'],
+                            suffixes=('', '__dup_col'),
+                            how='left')
+    # now remove columns with __dup_col suffix
+    step6_df = step6_df[step6_df.columns.drop(list(step6_df.filter(regex='__dup_col')))]
+    return step6_df
 
 def get_combined_manifest(experiments):
     """
@@ -107,7 +123,11 @@ def get_combined_manifest(experiments):
 
 
 # %%
-for experiments in ["feeding_control", "drug_perturbation"]:
-    df = get_combined_manifest(experiments)
-    write_result(df, f"{experiments}_main_manifest", format="parquet")
+def run_workflow():
+    for experiments in ["feeding_control", "drug_perturbation"]:
+        df = get_combined_manifest(experiments)
+        write_result(df, f"{experiments}_main_manifest", format="parquet")
 # %%
+
+if __name__ == "__main__":
+    run_workflow()

@@ -393,7 +393,7 @@ COLUMNS_TO_DROP = [
     'resolution_level',
     '2d_area_cyto',
     'inv_cyto_density',
-    'density'
+    'density',
 
     # created in add_groth_features.fit_tracks_to_model()
     'tscale_exponentialfit_volume',
@@ -438,6 +438,8 @@ def remove_columns(df, column_list=COLUMNS_TO_DROP):
     df : pandas.DataFrame
         The dataframe with the columns removed.
     """
+    column_list = [col for col in column_list if col in df.columns]
+
     df = df.drop(columns=column_list)
     return df
 
