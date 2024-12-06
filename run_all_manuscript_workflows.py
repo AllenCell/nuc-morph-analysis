@@ -3,16 +3,6 @@ from nuc_morph_analysis.utilities.workflow_runner import get_jobs, execute
 from nuc_morph_analysis.analyses.colony_area import colony_area_workflow
 from nuc_morph_analysis.analyses.segmentation_model_validation import seg_model_validation_figure_workflow
 
-from nuc_morph_analysis.lib.preprocessing.global_dataset_filtering import load_dataset_with_features
-
-# generate manifests and save local.
-load_dataset_with_features("all_baseline", load_local=False, save_local=True)
-load_dataset_with_features("all_baseline", load_local=False, save_local=True, remove_growth_outliers=False)
-load_dataset_with_features("all_drug_perturbation", load_local=False, save_local=True)
-load_dataset_with_features("all_feeding_control", load_local=False, save_local=True)
-# all subsequent loading will be done from these local files
-
-
 class Workflows:
     def figure_1_dataset():
         import nuc_morph_analysis.analyses.dataset_images_for_figures.figure_1_workflow

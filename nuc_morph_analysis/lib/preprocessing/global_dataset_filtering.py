@@ -27,7 +27,7 @@ from nuc_morph_analysis.analyses.volume import filter_out_dips
 def load_dataset_with_features(
     dataset="all_baseline",
     remove_growth_outliers=True,
-    load_local=True,
+    load_local=False,
     save_local=False,
     num_workers=32,
 ):
