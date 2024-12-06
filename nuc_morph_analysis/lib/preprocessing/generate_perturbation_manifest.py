@@ -123,7 +123,11 @@ def get_combined_manifest(experiments):
 
 
 # %%
-for experiments in ["feeding_control", "drug_perturbation"]:
-    df = get_combined_manifest(experiments)
-    write_result(df, f"{experiments}_main_manifest", format="parquet")
+def run_workflow():
+    for experiments in ["feeding_control", "drug_perturbation"]:
+        df = get_combined_manifest(experiments)
+        write_result(df, f"{experiments}_main_manifest", format="parquet")
 # %%
+
+if __name__ == "__main__":
+    run_workflow()
