@@ -30,7 +30,7 @@ fig_dir = Path(__file__).parent / 'figures' / 'effect_of_resolution_level'
 os.makedirs(str(fig_dir), exist_ok=True)
 
 # now plot correlation
-feature_list = ['2d_area_nucleus','2d_area_pseudo_cell','2d_area_cyto','inv_cyto_density','2d_area_nuc_cell_ratio']
+feature_list = ['2d_area_nucleus','2d_area_pseudo_cell','2d_area_nuc_cell_ratio']
 for feature in feature_list:
     fig,ax = plt.subplots(figsize=(2.5,2.5),layout = 'constrained')
     
@@ -38,10 +38,7 @@ for feature in feature_list:
         xunits = 1.0
         yunits = 1.0
         unitstr = ''
-    elif 'inv_cyto' in feature: # density features
-        xunits = 1/((0.108)**2)
-        yunits = 1/((0.108*2.5)**2)
-        unitstr = '(1/um^2)'
+
     else: # area features
         xunits = (0.108)**2
         yunits = (0.108*2.5)**2

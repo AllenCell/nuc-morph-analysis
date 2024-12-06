@@ -34,11 +34,9 @@ properties = [
 # for the nucleus all features will take the form of 2d_{feature}_nucleus, such as 2d_area_nucleus
 # for the pseudo cell all features will take the form of 2d_{feature}_pseudo_cell, such as 2d_area_pseudo_cell
 
-# some specific new features are computed from these
+# specific new feature computed from these
 [
 '2d_area_nuc_cell_ratio', # ratio of nucleus area to pseudo cell area
-'2d_area_cyto', # cytoplasmic area (pseudo cell area - nucleus area)
-'inv_cyto_density', # inverse of cytoplasmic area (1/cytoplasmic area)
 ]
 
 # some features come from measuring the true area of each object without using skimage.measure.regionprops_table
@@ -294,11 +292,9 @@ def merge_2d_features(dfleft, dfright, suffixes=('_dup1','_dup2')):
 
 def define_density_features(df_2d):
     """
-    define density features in the 2D dataframe
-    the first density feature (2d_area_nuc_cell_ratio) is defined as the area of a nucleus divided by the area of the (pseudo) cell
-    the second density feature (inv_cyto_density) is defined as the inverse of the cytoplasmic area
-        a sub feature is the cytoplasmic area (2d_area_cyto) which is defined as the difference between the pseudo cell area and the nucleus area
-
+    define density feature in the 2D dataframe, 2d_area_nuc_cell_ratio, defined as the area
+    of a nucleus divided by the area of the (pseudo) cell
+    
     Parameters
     ----------
     df_2d : pd.DataFrame
@@ -307,11 +303,9 @@ def define_density_features(df_2d):
     Returns
     -------
     df_2d : pd.DataFrame
-        the 2D dataframe with the density features added (2d_area_nuc_cell_ratio, inv_cyto_density)
+        the 2D dataframe with the density features added (2d_area_nuc_cell_ratio)
     """
     df_2d['2d_area_nuc_cell_ratio'] = df_2d['2d_area_nucleus'] / df_2d['2d_area_pseudo_cell'] # unitless
-    df_2d['2d_area_cyto'] = df_2d['2d_area_pseudo_cell'] - df_2d['2d_area_nucleus'] # units of pixel_area
-    df_2d['inv_cyto_density'] = 1/df_2d['2d_area_cyto'] # units of 1/pixel_area
     return df_2d
 
 def choose_columns(df_2d):
@@ -330,7 +324,7 @@ def choose_columns(df_2d):
     """
     merge_cols = ['label_img','index_sequence','colony']
     feature_cols = ['2d_area_pseudo_cell','2d_area_nucleus','2d_area_nuc_cell_ratio',
-                    '2d_area_cyto','inv_cyto_density',
+                    '2d_area_cyto',
                     '2d_resolution_level_nucleus','2d_resolution_level_pseudo_cell']
     columns_to_keep = merge_cols + feature_cols
     df_2d = df_2d[columns_to_keep]

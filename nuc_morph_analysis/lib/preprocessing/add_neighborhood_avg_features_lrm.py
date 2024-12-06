@@ -7,8 +7,8 @@ from nuc_morph_analysis.lib.preprocessing.load_data import get_dataset_pixel_siz
 from nuc_morph_analysis.lib.preprocessing import filter_data
 from nuc_morph_analysis.lib.preprocessing.filter_data import all_timepoints_minimal_filtering
 
-LOCAL_RADIUS_LIST = [90, -1]
-LOCAL_RADIUS_STR_LIST = ["90um", "whole_colony"]
+LOCAL_RADIUS_LIST = [90]
+LOCAL_RADIUS_STR_LIST = ["90um"]
 NEIGHBOR_FEATURE_LIST = ["volume"]
 NEIGHBOR_PREFIX = "neighbor_avg_lrm_"
 
@@ -143,7 +143,7 @@ def run_script(
         dfi = df[df["colony"] == colony]
         pass_cols = ["index_sequence", "colony", "track_id", "centroid_x", "centroid_y"]
 
-        columns = feature_list + [x for x in dfi.columns if "dxdt" in x]
+        columns = feature_list
 
         # first find the unique index_sequence values
         index_sequences = dfi["index_sequence"].unique()

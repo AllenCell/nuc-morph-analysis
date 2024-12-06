@@ -273,7 +273,7 @@ def process_full_tracks(df_all, thresh, pix_size, interval):
     df_full = add_growth_features.fit_tracks_to_model(df_full, interval, "linear")
     
     # For LRM
-    df_full = add_features.add_lineage_features(df_full, feature_list=['volume_at_B', 'duration_BC', 'volume_at_C', 'delta_volume_BC'])
+    df_full = add_features.add_lineage_features(df_full, ['volume_at_B', 'duration_BC', 'delta_volume_BC'], ['sister'])
     df_full = add_features.add_feature_at(df_full, "frame_transition", 'height', 'height_percentile', pix_size) 
     df_full = add_features.add_features_at_transition(df_full)
     df_full = add_features.get_early_transient_gr_of_neighborhood(df_full, scale=get_plot_labels_for_metric('neighbor_avg_dxdt_48_volume_90um')[0])
@@ -330,6 +330,95 @@ COLUMNS_TO_DROP = [
     "height_percentile",
     "raw_full_zstack_path",
     "seg_full_zstack_path",
+
+    # not sure where these come from
+    'level_0', 
+    'index', 
+    'source_manifest_x',
+    'source_manifest_y',
+
+
+    # this set is defined in psuedo_cell_helper, not used after. 
+    # could be removed in pseudo_cell_helper.choose_columns() but that would require rerunning generate_main_manifest
+    '2d_label_true_nucleus', 
+    '2d_area_true_nucleus', 
+    '2d_total_area_true_nucleus', 
+    '2d_label_nucleus', 
+    '2d_bbox-0_nucleus',
+    '2d_bbox-1_nucleus',
+    '2d_bbox-2_nucleus',
+    '2d_bbox-3_nucleus',
+    '2d_centroid-0_nucleus',
+    '2d_centroid-1_nucleus',
+    '2d_convex_area_nucleus',
+    '2d_eccentricity_nucleus',
+    '2d_equivalent_diameter_nucleus',
+    '2d_extent_nucleus',
+    '2d_filled_area_nucleus',
+    '2d_major_axis_length_nucleus',
+    '2d_minor_axis_length_nucleus',
+    '2d_orientation_nucleus',
+    '2d_solidity_nucleus',
+    '2d_img_shape_nucleus',
+    'resolution_level_dup1',
+    '2d_label_true_pseudo_cell',
+    '2d_area_true_pseudo_cell',
+    '2d_total_area_true_pseudo_cell',
+    '2d_label_pseudo_cell',
+    '2d_bbox-0_pseudo_cell',
+    '2d_bbox-1_pseudo_cell',
+    '2d_bbox-2_pseudo_cell',
+    '2d_bbox-3_pseudo_cell',
+    '2d_centroid-0_pseudo_cell',
+    '2d_centroid-1_pseudo_cell',
+    '2d_convex_area_pseudo_cell',
+    '2d_eccentricity_pseudo_cell',
+    '2d_equivalent_diameter_pseudo_cell',
+    '2d_extent_pseudo_cell',
+    '2d_filled_area_pseudo_cell',
+    '2d_major_axis_length_pseudo_cell',
+    '2d_minor_axis_length_pseudo_cell',
+    '2d_orientation_pseudo_cell',
+    '2d_solidity_pseudo_cell',
+    '2d_img_shape_pseudo_cell',
+    'resolution_level_dup2',
+    '2d_label_true_edge',
+    '2d_area_true_edge',
+    '2d_total_area_true_edge',
+    '2d_label_edge',
+    '2d_intensity_max_edge',
+    '2d_intensity_mean_edge',
+    '2d_intensity_min_edge', # this one is fun, its distance to nearest nucleus edge (different than centroid distance)
+    '2d_img_shape_edge',
+    'resolution_level',
+    '2d_area_cyto',
+    'inv_cyto_density',
+    'density',
+
+    # created in add_groth_features.fit_tracks_to_model()
+    'tscale_exponentialfit_volume',
+    'atB_exponentialfit_volume',
+    'rate_exponentialfit_volume',
+    'tscale_linearfit_volume',
+    'atB_linearfit_volume',
+    'rate_linearfit_volume',
+
+    # created in volume/filter_out_dips.find_and_remove_from_pivot()
+    'volume_dips_has_peak', 
+    'volume_dips_volume_change_at_region', 
+    'volume_dips_width_at_center',
+    'volume_dips_width_at_region',
+    'volume_dips_max_volume_change',
+    'volume_dips_peak_id_at_center',
+    'volume_dips_peak_id_at_region',
+    'volume_dips_total_number',
+
+    # created in labeling_neighbors_helper.find_neighbors_of_cells()
+    # not used
+    'number_of_frame_of_breakdown_neighbors',
+    'number_of_frame_of_death_neighbors',
+    'number_of_frame_of_formation_neighbors',
+
 ]
 
 
@@ -349,6 +438,8 @@ def remove_columns(df, column_list=COLUMNS_TO_DROP):
     df : pandas.DataFrame
         The dataframe with the columns removed.
     """
+    column_list = [col for col in column_list if col in df.columns]
+
     df = df.drop(columns=column_list)
     return df
 

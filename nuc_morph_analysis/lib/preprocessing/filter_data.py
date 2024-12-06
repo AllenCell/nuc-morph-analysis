@@ -1012,12 +1012,10 @@ def remove_expected_pseudo_cell_artifacts(dfm, apply_to_nucleus_too=False, verbo
     compiled_log = log1 | log2 | log3 | log4 | log5
 
     # define the columns to apply the filter to
-    extra_cols = ['inv_cyto_density','density']
-    # cols = [x for x in cols if '2d_' in dfm.columns]
     if apply_to_nucleus_too:
-        cols = [x for x in dfm.columns if ('2d_' in x) & ('label' not in x)] + extra_cols
+        cols = [x for x in dfm.columns if ('2d_' in x) & ('label' not in x)]
     else:
-        cols = [x for x in dfm.columns if ('2d_' in x) & ('nucleus' not in x) & ('label' not in x)] + extra_cols
+        cols = [x for x in dfm.columns if ('2d_' in x) & ('nucleus' not in x) & ('label' not in x)]
 
     # apply the filter
     dfm.loc[compiled_log, cols] = np.nan
@@ -1064,12 +1062,10 @@ def remove_uncaught_pseudo_cell_artifacts(df, apply_to_nucleus_too=False, verbos
     compiled_log = log1 | log2 | log3
 
     # define the columns to apply the filter to
-    extra_cols = ['inv_cyto_density','density']
-    # cols = [x for x in cols if '2d_' in dfm.columns]
     if apply_to_nucleus_too:
-        cols = [x for x in df.columns if ('2d_' in x) & ('label' not in x)] + extra_cols
+        cols = [x for x in df.columns if ('2d_' in x) & ('label' not in x)]
     else:
-        cols = [x for x in df.columns if ('2d_' in x) & ('nucleus' not in x) & ('label' not in x)] + extra_cols
+        cols = [x for x in df.columns if ('2d_' in x) & ('nucleus' not in x) & ('label' not in x)]
 
     # apply the filter
     df.loc[compiled_log, cols] = np.nan

@@ -232,8 +232,6 @@ def run_validation_and_plot(TIMEPOINT=48,colony='medium',RESOLUTION_LEVEL=1,plot
         plot_colorized_image_with_contours(img_dict,dft,'2d_area_pseudo_cell','viridis',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=False,draw_contours=True)
         plot_colorized_image_with_contours(img_dict,dft,'2d_intensity_min_edge','viridis',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=False,draw_contours=False)
         plot_colorized_image_with_contours(img_dict,dft,'2d_intensity_min_edge','viridis',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=False,draw_contours=True)    
-        plot_colorized_image_with_contours(img_dict,dft,'density','viridis',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=False,draw_contours=False)
-        plot_colorized_image_with_contours(img_dict,dft,'density','viridis',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=False,draw_contours=True)
         plot_colorized_image_with_contours(img_dict,dft,'zeros','viridis',colony,TIMEPOINT,RESOLUTION_LEVEL,categorical=False,draw_contours=True)
         return dft0
     else:
