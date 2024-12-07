@@ -164,7 +164,7 @@ if make_frames:
 
         # now save the figure as a png
         track_id = EXAMPLE_TRACKS["figure_dataset_formation_and_breakdown"]
-        frame = dfb.loc[i, "index_sequence"] - 2
+        frame = int(dfb.loc[i, "index_sequence"] - 2)
         savepath = os.path.join(savedir, "movie", f"frame_{frame}.png")
         fig.savefig(
             savepath,
