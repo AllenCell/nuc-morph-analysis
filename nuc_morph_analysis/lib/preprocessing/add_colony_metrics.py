@@ -53,7 +53,7 @@ def add_colony_metrics(df: pd.DataFrame):
 
 
 def _add_colony_metrics_one_tp(df_timepoint: pd.DataFrame):
-    depth_map, neighborhoods, neigh_dists, densities = _calc_colony_metrics(df_timepoint)
+    depth_map, neighborhoods, neigh_dists = _calc_colony_metrics(df_timepoint)
     for _, (lbl, depth) in enumerate(depth_map.items()):
         df_timepoint.loc[df_timepoint["label_img"] == lbl, "colony_depth"] = depth
 
