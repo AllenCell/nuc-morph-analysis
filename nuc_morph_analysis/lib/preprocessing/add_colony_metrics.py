@@ -84,7 +84,7 @@ def _calc_colony_metrics(df_timepoint):
     neighbors = _make_neighbor_map(voronoi, labels)
 
     centroids_by_label = {label: centroids_list[index] for index, label in enumerate(labels)}
-    neigh_distance, _ = _calculate_distance(labels, neighbors, centroids_by_label)
+    neigh_distance = _calculate_distance(labels, neighbors, centroids_by_label)
 
     depth1_labels = _get_depth1_labels(labels, centroids_list, voronoi)
     depth_map = calculate_depth(neighbors, depth1_labels)
