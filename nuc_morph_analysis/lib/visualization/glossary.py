@@ -44,7 +44,6 @@ GLOSSARY = {
     "2d_area_nucleus": "The area of the nucleus (from maximum z projected nuclear segmentation).",
     "2d_area_pseudo_cell": "The area of the pseudo cell (from maximum z projected nuclear segmentation).",
     "volume_change_over_25_minutes": "The nuclear volume change in a 25 minute window at each frame (t) calculated by ∆V(t) = V(t-5) - V(t).",
-    "power_fit_volume": "Each volume trajectory from transition to breakdown was fit to a power law scaling with time 𝑉(𝑡)=𝑉𝑠𝑡𝑎𝑟𝑡+𝑟𝑡^𝛼. This feature is the power fit volume.",
     "volume_dips_peak_mask_at_region": "True at all timepoints along an identified volume dip event.",
     "has_mitotic_neighbor_dilated": "True at timepoints when adjacent neighbors are undergoing mitosis.",
     "has_dying_neighbor_forward_dilated": "True at timepoints when adjacent neighbors are undergoing cell death.",
