@@ -840,8 +840,6 @@ def assemble_formation_breakdown_movie_dataframe(df):
 
     # iterate through all timepoints and add the coordinates to the dataframe
     for ti, timepoint in enumerate(timepoints):
-        timepoint += 2 # add 2 to get timepoint within dataset movie (because
-        # the movie we are making starts 2 timepoints into the full movie)
         # use tracking centroid if segmentation present
         if timepoint in dfi.index:
             y = dfi.loc[timepoint, "centroid_y"]
@@ -995,7 +993,7 @@ def process_images_and_add_to_dataframe(df_fmb, df, seg_img_list, raw_img_list):
             df_fmb.loc[timepoint, f"seg_{yx_zx_zy}"] = [seg_slices[i]]
 
             # now retrieve the contours
-            if label_img_val > 0 and timepoint < predicted_breakdown + 1:
+            if label_img_val > 0 and (timepoint + 2) < (predicted_breakdown + 1):
                 # only draw the contour if the cell is present in the segmentation image
                 # and the timepoint is before breakdown
                 # identify the contours from the label image and save them as matplotlib Polygons
