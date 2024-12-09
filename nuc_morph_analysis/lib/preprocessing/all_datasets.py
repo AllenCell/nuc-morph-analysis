@@ -23,7 +23,7 @@ datasets = {
         # FMS ID for 2024-07-08_main_manifest.parquet generated from morflowgenesis v0.3.0
         # with generate_main_manifest.py at commit 6e9eb0962343113ab3999ce6b59d8331ddab9a45
         "fmsid": "443ac819f633494f936ff410c14c21ed",  # morflowgenesis v0.3.0 updated with new density from watershed PR (9/19/24)
-        "s3_path": INTERMEDIATE_MANIFEST_DIR / "2024-06-25_baseline_intermediate_manifest.parquet",
+        "s3_path": INTERMEDIATE_MANIFEST_DIR / "2024-09-19_baseline_intermediate_manifest.parquet",
         "pixel_size": PIXEL_SIZE_YX_100x,
         "time_interval": 5,  # min
         "length_threshold": 10.0,  # hours,
@@ -37,7 +37,7 @@ datasets = {
         # with generate_perturbation_manifest.py at commit ebe76b5e84c9ca24617e4d04aed8acc1c2c3bb62
         "fmsid": "f95429aa9d084a699d9e591afd2f7792",  # morflowgenesis v 0.3.0 updated with new density from density_calc PR (12/5/24)
         "s3_path": INTERMEDIATE_MANIFEST_DIR
-        / "2024-06-14_feeding_control_intermediate_manifest.parquet",
+        / "2024-12-05_feeding_control_intermediate_manifest.parquet",
         "pixel_size": PIXEL_SIZE_YX_100x,
         "time_interval": 5,  # min
         "length_threshold": 10.0,  # hours,
@@ -51,7 +51,7 @@ datasets = {
         # with generate_perturbation_manifest.py at commit 725ed45a6413391b9927610649e6209c04bcae9f
         "fmsid": "5e8170e7881a4ad09c236e3e0c056d75",  # morflowgenesis v 0.3.0 updated with new density from density_calc PR (12/5/24)
         "s3_path": INTERMEDIATE_MANIFEST_DIR
-        / "2024-06-24_inhibitor_perturbation_intermediate_manifest.parquet",
+        / "2024-12-05_inhibitor_perturbation_intermediate_manifest.parquet",
         "pixel_size": PIXEL_SIZE_YX_100x,
         "time_interval": 5,  # min
         "length_threshold": 10.0,  # hours,
