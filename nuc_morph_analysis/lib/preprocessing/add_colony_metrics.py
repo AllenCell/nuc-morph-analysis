@@ -53,7 +53,7 @@ def add_colony_metrics(df: pd.DataFrame):
 
 
 def _add_colony_metrics_one_tp(df_timepoint: pd.DataFrame):
-    depth_map, neighborhoods, neigh_dists, densities = _calc_colony_metrics(df_timepoint)
+    depth_map, neighborhoods, neigh_dists = _calc_colony_metrics(df_timepoint)
     for _, (lbl, depth) in enumerate(depth_map.items()):
         df_timepoint.loc[df_timepoint["label_img"] == lbl, "colony_depth"] = depth
 
@@ -84,7 +84,7 @@ def _calc_colony_metrics(df_timepoint):
     neighbors = _make_neighbor_map(voronoi, labels)
 
     centroids_by_label = {label: centroids_list[index] for index, label in enumerate(labels)}
-    neigh_distance, _ = _calculate_distance(labels, neighbors, centroids_by_label)
+    neigh_distance = _calculate_distance(labels, neighbors, centroids_by_label)
 
     depth1_labels = _get_depth1_labels(labels, centroids_list, voronoi)
     depth_map = calculate_depth(neighbors, depth1_labels)
