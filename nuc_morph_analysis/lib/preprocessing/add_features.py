@@ -475,7 +475,7 @@ def get_sister(df, pid, current_tid):
     sister_id = [tid for tid in tids if tid != current_tid]
     return sister_id
 
-def add_lineage_features(df, feature_list):
+def add_lineage_features(df, feature_list, relationship_list=['mother', 'sister']):
     """
     If the full track has a full track sister or mother, add the given relative's feature as a single track feature column in the dataframe. 
     
@@ -485,6 +485,8 @@ def add_lineage_features(df, feature_list):
         The dataframe
     feature_list: list
         List of column names
+    relationship_list: list
+        List of relationships to add
         
     Returns
     -------
@@ -493,17 +495,19 @@ def add_lineage_features(df, feature_list):
     """
     
     for feature in feature_list:
-        df[f"mothers_{feature}"] = np.nan
-        df[f"sisters_{feature}"] = np.nan
+        if 'mother' in relationship_list:
+            df[f"mothers_{feature}"] = np.nan
+        if 'sister' in relationship_list:
+            df[f"sisters_{feature}"] = np.nan
 
     df_lineage = df[df['colony'].isin(['small', 'medium'])]
 
     for tid, dft in df_lineage.groupby("track_id"):
         parent_id = dft.parent_id.values[0]
-        if parent_id != -1 and parent_id in df_lineage.track_id.unique():
+        if 'mother' in relationship_list and parent_id != -1 and parent_id in df_lineage.track_id.unique():
             for feature in feature_list:
                 df.loc[df.track_id == tid, f"mothers_{feature}"] = df_lineage.loc[df_lineage.track_id == parent_id, feature].values[0]
-        if parent_id != -1:        
+        if 'sister' in relationship_list and parent_id != -1:        
             sister_id = get_sister(df_lineage, parent_id, tid)
             if len(sister_id) > 0:
                 for feature in feature_list:
@@ -570,17 +574,18 @@ def sum_mitotic_events_along_full_track(df0, feature_list=[]):
     """
 
     mitotic_event_features = [
-        'number_of_frame_of_breakdown_neighbors',
-        'number_of_frame_of_formation_neighbors',
-        'has_mitotic_neighbor_breakdown',
-        'has_mitotic_neighbor_formation',
-        'has_mitotic_neighbor_breakdown_forward_dilated',
-        'has_mitotic_neighbor_formation_backward_dilated',
         'has_mitotic_neighbor',
-        'has_mitotic_neighbor_dilated',
         'has_dying_neighbor',
-        'has_dying_neighbor_forward_dilated',
-        'number_of_frame_of_death_neighbors'
+        
+        # 'number_of_frame_of_breakdown_neighbors',
+        # 'number_of_frame_of_formation_neighbors',
+        # 'has_mitotic_neighbor_breakdown',
+        # 'has_mitotic_neighbor_formation',
+        # 'has_mitotic_neighbor_breakdown_forward_dilated',
+        # 'has_mitotic_neighbor_formation_backward_dilated',
+        # 'has_mitotic_neighbor_dilated',
+        # 'has_dying_neighbor_forward_dilated',
+        # 'number_of_frame_of_death_neighbors'
     ]
 
     if len(feature_list) == 0:
@@ -635,7 +640,6 @@ def add_features_at_transition(df,
                                             'neighbor_avg_lrm_height_90um',
                                             'neighbor_avg_lrm_xy_aspect_90um',
                                             'neighbor_avg_lrm_mesh_sa_90um',
-                                            'neighbor_avg_dxdt_48_volume_90um',
                                             'neighbor_avg_lrm_2d_area_nuc_cell_ratio_90um']
                                ):
     """
@@ -709,6 +713,8 @@ def add_volume_change_over_25_minute_window(df, bin_interval=5):
     # run the compute_change_over_time workflow for a given bin_interval
     dfm = run_script(dfm,['volume'], [bin_interval], time_location='end')
     dfm['volume_change_over_25_minutes'] = dfm['dxdt_5_volume_end']*5
+    # drop the dxdt_5_volume_end column
+    dfm = dfm.drop(columns=['dxdt_5_volume_end'])
     
     # now check that all columns in df have the same dtype as columns in dfm
     for col in df.columns:

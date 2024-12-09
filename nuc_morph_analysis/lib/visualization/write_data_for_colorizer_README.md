@@ -26,15 +26,8 @@ To prepare the colony datasets to be grouped in a dropdown menu, create the file
 while the "lineage-annotated" subset of the data only exists for the Small and Medium colonies, so the `collection.json` file for that dataset excludes the line pertaining to the Large colony.
 
 ## Overwriting the data for an existing dataset (unchanged segmentations/rows in manifest)
-To overwrite an existing segmented version of the dataset (for example to add/remove/change a feature), simply run the script with the existing output directory and add the `--noframes` option to skip the frame generation step.
+To overwrite an existing segmented version of the dataset (for example to add/remove/change a feature), simply run the script with the existing output directory and add the `--noframes` option to skip the frame generation step. If backdrop images have already been generated, optionally use `--make_backdrops False` to skip that step as well. 
 
 ```
 pdm run nuc_morph_analysis/lib/visualization/write_data_for_colorizer.py --output_dir {existing_output_dir_name} --noframes
-pdm run nuc_morph_analysis/lib/visualization/write_data_for_colorizer.py --output_dir //allen/aics/assay-dev/users/Frick/PythonProjects/repos/local_storage/timelapse_feature_explorer_datasets/TFE_new/ --noframes
-
-
-
-pdm run nuc_morph_analysis/lib/visualization/write_data_for_colorizer.py --output_dir //allen/aics/assay-dev/users/Frick/PythonProjects/repos/local_storage/timelapse_feature_explorer_datasets/TFE_full/ --parallel
-
-
 ```

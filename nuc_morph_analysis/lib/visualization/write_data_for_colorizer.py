@@ -61,18 +61,6 @@ class NucMorphFeatureSpec:
 # You can find the most updated version on GitHub here:
 # https://github.com/allen-cell-animated/colorizer-data/blob/main/documentation/DATA_FORMAT.md
 
-# NUCMORPH DATA REFERENCE:
-# colony    string	In FMS manifest	Name of which dataset this row of data belongs to (small, medium, or large)
-# track_id	int	In FMS manifest	ID for a single nucleus in all frames for which it exists (single value per nucleus, consistent across multiple frames)
-# CellID	hash	In FMS manifest	ID for a single instance/frame of a nucleus (every nucleus has a different value in every frame)
-# index_sequence	int	In FMS manifest	frame number associated with the nucleus data in a given row, relative to the start of the movie
-# colony_time	int	Needs calculated and added	Frame number staggered by a given amount per dataset, so that the frame numbers in all datasets are temporally algined relative to one another rather than all starting at 0
-# is_outlier	boolean	In FMS manifest	True if this nucleus in this frame is flagged as an outlier (a single nucleus may be an outlier in some frames but not others)
-# edge_cell	boolean	In FMS manifest	True if this nucleus touches the edge of the FOV
-# volume	float	In FMS manifest	Volume of a single nucleus in pixels in a given frame
-# height	float	In FMS manifest	Height (in the z-direction) of the a single nucleus in pixels in a given frame
-# NUC_PC1	float	Needs calculated and added	Value for shape mode 1 for a single nucleus in a given frame
-
 
 OBJECT_ID_COLUMN = "label_img"
 """Column of object IDs (or unique row number)."""
@@ -97,7 +85,7 @@ FEATURE_COLUMNS = {
         NucMorphFeatureSpec("height"),
         NucMorphFeatureSpec("xy_aspect"),
         NucMorphFeatureSpec("dxdt_48_volume"),
-        NucMorphFeatureSpec("density"),
+        NucMorphFeatureSpec("2d_area_nuc_cell_ratio"),
         NucMorphFeatureSpec("normalized_colony_depth"),
         NucMorphFeatureSpec(
             "termination",
@@ -122,7 +110,7 @@ FEATURE_COLUMNS = {
         NucMorphFeatureSpec("late_growth_rate_by_endpoints"),
         NucMorphFeatureSpec("tscale_linearityfit_volume"),
         NucMorphFeatureSpec("dxdt_48_volume"),
-        NucMorphFeatureSpec("density"),
+        NucMorphFeatureSpec("2d_area_nuc_cell_ratio"),
         NucMorphFeatureSpec("normalized_time"),
         NucMorphFeatureSpec("sync_time_Ff"),
         NucMorphFeatureSpec("time_at_B"),
@@ -159,7 +147,7 @@ FEATURE_COLUMNS = {
         NucMorphFeatureSpec("late_growth_rate_by_endpoints"),
         NucMorphFeatureSpec("tscale_linearityfit_volume"),
         NucMorphFeatureSpec("dxdt_48_volume"),
-        NucMorphFeatureSpec("density"),
+        NucMorphFeatureSpec("2d_area_nuc_cell_ratio"),
         NucMorphFeatureSpec("normalized_time"),
         NucMorphFeatureSpec("sync_time_Ff"),
         NucMorphFeatureSpec("time_at_B"),
@@ -196,7 +184,7 @@ FEATURE_COLUMNS = {
         NucMorphFeatureSpec("late_growth_rate_by_endpoints"),
         NucMorphFeatureSpec("tscale_linearityfit_volume"),
         NucMorphFeatureSpec("dxdt_48_volume"),
-        NucMorphFeatureSpec("density"),
+        NucMorphFeatureSpec("2d_area_nuc_cell_ratio"),
         NucMorphFeatureSpec("normalized_time"),
         NucMorphFeatureSpec("sync_time_Ff"),
         NucMorphFeatureSpec("time_at_B"),
@@ -238,54 +226,8 @@ FEATURE_COLUMNS = {
         NucMorphFeatureSpec("SA_fold_change_fromB"),
         NucMorphFeatureSpec("delta_SA_BC"),
         NucMorphFeatureSpec("SA_vol_ratio"),
-        # mitotic and apoptotic neighbor columns
-        NucMorphFeatureSpec(
-            "frame_of_breakdown",
-            type=FeatureType.CATEGORICAL,
-            categories=["False", "True"],
-        ),
-        NucMorphFeatureSpec(
-            "frame_of_formation",
-            type=FeatureType.CATEGORICAL,
-            categories=["False", "True"],
-        ),
-        NucMorphFeatureSpec("number_of_frame_of_breakdown_neighbors"),
-        NucMorphFeatureSpec("number_of_frame_of_formation_neighbors"),
-        NucMorphFeatureSpec(
-            "has_mitotic_neighbor_breakdown",
-            type=FeatureType.CATEGORICAL,
-            categories=["False", "True"],
-        ),
-        NucMorphFeatureSpec(
-            "has_mitotic_neighbor_formation",
-            type=FeatureType.CATEGORICAL,
-            categories=["False", "True"],
-        ),
-        NucMorphFeatureSpec(
-            "has_mitotic_neighbor_breakdown_forward_dilated",
-            type=FeatureType.CATEGORICAL,
-            categories=["False", "True"],
-        ),
-        NucMorphFeatureSpec(
-            "has_mitotic_neighbor_formation_backward_dilated",
-            type=FeatureType.CATEGORICAL,
-            categories=["False", "True"],
-        ),
-        NucMorphFeatureSpec(
-            "has_mitotic_neighbor",
-            type=FeatureType.CATEGORICAL,
-            categories=["False", "True"],
-        ),
         NucMorphFeatureSpec(
             "has_mitotic_neighbor_dilated",
-            type=FeatureType.CATEGORICAL,
-            categories=["False", "True"],
-        ),
-        NucMorphFeatureSpec(
-            "frame_of_death", type=FeatureType.CATEGORICAL, categories=["False", "True"]
-        ),
-        NucMorphFeatureSpec(
-            "has_dying_neighbor",
             type=FeatureType.CATEGORICAL,
             categories=["False", "True"],
         ),
@@ -294,61 +236,14 @@ FEATURE_COLUMNS = {
             type=FeatureType.CATEGORICAL,
             categories=["False", "True"],
         ),
-        NucMorphFeatureSpec("number_of_frame_of_death_neighbors"),
-        NucMorphFeatureSpec("sum_has_mitotic_neighbor_breakdown"),  # per track feature
-        NucMorphFeatureSpec("sum_has_mitotic_neighbor_formation"),  # per track feature
-        NucMorphFeatureSpec("sum_has_mitotic_neighbor"),  # per track feature
-        NucMorphFeatureSpec("sum_has_dying_neighbor"),  # per track feature
-        NucMorphFeatureSpec(
-            "sum_number_of_frame_of_breakdown_neighbors"
-        ),  # per track feature
-        NucMorphFeatureSpec("number_of_frame_of_death_neighbors"),  # per track feature
-        # new columns
-        # useful and likely to make it to final dataset
-        NucMorphFeatureSpec("2d_area_nuc_cell_ratio"),
         NucMorphFeatureSpec("2d_area_nucleus"),
         NucMorphFeatureSpec("2d_area_pseudo_cell"),
-        NucMorphFeatureSpec("2d_area_cyto"),
-        NucMorphFeatureSpec("2d_intensity_min_edge"),
-        NucMorphFeatureSpec("2d_intensity_max_edge"),
-        NucMorphFeatureSpec("2d_intensity_mean_edge"),
-        # potentially useful, but likely not needed in final dataset
-        NucMorphFeatureSpec("2d_convex_area_nucleus"),
-        NucMorphFeatureSpec("2d_eccentricity_nucleus"),
-        NucMorphFeatureSpec("2d_equivalent_diameter_nucleus"),
-        NucMorphFeatureSpec("2d_extent_nucleus"),
-        NucMorphFeatureSpec("2d_filled_area_nucleus"),
-        NucMorphFeatureSpec("2d_major_axis_length_nucleus"),
-        NucMorphFeatureSpec("2d_minor_axis_length_nucleus"),
-        NucMorphFeatureSpec("2d_orientation_nucleus"),
-        NucMorphFeatureSpec("2d_perimeter_nucleus"),
-        NucMorphFeatureSpec("2d_solidity_nucleus"),
-        # potentially useful, but likely not needed in final dataset
-        NucMorphFeatureSpec("2d_convex_area_pseudo_cell"),
-        NucMorphFeatureSpec("2d_eccentricity_pseudo_cell"),
-        NucMorphFeatureSpec("2d_equivalent_diameter_pseudo_cell"),
-        NucMorphFeatureSpec("2d_extent_pseudo_cell"),
-        NucMorphFeatureSpec("2d_filled_area_pseudo_cell"),
-        NucMorphFeatureSpec("2d_major_axis_length_pseudo_cell"),
-        NucMorphFeatureSpec("2d_minor_axis_length_pseudo_cell"),
-        NucMorphFeatureSpec("2d_orientation_pseudo_cell"),
-        NucMorphFeatureSpec("2d_perimeter_pseudo_cell"),
-        NucMorphFeatureSpec("2d_solidity_pseudo_cell"),
-        # extra
-        NucMorphFeatureSpec('inv_cyto_density'),
-        NucMorphFeatureSpec('2d_perimeter_nuc_cell_ratio'),
-        NucMorphFeatureSpec('2d_eccentricity_nuc_cell_ratio'),
-        NucMorphFeatureSpec('label_pseudo_cell'),
-
-
-        # volume dip columns
-        NucMorphFeatureSpec('colony_depth', type=FeatureType.DISCRETE),
-        NucMorphFeatureSpec('volume_dips_removed_um_unfilled'), 
-        NucMorphFeatureSpec('dxdt_48_volume_dips_removed_um_unfilled'),
-        NucMorphFeatureSpec('volume_dips_has_peak'),
-        NucMorphFeatureSpec('volume_dips_max_volume_change'),
-        NucMorphFeatureSpec('volume_dips_volume_change_at_region'),
-        NucMorphFeatureSpec('volume_change_over_25_minutes')
+        NucMorphFeatureSpec(
+            "volume_dips_peak_mask_at_region", 
+            type=FeatureType.CATEGORICAL,
+            categories=["False", "True"],
+        ), 
+        NucMorphFeatureSpec('volume_change_over_25_minutes'),
     ],
 }
 
@@ -523,6 +418,7 @@ def make_dataset(
 
     # load the dataset once
     df_all = load_dataset_with_features("all_baseline", remove_growth_outliers=False)
+    df_all['volume_dips_peak_mask_at_region'] = df_all['volume_dips_peak_mask_at_region'].astype(str)
 
     for filter in filters:
         output_dir_subset = Path(output_dir) / filter

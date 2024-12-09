@@ -34,7 +34,6 @@ def add_colony_metrics(df: pd.DataFrame):
                         1 are depth 2, etc.
           neighbors: string. List of neighboring Cell IDs
           neigh_distance: float. Unit: voxels. Mean distance to neighboring cells
-          density: float. Unit: voxels. 1 / neigh_distance^2
     """
     # This function is only intended to run on data from one colony at a time
     if "dataset" in df.columns:
@@ -54,15 +53,12 @@ def add_colony_metrics(df: pd.DataFrame):
 
 
 def _add_colony_metrics_one_tp(df_timepoint: pd.DataFrame):
-    depth_map, neighborhoods, neigh_dists, densities = _calc_colony_metrics(df_timepoint)
+    depth_map, neighborhoods, neigh_dists = _calc_colony_metrics(df_timepoint)
     for _, (lbl, depth) in enumerate(depth_map.items()):
         df_timepoint.loc[df_timepoint["label_img"] == lbl, "colony_depth"] = depth
 
     for _, (lbl, dist) in enumerate(neigh_dists.items()):
         df_timepoint.loc[df_timepoint["label_img"] == lbl, "neigh_distance"] = dist
-
-    for _, (lbl, density) in enumerate(densities.items()):
-        df_timepoint.loc[df_timepoint["label_img"] == lbl, "density"] = density
 
     for _, (lbl, neighbors) in enumerate(neighborhoods.items()):
         neighbor_ids = []
@@ -88,16 +84,15 @@ def _calc_colony_metrics(df_timepoint):
     neighbors = _make_neighbor_map(voronoi, labels)
 
     centroids_by_label = {label: centroids_list[index] for index, label in enumerate(labels)}
-    neigh_distance, density = _calculate_distance_density(labels, neighbors, centroids_by_label)
+    neigh_distance = _calculate_distance(labels, neighbors, centroids_by_label)
 
     depth1_labels = _get_depth1_labels(labels, centroids_list, voronoi)
     depth_map = calculate_depth(neighbors, depth1_labels)
 
-    return depth_map, neighbors, neigh_distance, density
+    return depth_map, neighbors, neigh_distance
 
 
-def _calculate_distance_density(labels, neighbors, centroids):
-    density = {}
+def _calculate_distance(labels, neighbors, centroids):
     neigh_distance = {}
     for lbl in labels:
         try:
@@ -114,9 +109,8 @@ def _calculate_distance_density(labels, neighbors, centroids):
             if neighbor != lbl:
                 dist = np.sqrt(np.sum((centroid - np.array(centroids[neighbor])) ** 2, axis=0))
                 dists.append(dist)
-        density[lbl] = 1 / np.mean(dists) ** 2
         neigh_distance[lbl] = np.mean(dists)
-    return neigh_distance, density
+    return neigh_distance
 
 
 def _make_neighbor_map(voronoi, labels):

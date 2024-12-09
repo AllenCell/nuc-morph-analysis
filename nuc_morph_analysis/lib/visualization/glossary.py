@@ -11,7 +11,7 @@ GLOSSARY = {
     "late_growth_rate_by_endpoints": "The growth rate of the growth phase calculated by endpoints (i.e., “volume at the end of growth” - “volume at start of growth”) / “growth duration”.",
     "tscale_linearityfit_volume": "Each volume trajectory was fit to a power law scaling with time 𝑉(𝑡) =𝑉𝑠𝑡𝑎𝑟𝑡+𝑟𝑡^𝛼 over all time points during the growth phase. This feature is the fitted time scaling factor 𝛼 for a full-interphase nuclear trajectory.",
     "dxdt_48_volume": "The change in volume over time for a four hour rolling window for middle interphase time points of full-interphase trajectories.",
-    "density": "Inverse of the squared average distance to centroids of all neighboring nuclei. Neighbors were determined using a Voronoi tessellation graph.",
+    "2d_area_nuc_cell_ratio": "The ratio between the area of the nucleus (from maximum z projected nuclear segmentation) and the area of the pseudo cell (from maximum z projected nuclear segmentation) gives a metric represtative of the local density for each nucleus at every timepoint. The density was not calculated if the nucleus was on the edge of the colony or had a mitotic neighbor.",
     "normalized_time": "The time within interphase normalized by the total interphase time for full-interphase nuclear trajectories. This ranges from 0 to 1, where 0 represents the start of interphase and 1 represents the end of interphase.",
     "sync_time_Ff": "Time synchronized to start of interphase for each single full-interphase nuclear trajectory (i.e., all trajectories start with a synchronized time of 0 hours).",
     "time_at_B": "The calculated time of the start of the growth phase in single full-interphase nuclear trajectory. This time is relative to the start of the timelapse imaging.",
@@ -41,6 +41,12 @@ GLOSSARY = {
     "SA_fold_change_fromB": "The surface area fold-change relative to the surface area at the start of growth for a full-interphase nuclear trajectory (i.e. surface area / surface area at start of growth).",
     "delta_SA_BC": "The amount of surface area added from the start to the end of growth for a full-interphase nuclear trajectory (i.e., “surface area at the end of growth” - “surface area at start of growth”).",
     "SA_vol_ratio": "The ratio of the surface area to the volume of the nuclear segmentation at every time point.",
+    "2d_area_nucleus": "The area of the nucleus (from maximum z projected nuclear segmentation).",
+    "2d_area_pseudo_cell": "The area of the pseudo cell (from maximum z projected nuclear segmentation).",
+    "volume_change_over_25_minutes": "The nuclear volume change in a 25 minute window at each frame (t) calculated by ∆V(t) = V(t-5) - V(t).",
+    "volume_dips_peak_mask_at_region": "True at all timepoints along an identified volume dip event.",
+    "has_mitotic_neighbor_dilated": "True at timepoints when adjacent neighbors are undergoing mitosis.",
+    "has_dying_neighbor_forward_dilated": "True at timepoints when adjacent neighbors are undergoing cell death.",
 }
 # Colored segmentation: The calculated feature is available for that nucleus.
 # Grey segmentation: The calculated feature is not available for that nucleus. This could be because the nuclear segmentation is an outlier at that time point (i.e. touching the edge of the field of view, identified as an erroneous segmentation or tracking) or the feature could not be calculated (i.e. features that require the full-interphase trajectory).

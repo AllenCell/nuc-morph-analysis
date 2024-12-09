@@ -40,7 +40,6 @@ AX_COLUMN_PAIRS = [
     ("aspect_ax", ["xz_aspect", "xy_aspect", "zy_aspect"]),
     ("depth_ax", ["colony_depth"]),
     ("neigh_ax", ["dxdt_12_volume", "dxdt_24_volume", "dxdt_48_volume"]),
-    ("density_ax", ["density"]),
 ]
 
 
@@ -251,7 +250,6 @@ def create_the_figure():
 
     ax_dict["aspect_ax"] = fig.add_subplot(gs[15:19, 1:7])
     ax_dict["neigh_ax"] = fig.add_subplot(gs[15:19, 9:15])
-    ax_dict["density_ax"] = fig.add_subplot(gs[15:19, 17:23])
     ax_dict["depth_ax"] = fig.add_subplot(gs[15:19, 25:31])
 
     return fig, ax_dict

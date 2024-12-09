@@ -52,14 +52,11 @@ def get_scale_factor_table(dataset="all_baseline"):
             "width",
             "length",
             "distance_from_centroid",
-            "max_distance_from_centroid",
         ): pix_size,
        
         ("mesh_sa"): pix_size**2,
         ("volume", "volume_sub",  "volume_change_over_25_minutes"): pix_size**3,
-        ("fit_volume"): 1, #already scaled in code
-        ("density", "avg_density", "avg_early_density", "avg_late_density"): 1 / pix_size**2,
-        
+        ("fit_volume"): 1, #already scaled in code        
         (
             "colony_time",
             "sync_time_Ff",
@@ -78,15 +75,7 @@ def get_scale_factor_table(dataset="all_baseline"):
         (
             "2d_area_nucleus",
             "2d_area_pseudo_cell",
-            "2d_area_cyto",
-            ): (pix_size/2.5)**2, # resolution_level 1 is 2.5x downsampled
-        ("2d_area_pseudo_cell"): (pix_size/2.5)**2, # resolution_level 1 is 2.5x downsampled
-        ("inv_cyto_density"): 1 / (pix_size/2.5)**2, # resolution level =1 is 2.5x downsampled
-         (
-            "2d_intensity_min_edge",
-            "2d_intensity_mean_edge",
-            "2d_intensity_max_edge",
-        ): pix_size/2.5, # resolution level =1 is 2.5x downsampled
+            ): (pix_size/2.5)**2,
         ("2d_area_nuc_cell_ratio"): 1,
     }
 
@@ -220,18 +209,9 @@ LABEL_TABLE = {
     "distance": "Distance",
     "distance_from_centroid": "Distance from centroid",
     "normalized_distance_from_centroid": "Normalized distance from centroid",
-    "max_distance_from_centroid": "Max distance from centroid",
     "colony_depth": "Colony depth",
     "normalized_colony_depth": "Normalized colony depth",
-    "max_colony_depth": "Max colony depth",
     "avg_colony_depth": "Average colony depth",
-    # Density
-    "colony_non_circularity": "Colony non-circularity",
-    "colony_non_circularity_scaled": "Scaled colony non-circularity",
-    "avg_early_density": "Early density",
-    "avg_late_density": "Late density",
-    "density": "Density",
-    "avg_density": "Average density",
     # Lineage
     "parent_id": "Parent ID",
     "family_id": "Family ID",
@@ -252,7 +232,6 @@ LABEL_TABLE = {
     "seg_twoD_zMIP_area": "total projected nuclear area",
     # LRM feats
     "height_at_B": "Starting height",
-    "density_at_B": "Starting density",
     "xy_aspect_at_B": "Starting XY aspect ratio",
     "SA_vol_ratio_at_B": "Starting surface area/volume ratio",
     "early_neighbor_avg_dxdt_48_volume_90um": "Neighborhood avg. ~starting transient growth rate",
@@ -270,21 +249,12 @@ LABEL_TABLE = {
     'mean_neighbor_avg_lrm_2d_area_nuc_cell_ratio_90um': "Neighborhood avg. mean density",
     
     # mitotic and apoptotic neighbor columns
-    "number_of_frame_of_breakdown_neighbors": "# of neighboring cells undergoing breakdown",
-    "number_of_frame_of_formation_neighbors": "# of neighboring cells undergoing formation",
-    "number_of_frame_of_death_neighbors": "# of neighboring cells undergoing death",
     "normalized_sum_has_mitotic_neighbor": "Frequency of mitotic adjacent neighbors",
     "normalized_sum_has_dying_neighbor": "Frequency of dying adjacent neighbors",  
     # 2D area features
     "2d_area_nuc_cell_ratio": "Nucleus area/(Pseudo)cell area",
     "2d_area_nucleus": "Nuclear area",
     "2d_area_pseudo_cell": "(Pseudo)cell area",
-    "2d_area_cyto": "Cytoplasmic area",
-    "inv_cyto_density": "1 / Cytoplasmic area",
-    "2d_eccentricity_nucleus": "Nuclear eccentricity (2d)",
-    "2d_intensity_min_edge" : "Min distance to (pseudo)cell edge",
-    "2d_intensity_mean_edge" : "Average distance to (pseudo)cell edge",
-    "2d_intensity_max_edge" : "Max distance to (pseudo)cell edge",
 
     # dip event features
     "volume_change_over_25_minutes": "Change in volume in 25 minute window",
@@ -410,31 +380,21 @@ COLORIZER_LABEL_TABLE = {
     "zy_aspect": "YZ aspect ratio",
     "distance_from_centroid": "Distance from colony center",
     "normalized_colony_depth": "Normalized distance from colony center",
-    "density": "Density",
     "family_id": "Family ID",
     "is_growth_outlier": "Growth outlier filter",
     "termination": "Trajectory termination annotation",
     "baseline_colonies_dataset": "Baseline colonies dataset filter",
     "full_interphase_dataset": "Full-interphase dataset filter",
     "lineage_annotated_dataset": "Lineage-annotated dataset filter",
-    
-    # mitotic and apoptotic neighbor columns
-    "number_of_frame_of_breakdown_neighbors": "# of neighboring cells undergoing breakdown",
-    "number_of_frame_of_formation_neighbors": "# of neighboring cells undergoing formation",
-    "number_of_frame_of_death_neighbors": "# of neighboring cells undergoing death",
-    "2d_area_nuc_cell_ratio": "Nuclear area to (pseudo)cell area ratio",
-    "2d_area_nucleus": "Nuclear area",
-    "2d_area_pseudo_cell": "(Pseudo)cell area",
-    "2d_area_cyto": "Cytoplasmic area",
-    "inv_cyto_density": "Cytoplasmic density",
-    "2d_eccentricity_nucleus": "Nuclear eccentricity (2d)",
-    "2d_intensity_min_edge" : "Min distance to (pseudo)cell edge",
-    "2d_intensity_mean_edge" : "Average distance to (pseudo)cell edge",
-    "2d_intensity_max_edge" : "Max distance to (pseudo)cell edge",
-
-    # dip event features
-     "volume_change_over_25_minutes": "Change in volume in 25 minute window",
-}
+    "2d_area_nuc_cell_ratio": "Density",
+    "2d_area_nucleus": "2D nuclear area",
+    "2d_area_pseudo_cell": "Pseudo cell area",
+    "volume_change_over_25_minutes": "Change in volume in 25 minute window",
+    "power_fit_volume": "Power law fitted volume",
+    "volume_dips_peak_mask_at_region": "Volume dip flag",
+    "has_mitotic_neighbor_dilated": "Has mitotic neighbor flag",
+    "has_dying_neighbor_forward_dilated": "Has dying neighbor flag",
+} 
 
 # units for quantities
 UNIT_TABLE = {
@@ -443,15 +403,11 @@ UNIT_TABLE = {
         "width",
         "length",
         "distance_from_centroid",
-        "max_distance_from_centroid",
         "height",
         "height_at_B",
         "height_at_C",
         "avg_height",
         "distance",
-        "2d_intensity_min_edge",
-        "2d_intensity_mean_edge",
-        "2d_intensity_max_edge",
     ): "(μm)",
     (
         "RMSE_linearityfit_SA",
@@ -464,7 +420,6 @@ UNIT_TABLE = {
         "seg_twoD_zMIP_area",
         "2d_area_nucleus",
         "2d_area_pseudo_cell",
-        "2d_area_cyto",
     ): "(μm²)",
     (
         "volume",
@@ -477,16 +432,10 @@ UNIT_TABLE = {
         "difference_volume_at_B",
         "difference_half_vol_at_C_and_B" "avg_sister_volume_at_B",
         "volume_sub",
-         "volume_change_over_25_minutes",
+        "volume_change_over_25_minutes",
+        "power_fit_volume",
     ): "(μm\u00B3)",
     "SA_vol_ratio": "(μm⁻¹)",
-    (
-        "density",
-        "avg_early_density",
-        "avg_late_density",
-        "avg_density",
-        "inv_cyto_density",
-    ): "(μm⁻²)",
     # Temporal
     (
         "colony_time",
@@ -511,7 +460,12 @@ UNIT_TABLE = {
         "late_growth_rate_by_endpoints",
     ): "(μm\u00B3/hr)",
     "exp_growth_coeff_BC": "(hr⁻¹)",
-    "2d_area_nuc_cell_ratio": "", # no unit, since ratio
+    #unitless
+    (
+    "2d_area_nuc_cell_ratio",
+    "has_mitotic_neighbor_dilated",
+    "has_dying_neighbor_forward_dilated",
+    ): "",
 }
 
 # now add the dxdt columns
@@ -609,8 +563,6 @@ LIMIT_TABLE = {
     "xz_aspect_fold_change_BC": (0, 3.25),
     # Colony Position
     "avg_colony_depth": (0, 9),
-    # Density
-    "avg_density": (6.1e-4, 4.6e-3),
 }
 
 # limits when growth outliers are left in the dataset
@@ -666,8 +618,6 @@ LIMIT_TABLE_WITH_GROWTH_OUTLIERS = {
     "xz_aspect_fold_change_BC": (0, 3.25),
     # Colony Position
     "avg_colony_depth": (0, 9),
-    # Density
-    "avg_density": (4e-6, 6e-5),
     # colony area
     "colony_area": (0, 200000),  # max area of 20 FOV i 170,000 µm^2
     "nucleus_colony_area_ratio": (0.3, 0.55),
@@ -681,7 +631,6 @@ AVG_LIMIT_TABLE = {
     "volume": (400, 1200),
     "exiting_mitosis": (0, 0.4),
     "nucleus_colony_area_ratio": (2, 3),
-    "density": (0.0010, 0.0045),
     "dxdt_48_volume": (10, 80),
     "dxdt_24_volume": (10, 80),
     "tscale_linearityfit_volume": (0.2, 3),

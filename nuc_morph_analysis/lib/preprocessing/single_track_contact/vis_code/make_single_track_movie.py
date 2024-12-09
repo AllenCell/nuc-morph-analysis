@@ -21,7 +21,6 @@ FEATURE_COLUMNS = [
     "zy_aspect",
     "colony_depth",
     "neigh_distance",
-    "density",
     "dxdt_48_volume",
     "dxdt_24_volume",
     "dxdt_12_volume",
