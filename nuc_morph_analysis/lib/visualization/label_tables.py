@@ -76,7 +76,6 @@ def get_scale_factor_table(dataset="all_baseline"):
             "2d_area_nucleus",
             "2d_area_pseudo_cell",
             ): (pix_size/2.5)**2,
-        ("2d_area_pseudo_cell"): (pix_size/2.5)**2,
         ("2d_area_nuc_cell_ratio"): 1,
     }
 

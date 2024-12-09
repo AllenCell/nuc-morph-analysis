@@ -238,9 +238,12 @@ FEATURE_COLUMNS = {
         ),
         NucMorphFeatureSpec("2d_area_nucleus"),
         NucMorphFeatureSpec("2d_area_pseudo_cell"),
-        NucMorphFeatureSpec('volume_dips_peak_mask_at_region'), 
+        NucMorphFeatureSpec(
+            "volume_dips_peak_mask_at_region", 
+            type=FeatureType.CATEGORICAL,
+            categories=["False", "True"],
+        ), 
         NucMorphFeatureSpec('volume_change_over_25_minutes'),
-        NucMorphFeatureSpec('power_fit_volume'),
     ],
 }
 
@@ -415,6 +418,7 @@ def make_dataset(
 
     # load the dataset once
     df_all = load_dataset_with_features("all_baseline", remove_growth_outliers=False)
+    df_all['volume_dips_peak_mask_at_region'] = df_all['volume_dips_peak_mask_at_region'].astype(str)
 
     for filter in filters:
         output_dir_subset = Path(output_dir) / filter
