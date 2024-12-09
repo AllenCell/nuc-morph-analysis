@@ -984,15 +984,18 @@ def process_images_and_add_to_dataframe(df_fmb, df, seg_img_list, raw_img_list):
 
         raw_slices_rs = rescale_intensities(raw_slices, "egfp", "uint8")
 
+        dfi = df[df["track_id"] == track_id].set_index("index_sequence")
+        predicted_breakdown = dfi["predicted_breakdown"].values[0]
+
         # now add items to the dataframe
         for i, yx_zx_zy in enumerate(["yx", "zx"]):
             df_fmb.loc[timepoint, f"raw_{yx_zx_zy}"] = [raw_slices_rs[i]]
             df_fmb.loc[timepoint, f"seg_{yx_zx_zy}"] = [seg_slices[i]]
 
             # now retrieve the contours
-            if (
-                label_img_val > 0
-            ):  # only draw the contour if the cell is present in the segmentation image
+            if label_img_val > 0 and timepoint < (predicted_breakdown + 1):
+                # only draw the contour if the cell is present in the segmentation image
+                # and the timepoint is before breakdown
                 # identify the contours from the label image and save them as matplotlib Polygons
                 contour_factor = [1 / RESCALE_FACTOR_100x_to_20X, 1 / RESCALE_FACTOR_100x_to_20X]
                 contour_and_color_list = get_matplotlib_contours_on_image(
