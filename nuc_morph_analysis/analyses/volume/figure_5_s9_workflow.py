@@ -11,7 +11,7 @@ from nuc_morph_analysis.lib.preprocessing.add_times import (
 from nuc_morph_analysis.lib.visualization.plotting_tools import get_plot_labels_for_metric
 from nuc_morph_analysis.lib.visualization.example_tracks import EXAMPLE_TRACKS
 
-from nuc_morph_analysis.analyses.volume.plot_help import plot_dxdt_over_time_by_cell_cycle, adjust_axis_positions
+from nuc_morph_analysis.analyses.volume.plot_help import plot_dxdt_over_time_by_cell_cycle, adjust_axis_positions,  update_plotting_params
 import matplotlib
 import matplotlib.pyplot as plt
 
@@ -238,6 +238,7 @@ for local_radius_str in ["90um", "whole_colony"]:
 
 # %%
 # S5 panel F and S9 panel E
+update_plotting_params()
 df_full = add_times.digitize_time_column(df_full,0,1,step_size=0.02,time_col='normalized_time',new_col='dig_time')
 ycol = 'dxdt_48_volume'
 colony_list = ['small','medium','large']

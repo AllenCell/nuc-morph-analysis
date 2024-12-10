@@ -77,65 +77,20 @@ def get_scale_factor_table(dataset="all_baseline"):
             "2d_area_pseudo_cell",
             ): (pix_size/2.5)**2,
         ("2d_area_nuc_cell_ratio"): 1,
+        (
+            "dxdt_48_volume",
+            "neighbor_avg_dxdt_48_volume_whole_colony",
+            "neighbor_avg_dxdt_48_volume_90um",
+            "dxdt_t2-dxdt_t1",
+        ): pix_size**3 / (time_interval_minutes / 60),
+        (
+            "dxdt_48_volume_dips_removed_um_unfilled",
+            "neighbor_avg_dxdt_48_volume_dips_removed_um_unfilled_90um",
+            "neighbor_avg_dxdt_48_volume_dips_removed_um_unfilled_whole_colony",
+        ): 1 / (time_interval_minutes / 60),
     }
-
-    # add a couple of dxdt columns
-    dict1.update({'dxdt_48_volume': 1/(time_interval_minutes/60)})
-    dict1.update({'dxdt_48_volume_dips_removed_um_unfilled': 1/(time_interval_minutes/60)})
-    dict1.update({'neighbor_avg_dxdt_48_volume_dips_removed_um_unfilled_90um': 1/(time_interval_minutes/60)})
-    dict1.update({'neighbor_avg_dxdt_48_volume_dips_removed_um_unfilled_whole_colony': 1/(time_interval_minutes/60)})
-
-
-
-    dict1.update({'dxdt_48_fit_volume_per_V': (1)/(time_interval_minutes/60)})
     
-    # add non dxdt columns and other non-traditional columns
-    hours_per_frame = time_interval_minutes / 60
-    temp_dict = get_one_to_one_dict(dict1)
-    for feature in DXDT_FEATURE_LIST:
-        dict1.update(
-            {
-                f"{DXDT_PREFIX}{bin_interval}_{feature}": temp_dict[feature] / (hours_per_frame)
-                for bin_interval in BIN_INTERVAL_LIST
-            }
-        )
-    dict1.update(
-        {
-            f"{DXDT_PREFIX}{bin_interval}_volume_per_V": 1 / (hours_per_frame)
-            for bin_interval in BIN_INTERVAL_LIST
-        }
-    )
-
-    for local_radius_str in LOCAL_RADIUS_STR_LIST:
-        for feature in NEIGHBOR_FEATURE_LIST:
-            dict1.update({f"{NEIGHBOR_PREFIX}{feature}_{local_radius_str}": temp_dict[feature]})
-            dict1.update(
-                {
-                    f"{NEIGHBOR_PREFIX}{DXDT_PREFIX}{bin_interval}_{feature}_{local_radius_str}": temp_dict[
-                        feature
-                    ]
-                    / (hours_per_frame)
-                    for bin_interval in BIN_INTERVAL_LIST
-                }
-            )
-        # add {DXDT_PREFIX}{bin_interval}_volume_per_V
-        dict1.update(
-            {
-                f"{NEIGHBOR_PREFIX}{DXDT_PREFIX}{bin_interval}_volume_per_V_{local_radius_str}": 1
-                / (hours_per_frame)
-                for bin_interval in BIN_INTERVAL_LIST
-            }
-        )
-
-    # add name for coordinated_local_growth_fig.py
-    for bin_interval in BIN_INTERVAL_LIST:
-        for local_radius_str in LOCAL_RADIUS_STR_LIST:
-            dict1.update({f"dxdt_t2-dxdt_t1": 1})
-            dict1.update({f"dvdt_t2-dvdt_t1_neighbors_{bin_interval}_{local_radius_str}": 1})
-            dict1.update({f"dvdt_t2-dvdt_t1_self_{bin_interval}_{local_radius_str}": 1})
-
     # important for figure 5 supp: do NOT REMOVE
-    dict1.update({"dxdt_t2-dxdt_t1": temp_dict['volume'] / (hours_per_frame)})
     return dict1
 
 
