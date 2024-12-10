@@ -60,7 +60,7 @@ In addition to `run_all_manuscript_workflows.py`, this repository includes a few
 ```bash
 python nuc_morph_analysis/lib/preprocessing/save_datasets_for_quilt.py
 ```
-* To reproduce [2024-06-25_baseline_intermediate_manifest.parquet](https://open.quiltdata.com/b/allencell/tree/aics/nuc-morph-dataset/supplemental_files/intermediate_manifests/2024-06-25_baseline_intermediate_manifest.parquet), run:
+* To reproduce [2024-09-19_baseline_intermediate_manifest.parquet](https://open.quiltdata.com/b/allencell/tree/aics/nuc-morph-dataset/supplemental_files/intermediate_manifests/2024-09-19_baseline_intermediate_manifest.parquet), run:
 ```bash
 python nuc_morph_analysis/lib/preprocessing/generate_main_manifest.py
 ```
