@@ -156,11 +156,11 @@ plt.close()
 # %% Calculate average growth rate over beginning and end subsets of tracks
 
 # only choose values from defined regions of normalized interphase time
-t1 = 0.3
-t2 = 0.75
+t1 = 0.5
+t2 = 0.5
 dfin = add_binned_normalized_time_for_full_tracks(df_full)
-df_t1 = dfin[(dfin["digitized_normalized_time"] < t1)].groupby("track_id").agg("mean")
-df_t2 = dfin[(dfin["digitized_normalized_time"] > t2)].groupby("track_id").agg("mean")
+df_t1 = dfin[(dfin["normalized_time"] < t1)].groupby("track_id").agg("mean")
+df_t2 = dfin[(dfin["normalized_time"] > t2)].groupby("track_id").agg("mean")
 
 # now require that the track_id is in both dfq1 and dfq2
 df_t1 = df_t1[df_t1.index.isin(df_t2.index)]
