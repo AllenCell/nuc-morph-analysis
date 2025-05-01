@@ -1,5 +1,5 @@
 # Colony context and size-dependent compensation mechanisms give rise to variations in nuclear growth trajectories
-The code in this repository generates all of the figures for [Dixon et al 2025](https://www.cell.com/cell-systems/fulltext/S2405-4712(25)00098-5). It is primarily intended to support reproducibility of our research. In addition, researchers may find parts of this code valuable for future work.
+The code in this repository generates all of the figures for [Dixon et al 2025](https://doi.org/10.1016/j.cels.2025.101265). It is primarily intended to support reproducibility of our research. In addition, researchers may find parts of this code valuable for future work.
 
 The `dev` branch reflects the most up to date version of this analysis. To exactly reproduce the analysis as seen in the [bioRxiv](https://www.biorxiv.org/content/10.1101/2024.06.28.601071v1) version of the manuscript use the `bioRxiv-v1` branch.
 
