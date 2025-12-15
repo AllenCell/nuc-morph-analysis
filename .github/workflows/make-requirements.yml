@@ -38,7 +38,7 @@ jobs:
 
           rm -rf requirements/*
           mkdir -p requirements/$PLATFORM
-          pdm requirements requirements/$PLATFORM/requirements.txt
+          pdm requirements requirements/$PLATFORM/requirements.txt -d
 
       - name: Get platform variable
         id: platform
