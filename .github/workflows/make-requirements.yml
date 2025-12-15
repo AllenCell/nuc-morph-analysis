@@ -57,7 +57,7 @@ jobs:
           esac
 
       - name: Upload requirements files
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ steps.platform.outputs.platform }}-requirements
           path: requirements/${{ steps.platform.outputs.platform }}
@@ -74,13 +74,13 @@ jobs:
           path: requirements/linux
 
       - name: Download windows requirements files
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v7
         with:
           name: windows-requirements
           path: requirements/windows
 
       - name: Download macOS requirements files
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v7
         with:
           name: macos-requirements
           path: requirements/macos
