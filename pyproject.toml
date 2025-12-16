@@ -36,7 +36,8 @@ dependencies = [
     "pyarrow>=15.0.0",
     "termcolor>=2.4.0",
     "cvapipe-analysis>=0.2.0",
-    "vtk-osmesa>=9.3.0",
+    'vtk-osmesa>=9.3.0; sys_platform != "darwin"',
+    'vtk>=9.3.0; sys_platform == "darwin"',
     "colorizer-data @ git+https://github.com/allen-cell-animated/colorizer-data.git@v1.4.2",
     "bioio-ome-zarr>=1.0.1",
     "bioio>=1.0.2",
@@ -49,10 +50,26 @@ dependencies = [
 [project.optional-dependencies]
 internal = [
     "aicsfiles>=5.1.0",
+    "lkaccess"
 ]
 [build-system]
 requires = ["pdm-backend"]
 build-backend = "pdm.backend"
+
+[tool.uv.sources]
+aicsfiles = { index = "aics-artifactory" }
+lkaccess = { index = "aics-artifactory" }
+colorizer-data = { git = "https://github.com/allen-cell-animated/colorizer-data.git", rev = "v1.4.2" }
+vtk-osmesa = { index = "prebuilt-vtk" }
+
+[[tool.uv.index]]
+name = "aics-artifactory"
+url = "https://artifactory.corp.alleninstitute.org/artifactory/api/pypi/pypi-virtual/simple"
+explicit = true
+
+[[tool.uv.index]]
+name = "prebuilt-vtk"
+url = "https://wheels.vtk.org"
 
 [tool.mypy]
 packages = "nuc_morph_analysis"
@@ -124,7 +141,7 @@ url = "https://wheels.vtk.org"
 [tool.pdm.scripts]
 requirements = "pdm export -f requirements --without-hashes -o"
 
-[tool.pdm.dev-dependencies]
+[dependency-groups]
 dev = [
     "pytest>=7.4.2",
     "mypy>=1.8.0",
