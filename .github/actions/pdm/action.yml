@@ -3,6 +3,9 @@ description: Install PDM from our version
 runs:
   using: composite
   steps:
+    - name: Install Python for PDM
+      # This action reads the Python version from .python-version
+      uses: actions/setup-python@v6
     - name: Set up PDM
       uses: pdm-project/setup-pdm@c050bdcb2405837648035b6678c75609d53a749f
       with:
