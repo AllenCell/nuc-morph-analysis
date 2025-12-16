@@ -38,10 +38,10 @@ python install-pdm.py
 > [!WARNING]
 > With this installation method `pdm` will be tied to the exact python version used to install it. If you installed with Python 3.9.13, for example, and you later transition to Python 3.9.17, do not uninstall Python 3.9.13.
 
-`pdm` will be installed into `$HOME/.local/bin`. Check that your version is at least 2.10.
+`pdm` will be installed into `$HOME/.local/bin`. Check that your version is at least 2.10. We test against version 2.12.2.
 ```bash
 $ pdm --version
-PDM, version 2.10.4
+PDM, version 2.12.2
 ```
 
 ## Install the project dependencies
