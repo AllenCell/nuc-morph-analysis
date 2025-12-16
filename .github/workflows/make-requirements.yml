@@ -18,7 +18,7 @@ jobs:
         os: [ubuntu-latest, macOS-latest, windows-latest]
 
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - uses: actions/checkout@v6
       - uses: ./.github/actions/pdm
 
       - name: Generate requirements.txt
@@ -38,7 +38,7 @@ jobs:
 
           rm -rf requirements/*
           mkdir -p requirements/$PLATFORM
-          pdm requirements requirements/$PLATFORM/requirements.txt
+          pdm requirements requirements/$PLATFORM/requirements.txt -d
 
       - name: Get platform variable
         id: platform
@@ -57,7 +57,7 @@ jobs:
           esac
 
       - name: Upload requirements files
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ steps.platform.outputs.platform }}-requirements
           path: requirements/${{ steps.platform.outputs.platform }}
@@ -66,21 +66,21 @@ jobs:
     needs: [make-requirements]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
       - name: Download linux requirements files
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v7
         with:
           name: linux-requirements
           path: requirements/linux
 
       - name: Download windows requirements files
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v7
         with:
           name: windows-requirements
           path: requirements/windows
 
       - name: Download macOS requirements files
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v7
         with:
           name: macos-requirements
           path: requirements/macos
@@ -94,7 +94,7 @@ jobs:
         run: echo "::set-output name=timestamp::$(date +'%Y-%m-%d_%H-%M')"
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@98357b18bf14b5342f975ff684046ec3b2a07725 # v8.0.0
         with:
           base: ${{ github.ref_name }}
           title: admin/requirements-update_${{ steps.timestamp.outputs.timestamp }}
