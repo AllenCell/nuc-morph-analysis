@@ -2691,7 +2691,7 @@ wheels = [
 
 [[package]]
 name = "pyshtools"
-version = "4.10"
+version = "4.13.1"
 source = { registry = "https://wheels.vtk.org/" }
 dependencies = [
     { name = "astropy" },
@@ -2703,14 +2703,23 @@ dependencies = [
     { name = "tqdm" },
     { name = "xarray" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/41/6f/49c4c2c4a44cb39d0dc88c1de34a21ed60fa55546f0c32e0889ab9e2658f/pyshtools-4.10.tar.gz", hash = "sha256:98db3429be79113a6ae08ad0ecaa92325a588e4d044937a2344d4f60c70e5b70", size = 37663940, upload-time = "2022-04-27T10:37:22.041Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/f4/58/b75aa783852e3b5af74e5657163c5ddc2d3a906d3cf935b4f41a57defcbc/pyshtools-4.13.1.tar.gz", hash = "sha256:cc4a323e9cbc905c04ae9e2e9fedeea6d76f3315a6863ede353a4dec87b8c018", size = 41577254, upload-time = "2024-07-09T11:45:39.331Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/4f/20/642bf23494cc6066cbeae117e72ba54268bece88f29ca6fa5deea132f7ed/pyshtools-4.10-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:874270a550a9dc96eda13c18e1b55786c88021ec9655f034ed33a83d249de680", size = 3549278, upload-time = "2022-04-27T14:00:05.729Z" },
-    { url = "https://files.pythonhosted.org/packages/0b/d2/c7458753bd67172e6fc84abbaa4e65ef9543df8552c8e9723d4fca9d41be/pyshtools-4.10-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:f6968cb5a8d77a02292e4a2e98fbd9198abeb246ad681c71d54ab4133c032d9c", size = 12485389, upload-time = "2022-04-27T13:44:50.655Z" },
-    { url = "https://files.pythonhosted.org/packages/10/26/3e7893ef3bb066c9b4175c64fa3c78b250c660403e35eb5d84ccfc66e650/pyshtools-4.10-cp310-cp310-win_amd64.whl", hash = "sha256:1bba3a356464ce5feb8321d5b7ace6d819a9f132ba13739a168f47069835d173", size = 6757873, upload-time = "2022-05-03T11:28:19.784Z" },
-    { url = "https://files.pythonhosted.org/packages/e7/4c/8ff54ca43ca2cd771bc32668ef78006744f6f629983e49e592aafa6697fb/pyshtools-4.10-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:9d985b09f625861473656c4c365f5b363e9252401a4d742c0b716736b323bb91", size = 3549263, upload-time = "2022-04-27T13:54:17.935Z" },
-    { url = "https://files.pythonhosted.org/packages/d2/c7/75b0b4683a75ebc6860334ca9a577169042b1a2f54db4e3a84127dcd1705/pyshtools-4.10-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:ae50c4f09d5c8e5e109d39de08e0c3da2c279c1ed59bdd83229c4f430f1ef7b2", size = 12483348, upload-time = "2022-04-27T13:44:57.741Z" },
-    { url = "https://files.pythonhosted.org/packages/b1/cf/5ba2d63628913322526e275465dae0ac51eb71af693b0367f013b3277c25/pyshtools-4.10-cp39-cp39-win_amd64.whl", hash = "sha256:af2a4167c9e63f893ef0790a5a102ce0275b68a9344aa2c33e147e4b17280a86", size = 6757213, upload-time = "2022-05-03T11:15:56.502Z" },
+    { url = "https://files.pythonhosted.org/packages/d7/78/ac9cc67d990ffff2fcbe985a38efa04a499a765f0bfa53465793023542c3/pyshtools-4.13.1-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:8f6235c5616c17a5b214af2575571dee7eb15f58ec5b382081ace47960a10e14", size = 3521146, upload-time = "2024-07-09T11:44:41.73Z" },
+    { url = "https://files.pythonhosted.org/packages/14/d4/f10f7cb2d8de9a647c18f0c2581388dded1e86511247b21603cf54f9f874/pyshtools-4.13.1-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:c4059d67721c7ba033ae591cad8f32fa26149892e833e292d512824bbedce445", size = 2071174, upload-time = "2024-07-09T11:44:43.63Z" },
+    { url = "https://files.pythonhosted.org/packages/fe/e1/dab58b7728fa6319bf39adc4fef6a752bd6504428f67e6e099f1a1c42af3/pyshtools-4.13.1-cp310-cp310-manylinux_2_28_aarch64.whl", hash = "sha256:2926cbef344092ced413575001f012eeb001ef88d5c7e0fd5d45e21449471416", size = 6358947, upload-time = "2024-07-09T11:44:44.971Z" },
+    { url = "https://files.pythonhosted.org/packages/cf/a4/ff0980b943812a85de8c7b04bc781d4726822beaa991d83e534ca4b4c323/pyshtools-4.13.1-cp310-cp310-manylinux_2_28_x86_64.whl", hash = "sha256:d7b566cfe7499f19e4d7db2eb336e1ad9a20faf609788e7b696bb3ad03312aa5", size = 13971617, upload-time = "2024-07-09T11:44:46.75Z" },
+    { url = "https://files.pythonhosted.org/packages/e8/a5/ab2d4608ea75fd5335c20387997f3ea9865229a2815db584663ad30f78e8/pyshtools-4.13.1-cp310-cp310-win_amd64.whl", hash = "sha256:31a3549c6d0b8299b5f7d7369c46d541c02e045f2db65b7b01949e0fdd0de60d", size = 19527881, upload-time = "2024-07-09T11:44:50.243Z" },
+    { url = "https://files.pythonhosted.org/packages/b1/3e/1ffc2621e9905cbb353ff01947b415a11ed3ae824612e574f48a65f049ad/pyshtools-4.13.1-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:9ea6b21d7d1e22361c7902b500a3a5da5f7ca24d8c866b3aa319a83f8ab09a96", size = 3521143, upload-time = "2024-07-09T11:44:53.137Z" },
+    { url = "https://files.pythonhosted.org/packages/db/86/253c3515ec388dd89405b3f352a39dd3f499a5b512cbfbc7cba92a4fa014/pyshtools-4.13.1-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:4a1c1917fc7e968f27e0551d784f64eab7e344549b0e9bc77700b3b5c8f617a9", size = 2071171, upload-time = "2024-07-09T11:44:55.874Z" },
+    { url = "https://files.pythonhosted.org/packages/a0/2a/fca8907a5fd7a806f64e438e8dd2ff5b0c51148d69c6ab723b9ae38a0e03/pyshtools-4.13.1-cp311-cp311-manylinux_2_28_aarch64.whl", hash = "sha256:c73d6cdeee11fc058ba840ab12037a3390fa6ae18bca507f9ade559489aa0c09", size = 6358996, upload-time = "2024-07-09T11:44:57.861Z" },
+    { url = "https://files.pythonhosted.org/packages/cc/23/174859cc4890b6910868a601e1e088fe15dad3b7dc4de68ef94aca1ca6f0/pyshtools-4.13.1-cp311-cp311-manylinux_2_28_x86_64.whl", hash = "sha256:0d8dfec4aa43486b0ea7f23654bf63f26309c4448dc8a06df43cd9affe18db11", size = 13971615, upload-time = "2024-07-09T11:44:59.515Z" },
+    { url = "https://files.pythonhosted.org/packages/ad/45/280c5d1e7b119465c6a9e0fadb42d260a4260d83b89a559a7aab7eb7bd8e/pyshtools-4.13.1-cp311-cp311-win_amd64.whl", hash = "sha256:afc93c79de48b9e8ce7eb71e518356c1c11221a0791b37c827ef5fbd48d93e55", size = 19527854, upload-time = "2024-07-09T11:45:02.5Z" },
+    { url = "https://files.pythonhosted.org/packages/c2/ff/2d0898750c6647afdf205f3f240bbdb5512b194720e5af62982378a71ab2/pyshtools-4.13.1-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:f010fc0d610063ab16d7c6048fac6b611dc5d3398c53b515ef6789ee27c9b5c5", size = 3521139, upload-time = "2024-07-09T11:45:26.352Z" },
+    { url = "https://files.pythonhosted.org/packages/b2/f6/8a491a37fda746dea8bfecd9e249bcc6d045ab88fb61e849f98e4f167796/pyshtools-4.13.1-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:487f8368308ebac20b1eb2c6bd03a927f27121a02bdeeafe371b998776f34f71", size = 2071167, upload-time = "2024-07-09T11:45:28.277Z" },
+    { url = "https://files.pythonhosted.org/packages/03/a4/ed14e3c21830ca11db9fd1cf3832e15b41f69ae5769d282f7fa44f5c10e0/pyshtools-4.13.1-cp39-cp39-manylinux_2_28_aarch64.whl", hash = "sha256:0ad505acc3e6e1a9839938e959d3c188fadcf915aad9c7680d9211246a55e32b", size = 6358536, upload-time = "2024-07-09T11:45:32.111Z" },
+    { url = "https://files.pythonhosted.org/packages/44/13/de1ba0fd91dd1e64f7586b739d17b1c41977acf26e62a2f85c95c06f68b0/pyshtools-4.13.1-cp39-cp39-manylinux_2_28_x86_64.whl", hash = "sha256:dc798e61614a7411a90bc63d1a44faf55cfc90c842284cd27167759ea72a4e31", size = 13971492, upload-time = "2024-07-09T11:45:34.505Z" },
+    { url = "https://files.pythonhosted.org/packages/0d/de/affc3749deb5a53922691d47ac524019888e8310dd50bbfd6e4126952297/pyshtools-4.13.1-cp39-cp39-win_amd64.whl", hash = "sha256:8994277075608fb8eeaa5d1e43b66dfc50c2f5b276b3325197cd7d2107fcf875", size = 19528584, upload-time = "2024-07-09T11:45:36.705Z" },
 ]
 
 [[package]]
