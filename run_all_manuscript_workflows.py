@@ -79,14 +79,15 @@ parser.add_argument(
     help="List available workflows.",
 )
 
-args = parser.parse_args()
-only = args.only
+if __name__ == '__main__':
+    args = parser.parse_args()
+    only = args.only
 
-workflows = ALL_WORKFLOWS
-if args.list:
-    for wf in workflows:
-        print(wf.__name__)
-else:
-    if len(only) >= 1:
-        workflows = [wf for wf in workflows if wf.__name__ in only]
-    execute(workflows, verbose=True)
+    workflows = ALL_WORKFLOWS
+    if args.list:
+        for wf in workflows:
+            print(wf.__name__)
+    else:
+        if len(only) >= 1:
+            workflows = [wf for wf in workflows if wf.__name__ in only]
+        execute(workflows, verbose=True)
