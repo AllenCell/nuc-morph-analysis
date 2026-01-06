@@ -37,7 +37,7 @@ jobs:
         uses: actions/download-artifact@v7
         with:
           name: requirements
-          path: requirements.txt
+          path: .
 
       - name: Clean-up CRLF
         shell: bash
