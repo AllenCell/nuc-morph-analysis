@@ -19,14 +19,14 @@ jobs:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
       - uses: ./.github/actions/dependencies
 
-      - name: Check that pdm.lock matches pyproject.toml
+      - name: Check that uv.lock matches pyproject.toml
         shell: bash
-        run: pdm lock --check
+        run: uv lock --check
 
       - name: Run mypy for type checking
         shell: bash
-        run: pdm run mypy
+        run: uv run mypy
 
       - name: Unit tests
         shell: bash
-        run: pdm run pytest
+        run: uv run pytest
